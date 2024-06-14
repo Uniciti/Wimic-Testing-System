@@ -21,8 +21,6 @@ export class SNMPClient {
     this.version = snmp.Version.snmp2c;
     this.baseHost = baseHost;
     this.subscriberHost = subscriberHost;
-    this.isConnected0 = false;
-    this.isConnected1 = false;
   }
 
   public async connect(): Promise<boolean> {
