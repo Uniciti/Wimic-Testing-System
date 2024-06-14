@@ -1,0 +1,126 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.tcpClient = exports.TcpClient = void 0;
+const net_1 = __importDefault(require("net"));
+// import { Device } from '../interfaces/device.interface';
+require("dotenv/config");
+const ATTENUATOR_HOST = process.env.ATTENUATOR_HOST || '169.254.0.160';
+const ATTENUATOR_PORT = parseInt(process.env.ATTENUATOR_PORT || '5025', 10);
+class TcpClient {
+    constructor(host, port) {
+        this.host = host;
+        this.port = port;
+        this.client = new net_1.default.Socket();
+        this.isConnected = false;
+        this.client.on('close', () => {
+            this.isConnected = false;
+            console.log('TCP connection closed.');
+        });
+    }
+    connect() {
+        return new Promise((resolve, reject) => {
+            console.log(`Attempting to connect to TCP server at ${this.host}:${this.port}...`);
+            const connectionTimeout = setTimeout(() => {
+                console.error('Connection timed out.');
+                this.isConnected = false;
+                this.client.destroy(); // Завершаем попытку подключения
+                resolve(false);
+            }, 5000);
+            this.client.connect(this.port, this.host, () => {
+                clearTimeout(connectionTimeout);
+                this.isConnected = true;
+                console.log('TCP connection established.');
+                resolve(true);
+            });
+            this.client.on('error', (error) => {
+                clearTimeout(connectionTimeout);
+                console.error('TCP error occurred:', error.message);
+                this.isConnected = false;
+                this.client.destroy();
+                reject(error);
+            });
+        });
+    }
+    disconnect() {
+        if (this.isConnected) {
+            this.client.destroy();
+            this.isConnected = false;
+            console.log('Disconnected from TCP server.');
+        }
+    }
+    sendCommand(attValue) {
+        const command = `:INP:ATT ${attValue}\n`;
+        return new Promise((resolve, reject) => {
+            if (!this.isConnected) {
+                return reject(new Error('Not connected to TCP server.'));
+            }
+            console.log(`Sending command: ${command}`);
+            this.client.write(command, (error) => {
+                if (error) {
+                    return reject(error);
+                }
+                // Wait for 1500 milliseconds before resolving
+                setTimeout(() => {
+                    resolve();
+                }, 1000);
+            });
+        });
+    }
+    receiveData() {
+        const command = ':INP:ATT?\n';
+        return new Promise((resolve, reject) => {
+            if (!this.isConnected) {
+                return reject(new Error('Not connected to TCP server.'));
+            }
+            console.log(`Sending command: ${command}`);
+            this.client.write(command, (error) => {
+                if (error) {
+                    return reject(error);
+                }
+                this.client.once('data', (data) => {
+                    console.log('Received attenuator value:', data.toString());
+                    resolve(data.toString());
+                });
+                this.client.once('error', (error) => {
+                    reject(error);
+                });
+            });
+        });
+    }
+    checkConnect() {
+        const command = '*IDN?\n';
+        return new Promise((resolve, reject) => {
+            if (!this.isConnected) {
+                console.log('Not connected to TCP server.');
+                return resolve(false);
+            }
+            this.client.write(command, (error) => {
+                if (error) {
+                    this.isConnected = false;
+                    return reject(error);
+                }
+                const timeout = setTimeout(() => {
+                    this.isConnected = false;
+                    console.log('Connection check timeout. Attenuator may be disconnected.');
+                    resolve(false);
+                }, 1000);
+                this.client.once('data', () => {
+                    clearTimeout(timeout);
+                    resolve(true);
+                });
+                this.client.once('error', (error) => {
+                    clearTimeout(timeout);
+                    this.isConnected = false;
+                    reject(error);
+                });
+            });
+        });
+    }
+}
+exports.TcpClient = TcpClient;
+// {"type":"connect", "deviceId":"attenuator"}
+// {"type":"is-connected", "deviceId":"attenuator"}
+exports.tcpClient = new TcpClient(ATTENUATOR_HOST, ATTENUATOR_PORT);

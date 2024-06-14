@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const att_controllers_1 = require("../controllers/att.controllers");
+const router = (0, express_1.Router)();
+router.post('/connect', att_controllers_1.connectToAttenuator);
+router.post('/send-command', att_controllers_1.sendCommandToAttenuator);
+router.get('/receive-value', att_controllers_1.receiveAttenuatorValue);
+router.post('/disconnect', att_controllers_1.disconnectFromAttenuator);
+exports.default = router;
