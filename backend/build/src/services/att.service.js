@@ -52,7 +52,7 @@ class TcpClient {
         }
     }
     sendCommand(attValue) {
-        const command = `:INP:ATT ${attValue}\n`;
+        const command = `:INP:ATT ${attValue.toString()}\n`;
         return new Promise((resolve, reject) => {
             if (!this.isConnected) {
                 return reject(new Error('Not connected to TCP server.'));
@@ -65,7 +65,7 @@ class TcpClient {
                 // Wait for 1500 milliseconds before resolving
                 setTimeout(() => {
                     resolve();
-                }, 1000);
+                }, 2000);
             });
         });
     }
