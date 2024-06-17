@@ -60,8 +60,8 @@ export class TcpClient {
     }
   }
 
-  public sendCommand(attValue: string): Promise<void> {
-    const command = `:INP:ATT ${attValue}\n`;
+  public sendCommand(attValue: number): Promise<void> {
+    const command = `:INP:ATT ${attValue.toString()}\n`;
 
     return new Promise((resolve, reject) => {
       if (!this.isConnected) {
@@ -77,7 +77,7 @@ export class TcpClient {
         // Wait for 1500 milliseconds before resolving
         setTimeout(() => {
           resolve();
-        }, 1000);
+        }, 2000);
       });
     });
   }

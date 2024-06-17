@@ -45,23 +45,23 @@ export function setupWebSocketServer(server: any) {
             }
             if (device instanceof TcpClient){
               await device.sendCommand(value);
-              ws.send(JSON.stringify({ type: 'send-command', message: `Command sent to ${deviceId}` }));
+              ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
               break;
             }
             if (device instanceof SSHClient){
               const data = await device.sendCommand(command);
-              ws.send(JSON.stringify({ type: 'send-command', message: `Bercut answer ${data}` }));
+              ws.send(JSON.stringify({ type: 'sended', message: `Bercut answer ${data}` }));
               break;
             }
             if (device instanceof SNMPClient){
               let args = command.split(" ");
               const deviseRes = await device.setToBase(args[0], parseInt(args[1], 10));
-              ws.send(JSON.stringify({ type: 'send-command', message: `Command sent to ${deviceId}` }));
+              ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
               break;
             }
             if (device instanceof COMClient){
               await device.sendCommand(value);
-              ws.send(JSON.stringify({ type: 'send-command', message: `Command sent to ${deviceId}` }));
+              ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
               break;
             }
             
@@ -74,12 +74,12 @@ export function setupWebSocketServer(server: any) {
             };
             if (device instanceof SNMPClient){
               const data = await device.getFromBase(command);
-              ws.send(JSON.stringify({ type: 'send-command', message: `Base answer ${data}` }));
+              ws.send(JSON.stringify({ type: 'receive-value', message: `Base answer ${data}` }));
               break;
             }
             if (device instanceof COMClient){
               const data = await device.receiveData();
-              ws.send(JSON.stringify({ type: 'send-command', message: `M3M answer ${data}` }));
+              ws.send(JSON.stringify({ type: 'receive-value', message: `M3M answer ${data}` }));
               break;
             }
           

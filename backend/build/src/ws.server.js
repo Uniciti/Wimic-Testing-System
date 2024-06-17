@@ -23,7 +23,7 @@ require("dotenv/config");
 const devices = {
     'attenuator': att_service_1.tcpClient,
     'bercut': bert_service_1.sshClient,
-    'stantion': stantion_service_1.snmpClient,
+    'stat': stantion_service_1.snmpClient,
     'm3m': m3m_service_1.comClient,
 };
 function setupWebSocketServer(server) {
@@ -51,23 +51,23 @@ function setupWebSocketServer(server) {
                         }
                         if (device instanceof att_service_1.TcpClient) {
                             yield device.sendCommand(value);
-                            ws.send(JSON.stringify({ type: 'send-command', message: `Command sent to ${deviceId}` }));
+                            ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
                             break;
                         }
                         if (device instanceof bert_service_1.SSHClient) {
                             const data = yield device.sendCommand(command);
-                            ws.send(JSON.stringify({ type: 'send-command', message: `Bercut answer ${data}` }));
+                            ws.send(JSON.stringify({ type: 'sended', message: `Bercut answer ${data}` }));
                             break;
                         }
                         if (device instanceof stantion_service_1.SNMPClient) {
                             let args = command.split(" ");
                             const deviseRes = yield device.setToBase(args[0], parseInt(args[1], 10));
-                            ws.send(JSON.stringify({ type: 'send-command', message: `Command sent to ${deviceId}` }));
+                            ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
                             break;
                         }
                         if (device instanceof m3m_service_1.COMClient) {
                             yield device.sendCommand(value);
-                            ws.send(JSON.stringify({ type: 'send-command', message: `Command sent to ${deviceId}` }));
+                            ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
                             break;
                         }
                     case 'receive-value':
@@ -79,12 +79,12 @@ function setupWebSocketServer(server) {
                         ;
                         if (device instanceof stantion_service_1.SNMPClient) {
                             const data = yield device.getFromBase(command);
-                            ws.send(JSON.stringify({ type: 'send-command', message: `Base answer ${data}` }));
+                            ws.send(JSON.stringify({ type: 'receive-value', message: `Base answer ${data}` }));
                             break;
                         }
                         if (device instanceof m3m_service_1.COMClient) {
                             const data = yield device.receiveData();
-                            ws.send(JSON.stringify({ type: 'send-command', message: `M3M answer ${data}` }));
+                            ws.send(JSON.stringify({ type: 'receive-value', message: `M3M answer ${data}` }));
                             break;
                         }
                     case 'disconnect':
@@ -108,7 +108,7 @@ function setupWebSocketServer(server) {
                             }
                         }
                         if (stat) {
-                            const device = devices['stantion'];
+                            const device = devices['stat'];
                             const result = yield device.checkConnect();
                             if (Array.isArray(result)) {
                                 const [pingStat0, pingStat1] = result;
