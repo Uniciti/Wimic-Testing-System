@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.snmpClient = exports.SNMPClient = void 0;
 const net_snmp_1 = __importDefault(require("net-snmp"));
 const ping_1 = __importDefault(require("ping"));
-require("dotenv/config");
 const BASE_HOST = process.env.BASE_HOST || '172.16.17.173';
 const SUBSCRIBER_HOST = process.env.SUBSCRIBER_HOST || '172.16.17.84';
 const SNMP_COMMUNITY = process.env.SNMP_COMMUNITY || 'public';

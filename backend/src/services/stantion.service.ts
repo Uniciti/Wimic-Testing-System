@@ -13,8 +13,6 @@ export class SNMPClient {
   private subscriberSession: snmp.Session | null = null;
   private community: string;
   private version: snmp.Version;
-  private isConnected0: boolean;
-  private isConnected1: boolean;
 
   constructor(baseHost: string, subscriberHost: string, community: string) {
     this.community = community;
