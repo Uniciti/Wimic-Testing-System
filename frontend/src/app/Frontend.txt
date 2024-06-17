@@ -1,0 +1,389 @@
+ConnectionStatus.component.ts:
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { SharedService } from '../Shared.service';
+
+@Component({
+  selector: 'app-ConnectionStatus',
+  standalone: true,
+  templateUrl: './ConnectionStatus.component.html',
+  styleUrls: ['./ConnectionStatus.component.css']
+})
+
+export class ConnectionStatusComponent implements OnInit {
+  bercutStatus: string = 'Отключено';
+  attStatus: string = 'Отключено';
+  M3MStatus: string = 'Отключено';
+
+  constructor(private sharedService: SharedService) { }
+
+  ngOnInit() {
+    this.sharedService.bercutStatus$.subscribe(status => {
+      this.bercutStatus = status;
+    });
+
+    this.sharedService.attStatus$.subscribe(status => {
+      this.attStatus = status;
+    });
+
+    // this.sharedService.M3MStatus$.subscribe(status => {
+    //   this.M3MStatus = status;
+    // });
+  }
+}
+
+ExpressTest.component.ts:
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-ExpressTest',
+  standalone: true,
+  imports: [FormsModule],
+  templateUrl: './ExpressTest.component.html',
+  styleUrls: ['./ExpressTest.component.css']
+})
+
+export class ExpressTest implements OnInit {
+  pa1: string = '';
+  pa2: string = '';
+  splitterM3M: string = '';
+  splitterST: string = '';
+  cable1: string = '';
+  cable2: string = '';
+  cable3: string = '';
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit(): void {}
+
+  Express_test() {
+    const button = document.getElementById('expressTestButton') as HTMLButtonElement;
+    if (button) {
+      button.disabled = true;
+      button.style.opacity = '0.5';
+    }
+
+    const InputedParams = [
+      {
+        device: "Attenuators",
+        pa1: this.pa1,
+        pa2: this.pa2
+      },
+      {
+        device: "Splitter",
+        v1: this.splitterST,
+        v2: this.splitterM3M
+      },
+      {
+        device: "Cable",
+        c1: this.cable1,
+        c2: this.cable2,
+        c3: this.cable3
+      },
+    ];
+
+    // Send the POST request
+    this.http.post('/Test/EXPRESS_TEST', InputedParams, { responseType: 'json' }).subscribe(
+      response => {
+        console.log(response);
+        if (button) {
+          button.disabled = false;
+          button.style.opacity = '1';
+        }
+      },
+      error => {
+        console.error('Ошибка запроса:', error);
+        if (button) {
+          button.disabled = false;
+          button.style.opacity = '1';
+        }
+      }
+    );
+  }
+}
+
+app.config.ts:
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter, Routes } from '@angular/router';
+import { provideClientHydration } from '@angular/platform-browser';
+import { deviceStatusComponent } from './deviceStatus/deviceStatus.component';
+import { ExpressTest } from './ExpressTest/ExpressTest.component';
+
+const routes: Routes = [
+  { path: '', redirectTo: '/deviceStatus', pathMatch: 'full' },
+  { path: 'deviceStatus', component: deviceStatusComponent },
+  { path: 'expressTest', component: ExpressTest }
+];
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideRouter(routes), provideClientHydration()]
+};
+
+main.ts:
+import { bootstrapApplication } from '@angular/platform-browser';
+import { AppComponent } from './app/app.component';
+import {appConfig} from "./app/app.config";
+bootstrapApplication(AppComponent, appConfig).catch(e => console.error(e));
+
+app.component.ts:
+import { Component } from '@angular/core';
+//import { AppRoutingModule } from './app-routing.module';
+import { RouterOutlet} from "@angular/router";
+import { HeaderComponent } from './header/header.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
+//import { ContentComponent } from './content/content.component';
+import { deviceStatusComponent } from './deviceStatus/deviceStatus.component';
+import { ExpressTest } from './ExpressTest/ExpressTest.component';
+import { ConnectionStatusComponent } from './ConnectionStatus/ConnectionStatus.component';
+import { SocketIoModule } from 'ngx-socket-io';
+import { socketConfig } from './socket.config';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [HeaderComponent, SidebarComponent, deviceStatusComponent, ExpressTest, ConnectionStatusComponent, RouterOutlet],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css', './content/content.component.css']
+})
+export class AppComponent {
+  title = 'angular_system_for_testing';
+}
+
+sidebar.component.ts:
+import { Component } from '@angular/core';
+import { RouterModule } from '@angular/router';
+
+@Component({
+  selector: 'app-sidebar',
+  standalone: true,
+  imports: [RouterModule],
+  templateUrl: './sidebar.component.html',
+  styleUrls: ['./sidebar.component.css']
+})
+export class SidebarComponent { }
+
+Shared.service.ts:
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { Socket } from 'ngx-socket-io';
+import { socketConfig } from './socket.config';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SharedService {
+  private bercutStatusSource = new BehaviorSubject<string>('Отключено');
+  bercutStatus$ = this.bercutStatusSource.asObservable();
+
+  private attStatusSource = new BehaviorSubject<string>('Отключено');
+  attStatus$ = this.attStatusSource.asObservable();
+
+  // private M3MStatusSource = new BehaviorSubject<string>('Отключено');
+  // M3MStatus$ = this.M3MStatusSource.asObservable();
+
+  constructor(private socket: Socket) {
+    this.socket.fromEvent<string>('BercutConnectionStatus').subscribe(status => {
+      this.updateBercutStatus(status);
+    });
+
+    this.socket.fromEvent<string>('AttConnectionStatus').subscribe(status => {
+      this.updateAttStatus(status);
+    });
+
+    // this.socket.fromEvent<string>('M3MConnectionStatus').subscribe(status => {
+    //   this.updateM3MStatus(status);
+    // });
+  }
+
+  updateBercutStatus(status: string) {
+    this.bercutStatusSource.next(status);
+  }
+
+  updateAttStatus(status: string) {
+    this.attStatusSource.next(status);
+  }
+
+
+  // updateM3MStatus(status: string) {
+  //   this.M3MStatusSource.next(status);
+  // }
+}
+socket.config.ts:
+import { SocketIoConfig } from 'ngx-socket-io';
+
+export const socketConfig: SocketIoConfig = { url: 'ws://localhost:3000', options: {} };
+
+deviceStatus.component.ts:
+import { Component, OnInit} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { SharedService } from '../Shared.service';
+import { NgIf } from "@angular/common";
+
+@Component({
+  selector: 'app-deviceStatus',
+  standalone: true,
+  imports: [FormsModule, NgIf],
+  templateUrl: './deviceStatus.component.html',
+  styleUrls: ['./deviceStatus.component.css']
+})
+
+export class deviceStatusComponent implements OnInit {
+  bercutConnected: boolean = false;
+  attConnected: boolean = false;
+  //M3MConnected: boolean = false;
+  inputFrequency: string = '';
+  selectionBandwidth: string = '';
+  inputIP_BASE: string = '';
+  inputIP_ABONENT: string = '';
+  inputOffset: string = '';
+
+  constructor(private http: HttpClient, private sharedService: SharedService) {}
+
+  ngOnInit() {
+    this.sharedService.bercutStatus$.subscribe(status => {
+      this.bercutConnected = status === 'Подключено';
+    });
+    this.sharedService.attStatus$.subscribe(status => {
+      this.attConnected = status === 'Подключено';
+    });
+    // this.sharedService.M3MStatus$.subscribe(status => {
+    //   this.M3MConnected = status === 'Подключено';
+    // });  
+  };
+
+  connectBer() {
+    const url = `/Bercut/connect`;
+
+    this.http.get(url, { responseType: 'json' }).subscribe(
+      (response) => {
+        this.sharedService.updateBercutStatus('Подключено');
+        console.log("Беркут подключен");
+      },
+      (error) => {
+        console.error('Ошибка запроса: ', error.message);
+      }
+    );
+  }
+
+  disconnectBer() {
+    const url = `/Bercut/disconnect`;
+
+    this.http.get(url, { responseType: 'json' }).subscribe(
+      (response) => {
+        this.sharedService.updateBercutStatus('Отключено');
+        console.log("Беркут отключен");
+      },
+      (error) => {
+        console.error('Ошибка запроса: ', error.message);
+      }
+    );
+  }
+
+  connectAtt() {
+    const url = `/att/connect`;
+
+    this.http.get(url, { responseType: 'json' }).subscribe(
+      (response) => {
+        this.sharedService.updateAttStatus('Подключено');
+        console.log("Аттенюатор подключен");
+      },
+      (error) => {
+        console.error('Ошибка запроса: ', error.message);
+      }
+    );
+  }
+
+  disconnectAtt() {
+    const url = `/att/disconnect`;
+
+    this.http.get(url, { responseType: 'json' }).subscribe(
+      (response) => {
+        this.sharedService.updateAttStatus('Отключено');
+        console.log("Аттенюатор отключен");
+      },
+      (error) => {
+        console.error('Ошибка запроса: ', error.message);
+      }
+    );
+  }
+
+  sendOID() {
+    const url = `/snmp/process`;
+
+    const InputedParams = {
+      frequency: this.inputFrequency,
+      width: this.selectionBandwidth
+    };
+
+    this.http.post(url, InputedParams, { responseType: 'json' }).subscribe(
+      (response) => {
+        console.log("Параметры станций успешно установлены");
+      },
+      (error) => {
+        console.error('Ошибка запроса: ', error.message);
+      }
+    );
+  }
+
+  sendIP() {
+    const url = `/snmp/setIP`;
+
+    const InputedParamsIP = {
+      baseIP: this.inputIP_BASE,
+      abonentIP: this.inputIP_ABONENT
+    };
+
+    this.http.post(url, InputedParamsIP, { responseType: 'json' }).subscribe(
+      (response) => {
+        console.log("IP адреса станций успешно установлены");
+      },
+      (error) => {
+        console.error('Ошибка запроса: ', error.message);
+      }
+    );
+  }
+
+  swapMode() {
+    const temp = this.inputIP_BASE;
+    this.inputIP_BASE = this.inputIP_ABONENT;
+    this.inputIP_ABONENT = temp;
+    console.log('Роли сменены: BASE ->', this.inputIP_BASE, ', ABONENT ->', this.inputIP_ABONENT);
+  }
+
+  sendM3M() {
+    const url = `/M3M/setValue`;
+
+    const InputedParamsM3M = {
+      offset: this.inputOffset
+    };
+
+    this.http.post(url, InputedParamsM3M, { responseType: 'json' }).subscribe(
+      (response) => {
+        //this.sharedService.updateM3MStatus('Подключено');
+        console.log("Ослабление M3M успешно отправлено");
+      },
+      (error) => {
+        console.error('Ошибка запроса: ', error.message);
+      }
+    );
+  }
+}
+
+app.config.ts:
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter, Routes } from '@angular/router';
+import { provideClientHydration } from '@angular/platform-browser';
+import { deviceStatusComponent } from './deviceStatus/deviceStatus.component';
+import { ExpressTest } from './ExpressTest/ExpressTest.component';
+
+const routes: Routes = [
+  { path: '', redirectTo: '/deviceStatus', pathMatch: 'full' },
+  { path: 'deviceStatus', component: deviceStatusComponent },
+  { path: 'expressTest', component: ExpressTest }
+];
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideRouter(routes)]
+};

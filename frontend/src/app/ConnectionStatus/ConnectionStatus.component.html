@@ -1,0 +1,84 @@
+ <div class="max-w-4xl mx-auto">
+  <h2 class="text-2xl font-semibold mb-6">Информация об устройствах</h2>
+  <div class="mb-8">
+    <h3 class="text-xl font-semibold mb-4">Статус подключений устройств</h3>
+    <table class="min-w-full bg-white border border-gray-200">
+      <thead>
+        <tr class="bg-gray-100 border-b">
+          <th class="text-left py-2 px-4 font-medium">Устройство</th>
+          <th class="text-left py-2 px-4 font-medium">Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b">
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">Беркут-ЕТ</td>
+          <td class="py-2 px-4 text-sm font-medium text-gray-700 " [ngClass]=
+          "{'text-red-500': bercutStatus === 'Отключено', 'text-green-500': bercutStatus === 'Подключено'}">
+            {{ bercutStatus }}
+          </td>
+        </tr>
+        <tr class="border-b">
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">Аттенюатор</td>
+          <td class="py-2 px-4 text-sm font-medium text-gray-700" [ngClass]=
+          "{'text-red-500': attStatus === 'Отключено', 'text-green-500': attStatus === 'Подключено'}">
+            {{ attStatus }}
+          </td>
+        </tr>
+        <tr class="border-b">
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">Станции</td>
+          <td class="py-2 px-4 text-sm font-medium text-gray-700" [ngClass]=
+          "{'text-red-500': StationStatus === 'Параметры не отправлены', 'text-green-500': StationStatus === 'Параметры установлены'}">
+            {{ StationStatus }}
+          </td>
+        </tr>
+        <tr class="border-b">
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">M3M</td>
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">
+			       <!--{{ M3MStatus }} -->
+		      </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h3 class="text-xl font-semibold mb-4">Параметры</h3>
+    <table class="min-w-full bg-white border border-gray-200">
+      <thead>
+        <tr class="bg-gray-100 border-b">
+          <th class="text-left py-2 px-4 font-medium">Параметр</th>
+          <th class="text-left py-2 px-4 font-medium">Значение</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="border-b">
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">IP адрес базы:</td>
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">{{_IP_Base}}</td>
+        </tr>
+        <tr class="border-b">
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">IP адрес абонента:</td>
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">{{_IP_Abonent}}</td>
+        </tr>
+        <tr class="border-b">
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">Частота, КГц:</td>
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">{{_Frequency}}</td>
+        </tr>
+        <tr class="border-b">
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">Ширина полосы, МГц:</td>
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">{{_Bandwidth}}</td>
+        </tr>
+        <tr class="border-b">
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">Модуляция:</td>
+          <td class="py-2 px-4 text-sm font-medium text-gray-700"></td>
+        </tr>
+        <tr class="border-b">
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">Ослабление, дБ:</td>
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">{{_Attenuation}}</td>
+        </tr>
+        <tr class="border-b">
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">Компенсация ослабления, дБ:</td>
+          <td class="py-2 px-4 text-sm font-medium text-gray-700">{{_Offset}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

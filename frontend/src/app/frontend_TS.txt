@@ -1,0 +1,196 @@
+deviceStatus.component.ts:
+interface Message {
+  type: string;
+  ber: boolean;
+  att: boolean;
+  stat: boolean;
+  M3M: boolean;
+}
+
+@Component({
+  selector: 'app-deviceStatus',
+  standalone: true,
+  imports: [
+    FormsModule,
+    NgIf,
+    ConnectionStatusComponent,
+    ButtonModule,
+    SelectButtonModule,
+    InputNumberModule,
+    InputTextModule
+  ],
+  templateUrl: './deviceStatus.component.html',
+  styleUrls: ['./deviceStatus.component.css']
+})
+
+export class deviceStatusComponent implements OnInit, OnDestroy {
+  bercutConnected: boolean = false;
+  attConnected: boolean = false;
+  //M3MConnected: boolean = false;
+
+  stationOptions: any[] = [{ label: '10 МГц', value: '3' },{ label: '20 МГц', value: '5' }];
+
+  inputIP_BASE: string = '';
+  inputIP_ABONENT: string = '';
+  errorMessage: string | null = null;
+  inputFrequency: string = '';
+  selectionBandwidth: string = '';
+  inputAttenuation: string = '';
+  inputCommandBer: string = '';
+  inputOffset: string = '';
+
+  // clickConBer: boolean = false;
+  // clickDisBer: boolean = false;
+  // clickConAtt: boolean = false;
+  // clickDisAtt: boolean = false;
+
+  loadingAtt: boolean = false;
+  loadingBer: boolean = false;
+  loadingStatIp: boolean = false;
+  loadingStatParams: boolean = false;
+  loadingM3M: boolean = false;
+
+  private subscription: Subscription = new Subscription();
+  
+  constructor(
+    private http: HttpClient,
+    private sharedWebSocketService: SharedWebSocketService, 
+    private sharedService: SharedService,
+    private notificationService: NotificationService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit() {
+    this.startSendingMessages();
+  };
+
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
+  startSendingMessages() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
+    }
+    this.subscription = interval(5000).subscribe(() => {
+      const message: Message = {
+        "type": "is-connected",
+        "ber": this.bercutConnected,
+        "att": this.attConnected,
+        "stat": false,
+        "M3M": false  
+      };
+      this.sharedWebSocketService.sendMessage(message);
+    });
+
+    this.sharedWebSocketService.getMessages().subscribe(message_ => {
+      if (message_.type === "is-connected") {
+        if (message_.isConnected0 == false && this.bercutConnected == true) {
+          this.bercutConnected = false;
+        }
+        if (message_.isConnected1 == false && this.attConnected == true) {
+          this.attConnected = false;
+        }
+        //this.sharedService.updateStatus(message_);
+      }
+    })
+  };
+
+  load(property: 'loadingAtt' | 'loadingBer'): void {
+    this[property] = true;
+
+    setTimeout(() => {
+      this[property] = false;
+    }, 3000);
+  }
+
+  connectBer() {
+    this.loadingBer = true;
+    const message = { "type": "connect", "deviceId": "bercut" };
+    this.sharedWebSocketService.sendMessage(message);
+
+    const timeout = timer(5000).subscribe(() => {
+      this.loadingBer = false;
+      timeout.unsubscribe();
+    });
+
+    let subscription = this.sharedWebSocketService.getMessages().subscribe(message => {
+      if (message.type === "connect" && message.deviceId === "bercut" && message.conStatus == true) {
+        this.loadingBer = false;
+        this.bercutConnected = true;
+        //this.sharedService.startSendingMessagesBer(); // Начинаем опрос устройства
+        //this.sharedService.setBer(true);
+        subscription.unsubscribe();
+        timeout.unsubscribe();
+      } else {
+        this.loadingBer = false;
+        this.bercutConnected = false;
+      }
+    }, error => {
+      this.loadingBer = false;
+      this.notificationService.showNotification('Ошибка подключения к Беркут-ЕТ');
+      subscription.unsubscribe();
+      timeout.unsubscribe();
+    });
+    this.subscription.add(subscription);
+  }
+
+  disconnectBer() {
+    this.loadingBer = true;
+    const message = { "type": "disconnect", "deviceId": "bercut" };
+    this.sharedWebSocketService.sendMessage(message);
+
+    const timeout = timer(5000).subscribe(() => {
+      this.loadingBer = false;
+      timeout.unsubscribe();
+    });
+
+    let subscription = this.sharedWebSocketService.getMessages().subscribe(message => {
+      if (message.type === "disconnect" && message.deviceId === "bercut" && message.conStatus == true) {
+        this.loadingBer = false;
+        this.bercutConnected = false;
+        //this.sharedService.stopSendingMessagesAtt(); // Останавливаем опрос устройства
+        //this.sharedService.setBer(false);
+        subscription.unsubscribe();
+        timeout.unsubscribe();
+      } else {
+        this.loadingBer = false;
+        this.bercutConnected = true;
+      }
+    }, error => {
+      this.loadingBer = false;
+      this.notificationService.showNotification('Ошибка отключения от Беркут-ЕТ');
+      subscription.unsubscribe();
+      timeout.unsubscribe();
+    });
+    this.subscription.add(subscription); // Добавляем подписку в общий объект подписок
+  }
+
+deviceComponent.html:
+<div class="overflow-y-auto h-90">
+  <div class="Bercut-content mt-2 max-w-lg mx-0 p-4 border rounded-lg shadow-md mb-6">
+    <h2 class="text-xl font-semibold mb-4">Беркут-ЕТ</h2>
+    <div class="buttons-wrap flex space-x-2">
+      <p-button 
+        label="Подключиться" 
+        icon="pi pi-times" 
+        [loading]="loadingBer" 
+        *ngIf="!bercutConnected"
+        (click)="connectBer()" />
+<p-button 
+        label="Отключиться" 
+        icon="pi pi-times" 
+        [loading]="loadingBer" 
+        (click)="disconnectBer()" 
+        *ngIf="bercutConnected"
+        severity="danger" />
+</div>
+     <div class="form-group">
+      <label for="inputCommandBer" class="block text-sm font-medium text-gray-700">Команда для устройства:</label>
+      <input type="text" [(ngModel)]="inputCommandBer" id="inputCommandBer" placeholder="Введите комманду" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+    </div>
+    <div class="mt-4">
+      <button (click)="sendCommandBer()" type="button" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить команду</button>
+    </div> 
+  </div>
+</div>
