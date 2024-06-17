@@ -26,7 +26,6 @@
     "autoprefixer": "^10.4.19",
     "express": "^4.18.2",
     "jquery": "^3.7.1",
-    "package.json": "^2.0.1",
     "postcss": "^8.4.38",
     "primeng": "^17.18.0",
     "rxjs": "~7.8.0",

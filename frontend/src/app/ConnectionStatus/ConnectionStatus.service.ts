@@ -47,6 +47,9 @@ export class SharedService {
   private StationStatus = new BehaviorSubject<boolean>(false);
   currentStationStatus = this.StationStatus.asObservable();
 
+  private M3MStatus = new BehaviorSubject<boolean>(false);
+  currentM3MStatus = this.M3MStatus.asObservable();
+
   changeOidParamsStatus(_Frequency: string, _Bandwidth: string) {
     this.frequencyStatusSource.next(_Frequency);
 	  this.BandwidthStatusSource.next(_Bandwidth);
@@ -73,8 +76,11 @@ export class SharedService {
       case "att":
         this.AttenuatorStatus.next(value);
         break;
-      case "station":
+      case "stat":
         this.StationStatus.next(value);
+        break;
+      case "m3m":
+        this.M3MStatus.next(value);
         break;
       default:
         console.log("Такого устройства не существует.");

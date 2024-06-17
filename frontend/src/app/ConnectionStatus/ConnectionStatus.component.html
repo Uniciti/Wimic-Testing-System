@@ -27,14 +27,15 @@
         <tr class="border-b">
           <td class="py-2 px-4 text-sm font-medium text-gray-700">Станции</td>
           <td class="py-2 px-4 text-sm font-medium text-gray-700" [ngClass]=
-          "{'text-red-500': StationStatus === 'Параметры не отправлены', 'text-green-500': StationStatus === 'Параметры установлены'}">
+          "{'text-red-500': StationStatus === 'Отключено', 'text-green-500': StationStatus === 'Подключено'}">
             {{ StationStatus }}
           </td>
         </tr>
         <tr class="border-b">
           <td class="py-2 px-4 text-sm font-medium text-gray-700">M3M</td>
-          <td class="py-2 px-4 text-sm font-medium text-gray-700">
-			       <!--{{ M3MStatus }} -->
+          <td class="py-2 px-4 text-sm font-medium text-gray-700" [ngClass]=
+          "{'text-red-500': StationStatus === 'Отключено', 'text-green-500': StationStatus === 'Подключено'}">
+			      {{ M3MStatus }}
 		      </td>
         </tr>
       </tbody>
