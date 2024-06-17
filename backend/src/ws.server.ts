@@ -10,7 +10,7 @@ import 'dotenv/config';
 const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} = {
   'attenuator': tcpClient,
   'bercut': sshClient,
-  'stantion': snmpClient,
+  'stat': snmpClient,
   'm3m': comClient,
   
 };
@@ -108,7 +108,7 @@ export function setupWebSocketServer(server: any) {
               }
             }
             if (stat){
-              const device = devices['stantion'];
+              const device = devices['stat'];
               const result = await device.checkConnect();
               if (Array.isArray(result)) {
                   const [pingStat0, pingStat1] = result;
