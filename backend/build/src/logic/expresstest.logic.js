@@ -42,35 +42,43 @@ class ExpressTest {
         this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt;
     }
     calculateAtt(mod, m3mPow) {
-        const mainAtt = mod + m3mPow - this.baseAtt;
+        const mainAtt = mod + m3mPow - this.baseAtt + 3;
         return mainAtt;
     }
     test() {
         return __awaiter(this, void 0, void 0, function* () {
             m3m_service_1.comClient.sendCommand(this.offset);
+            const dataArray = [];
             for (let i = 6; i >= 0; i--) {
                 const m3mPow = yield (0, main_logic_1.getPower)(consts_logic_1.speed[i]);
-                const attValue = this.calculateAtt(consts_logic_1.speed[i], m3mPow);
+                const attValue = Math.round(this.calculateAtt(consts_logic_1.sens[i], m3mPow));
                 yield att_service_1.tcpClient.sendCommand(attValue);
                 let x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
                 yield att_service_1.tcpClient.sendCommand(attValue - 2);
                 yield att_service_1.tcpClient.sendCommand(attValue - 1);
                 yield att_service_1.tcpClient.sendCommand(attValue);
                 x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
-                if (x == attValue.toString()) {
+                if (x == i.toString()) {
                     yield bert_service_1.sshClient.sendCommand('bert start');
-                    let bits;
-                    let ebits;
+                    yield (0, main_logic_1.delay)(4000);
+                    let bits = 0;
+                    let ebits = 0;
                     for (let j = 0; j < 5; j++) {
-                        const data = yield bert_service_1.sshClient.sendCommand('bert start');
+                        const data = yield bert_service_1.sshClient.sendCommand('show bert trial');
+                        yield (0, main_logic_1.delay)(1000);
                         const [parsedBits, parsedEbits] = yield (0, main_logic_1.parseBits)(data);
                         bits = parsedBits;
                         ebits = parsedEbits;
                         console.log('bits_Ebits: ', bits, ebits);
                     }
                     yield bert_service_1.sshClient.sendCommand('bert stop');
+                    yield (0, main_logic_1.delay)(1000);
+                    const errorRate = (ebits / (ebits + bits)) * 100;
+                    dataArray.push({ modulation: consts_logic_1.modName[i], bits, ebits, errorRate });
                 }
             }
+            console.log(dataArray);
+            (0, main_logic_1.writeDataToExcel)(dataArray);
         });
     }
 }

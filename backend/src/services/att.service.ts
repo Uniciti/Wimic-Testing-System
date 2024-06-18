@@ -42,7 +42,7 @@ export class TcpClient {
         resolve(true);
       });
 
-      this.client.on('error', (error) => {
+      this.client.once('error', (error) => {
         clearTimeout(connectionTimeout);
         console.error('TCP error occurred:', error.message);
         this.isConnected = false;

@@ -4,8 +4,8 @@ import { tcpClient, TcpClient } from './services/att.service';
 import { sshClient, SSHClient } from './services/bert.service';
 import { snmpClient, SNMPClient } from './services/stantion.service';
 import { comClient, COMClient } from './services/m3m.service';
+import { ExpressTest } from './logic/expresstest.logic';
 import 'dotenv/config';
-
 
 const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} = {
   'attenuator': tcpClient,
@@ -83,6 +83,13 @@ export function setupWebSocketServer(server: any) {
               break;
             }
           
+
+          case 'express-test':
+            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.4, 1.6, 1.8);
+            testtest.test();
+            break;
+
+
           case 'disconnect':
             device.disconnect();
             ws.send(JSON.stringify({ type: 'disconnect', deviceId }));

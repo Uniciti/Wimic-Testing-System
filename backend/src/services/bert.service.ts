@@ -7,7 +7,6 @@ const BERT_PROXY = process.env.BERT_PROXY || 'admin@172.16.17.32';
 const BERT_PASSWORD = process.env.BERT_PASSWORD || 'PleaseChangeTheAdminPassword';
 
 
-
 export class SSHClient {
 	private sshProcess: ChildProcess | null = null;
 	private output: string;
@@ -50,7 +49,7 @@ export class SSHClient {
 			        resolve(true);
 			    });
 
-			    this.sshProcess?.stderr?.on('data', (error: string) => {
+			    this.sshProcess?.stderr?.once('data', (error: string) => {
 			    	clearTimeout(connectionTimeout);
 			        console.error(`Error:\n${error}`);
 			        this.isConnected = false;
@@ -80,7 +79,7 @@ export class SSHClient {
 			        resolve(true);
 			    });
 
-			    this.sshProcess?.stderr?.on('data', (error: string) => {
+			    this.sshProcess?.stderr?.once('data', (error: string) => {
 			    	clearTimeout(timeout);
 			        console.error(`Error:\n${error}`);
 			        this.isConnected = false;
@@ -146,7 +145,7 @@ export class SSHClient {
 		        resolve(true);
 		    });
 
-		    this.sshProcess?.stderr?.on('data', (error: string) => {
+		    this.sshProcess?.stderr?.once('data', (error: string) => {
 		    	clearTimeout(timeout);
 		        console.error(`Error:\n${error}`);
 		        this.isConnected = false;
