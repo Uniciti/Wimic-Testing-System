@@ -20,9 +20,9 @@ export async function getPower(mod: number): Promise<number> {
         await delay(200);
         await sshClient.sendCommand('txgen start');
         await delay(2000);
-
+        // console.log("ToooClooose");
         m3mPow = await comClient.receiveData();
-
+        // console.log("YouuuuWIIIINN!");
         await delay(200);
         await sshClient.sendCommand('txgen stop');
         await delay(1000);

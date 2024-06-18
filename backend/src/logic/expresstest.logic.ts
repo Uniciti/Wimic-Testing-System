@@ -40,7 +40,7 @@ export class ExpressTest {
 		this.attToPa2 = attToPa2;
 		// this.duration = duration;
 		this.offset = Math.round(pa1 + splitterM3M + pa1ToSplit) + 3;
-		this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt + 3;
+		this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt;
 	}
 
 	private calculateAtt(mod: number, m3mPow: number): number {

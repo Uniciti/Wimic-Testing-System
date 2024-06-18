@@ -50,7 +50,9 @@ function getPower(mod) {
             yield (0, exports.delay)(200);
             yield bert_service_1.sshClient.sendCommand('txgen start');
             yield (0, exports.delay)(2000);
+            // console.log("ToooClooose");
             m3mPow = yield m3m_service_1.comClient.receiveData();
+            // console.log("YouuuuWIIIINN!");
             yield (0, exports.delay)(200);
             yield bert_service_1.sshClient.sendCommand('txgen stop');
             yield (0, exports.delay)(1000);
