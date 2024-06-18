@@ -13,8 +13,8 @@ import { Subscription } from 'rxjs';
 })
 
 export class ConnectionStatusComponent implements OnInit, OnDestroy {
-  bercutStatus: string = 'Отключено';
-  attStatus: string = 'Отключено';
+  bercutStatus: string = '';
+  attStatus: string = '';
   StationStatus: string = '';
   M3MStatus: string = '';
 
@@ -80,7 +80,11 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
     }));
 
     this.subscription.add(this.sharedService.currentStationStatus.subscribe(_StationStatus => {
-      this.StationStatus = _StationStatus ? "Параметры установлены" : "Параметры не отправлены"
+      this.StationStatus = _StationStatus ? "Подключено" : "Отключено"
+    }));
+
+    this.subscription.add(this.sharedService.currentM3MStatus.subscribe(_M3MStatus => {
+      this.M3MStatus = _M3MStatus ? "Подключено" : "Отключено"
     }));
   }
 

@@ -1,7 +1,7 @@
 <div class="overflow-y-auto h-90">
   <div class="Bercut-content mt-2 max-w-lg mx-0 p-4 border rounded-lg shadow-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Беркут-ЕТ</h2>
-    <div class="buttons-wrap flex space-x-2">
+    <div class="buttons-wrap flex space-x-2 mb-4">
       <p-button 
         label="Подключиться" 
         icon="pi pi-times" 
@@ -57,6 +57,21 @@
 
   <div class="Bercut-content max-w-lg mx-0 p-4 border rounded-lg shadow-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Параметры станций</h2>
+    <div class="buttons-wrap flex space-x-2 mb-4">
+      <p-button 
+        label="Подключиться" 
+        icon="pi pi-times" 
+        [loading]="loadingStat" 
+        *ngIf="!statConnected"
+        (click)="connectStat()" />
+      <p-button 
+        label="Отключиться" 
+        icon="pi pi-times" 
+        [loading]="loadingStat" 
+        (click)="disconnectStat()" 
+        *ngIf="statConnected"
+        severity="danger" />
+    </div>
     <form (ngSubmit)="sendOID()">
       <div class="space-y-4">
         <div class="card flex flex-wrap gap-3 p-fluid">
@@ -93,6 +108,7 @@
             label="Отправить"
             type="submit" 
             icon="pi pi-times" 
+            [disabled]="!statConnected"
             [loading]="loadingStatParams" 
             severity="success" />
           <!-- <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить</button> -->
@@ -125,6 +141,7 @@
           label="Отправить"
           type="submit" 
           icon="pi pi-times" 
+          [disabled]="!statConnected"
           [loading]="loadingStatIp" 
           severity="success" />
         <!-- <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить</button> -->
@@ -138,7 +155,22 @@
   </div>
 
   <div id="M3M" class="Bercut-content max-w-lg mx-0 p-4 border rounded-lg shadow-md mb-6">
-    <h2 class="text-xl font-semibold mb-4">Измеритель мощности</h2>
+    <h2 class="text-xl font-semibold mb-4">Измеритель мощности M3M</h2>
+    <div class="buttons-wrap flex space-x-2 mb-4">
+      <p-button 
+        label="Подключиться" 
+        icon="pi pi-times" 
+        [loading]="loadingM3M" 
+        *ngIf="!M3MConnected"
+        (click)="connectM3M()" />
+      <p-button 
+        label="Отключиться" 
+        icon="pi pi-times" 
+        [loading]="loadingM3M" 
+        (click)="disconnectM3M()" 
+        *ngIf="M3MConnected"
+        severity="danger" />
+    </div>
     <form (ngSubmit)="sendM3M()">
       <div class="card flex flex-wrap gap-3 p-fluid">
         <div class="flex-auto">
@@ -157,8 +189,9 @@
         <p-button 
         label="Отправить"
         type="submit" 
-        icon="pi pi-times" 
-        [loading]="loadingM3M" 
+        icon="pi pi-times"
+        [disabled]="!M3MConnected" 
+        [loading]="loadingM3Msend" 
         severity="success" />
         <!-- <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить</button> -->
       </div>
