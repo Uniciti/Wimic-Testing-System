@@ -48,6 +48,7 @@ class ExpressTest {
     test() {
         return __awaiter(this, void 0, void 0, function* () {
             m3m_service_1.comClient.sendCommand(this.offset);
+            const dataArray = [];
             for (let i = 6; i >= 0; i--) {
                 const m3mPow = yield (0, main_logic_1.getPower)(consts_logic_1.speed[i]);
                 const attValue = this.calculateAtt(consts_logic_1.speed[i], m3mPow);
@@ -59,8 +60,8 @@ class ExpressTest {
                 x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
                 if (x == attValue.toString()) {
                     yield bert_service_1.sshClient.sendCommand('bert start');
-                    let bits;
-                    let ebits;
+                    let bits = 0;
+                    let ebits = 0;
                     for (let j = 0; j < 5; j++) {
                         const data = yield bert_service_1.sshClient.sendCommand('bert start');
                         const [parsedBits, parsedEbits] = yield (0, main_logic_1.parseBits)(data);
@@ -69,8 +70,11 @@ class ExpressTest {
                         console.log('bits_Ebits: ', bits, ebits);
                     }
                     yield bert_service_1.sshClient.sendCommand('bert stop');
+                    const errorRate = (ebits / (ebits + bits)) * 100;
+                    dataArray.push({ modulation: consts_logic_1.modName[i], bits, ebits, errorRate });
                 }
             }
+            (0, main_logic_1.writeDataToExcel)(dataArray);
         });
     }
 }

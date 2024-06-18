@@ -1,5 +1,5 @@
 import { speed, sens, modName } from './consts.logic';
-import { getPower, parseBits } from './main.logic';
+import { getPower, parseBits, writeDataToExcel } from './main.logic';
 import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { comClient, COMClient } from '../services/m3m.service';
@@ -53,7 +53,7 @@ export class ExpressTest {
 
 	public async test(): Promise<void> {
 		comClient.sendCommand(this.offset);
-
+		const dataArray: any[] = [];
 		for(let i = 6; i >= 0; i --) {
 			const m3mPow = await getPower(speed[i]);
 			const attValue = this.calculateAtt(speed[i], m3mPow);
@@ -65,8 +65,8 @@ export class ExpressTest {
 			x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
 			if (x == attValue.toString()) {
 				await sshClient.sendCommand('bert start');
-				let bits: number;
-				let ebits: number;
+				let bits: number = 0;
+				let ebits: number = 0;
 				for (let j = 0; j < 5; j++) {
 					const data = await sshClient.sendCommand('bert start');
 					const [parsedBits, parsedEbits] = await parseBits(data);
@@ -75,15 +75,14 @@ export class ExpressTest {
 					console.log('bits_Ebits: ', bits, ebits);
 				}
 				await sshClient.sendCommand('bert stop');
+				const errorRate = (ebits / (ebits + bits)) * 100;
+				dataArray.push({modulation: modName[i], bits, ebits, errorRate});
+
 			}
-
-
 		}
+		writeDataToExcel(dataArray);
+
 	}
 
 	
 }
-
-
-
-

@@ -3,6 +3,8 @@ import { sshClient, SSHClient } from '../services/bert.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
 import { comClient, COMClient } from '../services/m3m.service';
 import { speed, sens, modName } from './consts.logic';
+import * as XLSX from 'xlsx';
+import path from 'path';
 
 
 export async function getPower(mod: number): Promise<number> {
@@ -52,4 +54,14 @@ export function parseBits(inputString: string): Promise<[number, number]>{
 	})
 }
 
+
+export function writeDataToExcel(newData: any[]): void {
+	const filePath = path.join(__dirname, 'test');
+	const worksheet = XLSX.utils.json_to_sheet(newData);
+	const workbook = XLSX.utils.book_new();
+  	XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  	XLSX.writeFile(workbook, filePath);
+
+
+}
 
