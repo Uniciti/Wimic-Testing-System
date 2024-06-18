@@ -5,13 +5,11 @@ import { comClient, COMClient } from '../services/m3m.service';
 import { speed, sens, modName } from './consts.logic';
 import * as XLSX from 'xlsx';
 import path from 'path';
-console.log(tcpClient.toString());
 
+export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function getPower(mod: number): Promise<number> {
     let m3mPow: number = 0;
-
-    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
     try {
         await sshClient.sendCommand('configure');
@@ -56,11 +54,11 @@ export function parseBits(inputString: string): Promise<[number, number]>{
 
 
 export function writeDataToExcel(newData: any[]): void {
-	const filePath = path.join(__dirname, 'test');
+	// const filePath = path.join(__dirname, 'test.xlsx');
 	const worksheet = XLSX.utils.json_to_sheet(newData);
 	const workbook = XLSX.utils.book_new();
   	XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-  	XLSX.writeFile(workbook, filePath);
+  	XLSX.writeFile(workbook, 'test.xlsx');
 
 
 }

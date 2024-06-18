@@ -6,7 +6,6 @@ import { snmpClient, SNMPClient } from './services/stantion.service';
 import { comClient, COMClient } from './services/m3m.service';
 import { ExpressTest } from './logic/expresstest.logic';
 import 'dotenv/config';
-console.log(tcpClient.toString());
 
 const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} = {
   'attenuator': tcpClient,

@@ -39,7 +39,7 @@ class SSHClient {
                     this.firstTime = false;
                     resolve(true);
                 });
-                (_d = (_c = this.sshProcess) === null || _c === void 0 ? void 0 : _c.stderr) === null || _d === void 0 ? void 0 : _d.on('data', (error) => {
+                (_d = (_c = this.sshProcess) === null || _c === void 0 ? void 0 : _c.stderr) === null || _d === void 0 ? void 0 : _d.once('data', (error) => {
                     var _a;
                     clearTimeout(connectionTimeout);
                     console.error(`Error:\n${error}`);
@@ -68,7 +68,7 @@ class SSHClient {
                     this.isConnected = true;
                     resolve(true);
                 });
-                (_l = (_k = this.sshProcess) === null || _k === void 0 ? void 0 : _k.stderr) === null || _l === void 0 ? void 0 : _l.on('data', (error) => {
+                (_l = (_k = this.sshProcess) === null || _k === void 0 ? void 0 : _k.stderr) === null || _l === void 0 ? void 0 : _l.once('data', (error) => {
                     clearTimeout(timeout);
                     console.error(`Error:\n${error}`);
                     this.isConnected = false;
@@ -123,7 +123,7 @@ class SSHClient {
                 this.isConnected = true;
                 resolve(true);
             });
-            (_f = (_e = this.sshProcess) === null || _e === void 0 ? void 0 : _e.stderr) === null || _f === void 0 ? void 0 : _f.on('data', (error) => {
+            (_f = (_e = this.sshProcess) === null || _e === void 0 ? void 0 : _e.stderr) === null || _f === void 0 ? void 0 : _f.once('data', (error) => {
                 clearTimeout(timeout);
                 console.error(`Error:\n${error}`);
                 this.isConnected = false;

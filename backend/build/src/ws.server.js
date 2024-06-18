@@ -21,7 +21,6 @@ const stantion_service_1 = require("./services/stantion.service");
 const m3m_service_1 = require("./services/m3m.service");
 const expresstest_logic_1 = require("./logic/expresstest.logic");
 require("dotenv/config");
-console.log(att_service_1.tcpClient.toString());
 const devices = {
     'attenuator': att_service_1.tcpClient,
     'bercut': bert_service_1.sshClient,

@@ -31,34 +31,29 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeDataToExcel = exports.parseBits = exports.getPower = void 0;
-const att_service_1 = require("../services/att.service");
+exports.writeDataToExcel = exports.parseBits = exports.getPower = exports.delay = void 0;
 const bert_service_1 = require("../services/bert.service");
 const m3m_service_1 = require("../services/m3m.service");
 const XLSX = __importStar(require("xlsx"));
-const path_1 = __importDefault(require("path"));
-console.log(att_service_1.tcpClient.toString());
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+exports.delay = delay;
 function getPower(mod) {
     return __awaiter(this, void 0, void 0, function* () {
         let m3mPow = 0;
-        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
         try {
             yield bert_service_1.sshClient.sendCommand('configure');
-            yield delay(200);
+            yield (0, exports.delay)(200);
             yield bert_service_1.sshClient.sendCommand(`txgen rate ${mod} kbps`);
-            yield delay(200);
+            yield (0, exports.delay)(200);
             yield bert_service_1.sshClient.sendCommand('exit');
-            yield delay(200);
+            yield (0, exports.delay)(200);
             yield bert_service_1.sshClient.sendCommand('txgen start');
-            yield delay(2000);
+            yield (0, exports.delay)(2000);
             m3mPow = yield m3m_service_1.comClient.receiveData();
-            yield delay(200);
+            yield (0, exports.delay)(200);
             yield bert_service_1.sshClient.sendCommand('txgen stop');
-            yield delay(1000);
+            yield (0, exports.delay)(1000);
         }
         catch (error) {
             console.error('Error occurred:', error);
@@ -84,10 +79,10 @@ function parseBits(inputString) {
 }
 exports.parseBits = parseBits;
 function writeDataToExcel(newData) {
-    const filePath = path_1.default.join(__dirname, 'test');
+    // const filePath = path.join(__dirname, 'test.xlsx');
     const worksheet = XLSX.utils.json_to_sheet(newData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-    XLSX.writeFile(workbook, filePath);
+    XLSX.writeFile(workbook, 'test.xlsx');
 }
 exports.writeDataToExcel = writeDataToExcel;
