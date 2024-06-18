@@ -4,9 +4,8 @@ import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { comClient, COMClient } from '../services/m3m.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
-
 import 'dotenv/config';
-
+console.log(tcpClient.toString());
 
 export class ExpressTest {
 	// private m3mPow: number = 0;
@@ -43,7 +42,6 @@ export class ExpressTest {
 		// this.duration = duration;
 		this.offset = Math.round(pa1 + splitterM3M + pa1ToSplit) + 3;
 		this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt;
-
 	}
 
 	private calculateAtt(mod: number, m3mPow: number): number {
@@ -56,7 +54,7 @@ export class ExpressTest {
 		const dataArray: any[] = [];
 		for(let i = 6; i >= 0; i --) {
 			const m3mPow = await getPower(speed[i]);
-			const attValue = this.calculateAtt(speed[i], m3mPow);
+			const attValue = this.calculateAtt(sens[i], m3mPow);
 			await tcpClient.sendCommand(attValue);
 			let x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
 			await tcpClient.sendCommand(attValue-2);

@@ -5,35 +5,35 @@ import { comClient, COMClient } from '../services/m3m.service';
 import { speed, sens, modName } from './consts.logic';
 import * as XLSX from 'xlsx';
 import path from 'path';
+console.log(tcpClient.toString());
 
 
 export async function getPower(mod: number): Promise<number> {
-	let m3mPow: number = 0;
+    let m3mPow: number = 0;
 
-	try {
-        sshClient.sendCommand('configure');
-        sshClient.sendCommand('txgen rate 1600 kbps');
-        sshClient.sendCommand('exit');
-        sshClient.sendCommand('txgen start');
+    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-        await new Promise<void>((resolve, reject) => {
-            setTimeout(async () => {
-                try {
-                    m3mPow = await comClient.receiveData();
-                    resolve();
-                } catch (error) {
-                    reject(error);
-                }
-            }, 1000);
-        });
+    try {
+        await sshClient.sendCommand('configure');
+        await delay(200);
+        await sshClient.sendCommand(`txgen rate ${mod} kbps`);
+        await delay(200);
+        await sshClient.sendCommand('exit');
+        await delay(200);
+        await sshClient.sendCommand('txgen start');
+        await delay(2000);
 
-        sshClient.sendCommand('txgen stop');
+        m3mPow = await comClient.receiveData();
+
+        await delay(200);
+        await sshClient.sendCommand('txgen stop');
+        await delay(1000);
     } catch (error) {
         console.error('Error occurred:', error);
         throw error;
     }
 
-	return m3mPow;
+    return m3mPow;
 }
 
 

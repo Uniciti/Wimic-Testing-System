@@ -36,30 +36,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.writeDataToExcel = exports.parseBits = exports.getPower = void 0;
+const att_service_1 = require("../services/att.service");
 const bert_service_1 = require("../services/bert.service");
 const m3m_service_1 = require("../services/m3m.service");
 const XLSX = __importStar(require("xlsx"));
 const path_1 = __importDefault(require("path"));
+console.log(att_service_1.tcpClient.toString());
 function getPower(mod) {
     return __awaiter(this, void 0, void 0, function* () {
         let m3mPow = 0;
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
         try {
-            bert_service_1.sshClient.sendCommand('configure');
-            bert_service_1.sshClient.sendCommand('txgen rate 1600 kbps');
-            bert_service_1.sshClient.sendCommand('exit');
-            bert_service_1.sshClient.sendCommand('txgen start');
-            yield new Promise((resolve, reject) => {
-                setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-                    try {
-                        m3mPow = yield m3m_service_1.comClient.receiveData();
-                        resolve();
-                    }
-                    catch (error) {
-                        reject(error);
-                    }
-                }), 1000);
-            });
-            bert_service_1.sshClient.sendCommand('txgen stop');
+            yield bert_service_1.sshClient.sendCommand('configure');
+            yield delay(200);
+            yield bert_service_1.sshClient.sendCommand(`txgen rate ${mod} kbps`);
+            yield delay(200);
+            yield bert_service_1.sshClient.sendCommand('exit');
+            yield delay(200);
+            yield bert_service_1.sshClient.sendCommand('txgen start');
+            yield delay(2000);
+            m3mPow = yield m3m_service_1.comClient.receiveData();
+            yield delay(200);
+            yield bert_service_1.sshClient.sendCommand('txgen stop');
+            yield delay(1000);
         }
         catch (error) {
             console.error('Error occurred:', error);

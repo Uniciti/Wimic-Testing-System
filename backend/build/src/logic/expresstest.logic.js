@@ -17,6 +17,7 @@ const bert_service_1 = require("../services/bert.service");
 const m3m_service_1 = require("../services/m3m.service");
 const stantion_service_1 = require("../services/stantion.service");
 require("dotenv/config");
+console.log(att_service_1.tcpClient.toString());
 class ExpressTest {
     // private duration: number = 0;
     constructor(pa1, pa2, splitterAtt, splitterM3M, pa1ToSplit, splitToAtt, attToPa2) {
@@ -51,7 +52,7 @@ class ExpressTest {
             const dataArray = [];
             for (let i = 6; i >= 0; i--) {
                 const m3mPow = yield (0, main_logic_1.getPower)(consts_logic_1.speed[i]);
-                const attValue = this.calculateAtt(consts_logic_1.speed[i], m3mPow);
+                const attValue = this.calculateAtt(consts_logic_1.sens[i], m3mPow);
                 yield att_service_1.tcpClient.sendCommand(attValue);
                 let x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
                 yield att_service_1.tcpClient.sendCommand(attValue - 2);

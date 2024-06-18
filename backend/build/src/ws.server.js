@@ -19,7 +19,9 @@ const att_service_1 = require("./services/att.service");
 const bert_service_1 = require("./services/bert.service");
 const stantion_service_1 = require("./services/stantion.service");
 const m3m_service_1 = require("./services/m3m.service");
+const expresstest_logic_1 = require("./logic/expresstest.logic");
 require("dotenv/config");
+console.log(att_service_1.tcpClient.toString());
 const devices = {
     'attenuator': att_service_1.tcpClient,
     'bercut': bert_service_1.sshClient,
@@ -87,6 +89,10 @@ function setupWebSocketServer(server) {
                             ws.send(JSON.stringify({ type: 'receive-value', message: `M3M answer ${data}` }));
                             break;
                         }
+                    case 'express-test':
+                        const testtest = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.4, 1.6, 1.8);
+                        testtest.test();
+                        break;
                     case 'disconnect':
                         device.disconnect();
                         ws.send(JSON.stringify({ type: 'disconnect', deviceId }));
