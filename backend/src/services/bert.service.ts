@@ -22,7 +22,7 @@ export class SSHClient {
 		this.firstTime = true;
 	}
 
-	private setupListeners() {
+	private setupListeners(): void {
 	    if (!this.sshProcess) return;
 
 	    this.sshProcess.stdout?.on('data', (data: string) => {
@@ -116,7 +116,7 @@ export class SSHClient {
 
 	public sendCommand(command: string): Promise<string> {
 	    return new Promise((resolve, reject) => {
-	        if (!this.sshProcess) {
+	        if (!this.isConnected) {
 	            console.error('SSH connection is not established');
 	            return reject('SSH connection is not established');
 	        }
@@ -141,7 +141,7 @@ export class SSHClient {
 
 		        setTimeout(() => {
 		            if (!this.output) {
-		                reject('Command timeout.');
+		                reject('Bercut timeout');
 		            }
 		        }, 2000);
 		    } catch	(error: any) {
@@ -162,7 +162,7 @@ export class SSHClient {
 	public checkConnect(): Promise<boolean> {
 		return new Promise((resolve, reject) => {
 			if (!this.isConnected) {
-				console.log('Not connected to SSH server.');
+				console.log('Not connected to SSH server');
 				return resolve(false);
 			}
 
