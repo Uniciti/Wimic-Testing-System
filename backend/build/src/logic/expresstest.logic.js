@@ -42,7 +42,7 @@ class ExpressTest {
         this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt;
     }
     calculateAtt(mod, m3mPow) {
-        const mainAtt = mod + m3mPow - this.baseAtt + 3;
+        const mainAtt = mod + m3mPow - this.baseAtt;
         return mainAtt;
     }
     test() {
