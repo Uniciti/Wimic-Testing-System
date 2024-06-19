@@ -45,7 +45,7 @@ class SSHClient {
     }
     connect() {
         return new Promise((resolve, reject) => {
-            var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
+            var _a, _b, _c, _d, _e, _f;
             if (this.firstTime) {
                 const command = `sshpass -p ${this.pass} ssh -T -L 2222:localhost:22 ${this.proxy}`;
                 this.sshProcess = (0, child_process_1.spawn)(command, {
@@ -75,23 +75,46 @@ class SSHClient {
                 });
             }
             else {
+                this.output = '';
                 (_f = (_e = this.sshProcess) === null || _e === void 0 ? void 0 : _e.stdin) === null || _f === void 0 ? void 0 : _f.write('show time\n');
-                const timeout = setTimeout(() => {
-                    this.isConnected = false;
-                    console.log('Connection check timeout. Bercut may be disconnected.');
-                    resolve(false);
-                }, 1000);
-                (_h = (_g = this.sshProcess) === null || _g === void 0 ? void 0 : _g.stdout) === null || _h === void 0 ? void 0 : _h.once('data', () => {
-                    clearTimeout(timeout);
-                    this.isConnected = true;
-                    resolve(true);
-                });
-                (_k = (_j = this.sshProcess) === null || _j === void 0 ? void 0 : _j.stderr) === null || _k === void 0 ? void 0 : _k.once('data', (error) => {
-                    clearTimeout(timeout);
-                    console.error(`Error:\n${error}`);
-                    this.isConnected = false;
-                    reject(error);
-                });
+                try {
+                    const checkOutput = () => {
+                        if (this.output) {
+                            this.isConnected = true;
+                            resolve(true);
+                        }
+                        else {
+                            setTimeout(checkOutput, 100);
+                        }
+                    };
+                    checkOutput();
+                    setTimeout(() => {
+                        if (!this.output) {
+                            console.log('Connection check timeout. Bercut may be disconnected.');
+                            this.isConnected = false;
+                            resolve(false);
+                        }
+                    }, 2000);
+                }
+                catch (error) {
+                    reject(`SSH server error ${error.message}`);
+                }
+                // const timeout = setTimeout(() => {
+                // 	this.isConnected = false;
+                // 	console.log('Connection check timeout. Bercut may be disconnected.');
+                // 	resolve(false);
+                // }, 1000);
+                // this.sshProcess?.stdout?.once('data', () => {
+                // 	clearTimeout(timeout);
+                // 	this.isConnected = true;
+                // 	resolve(true);
+                // });
+                // this.sshProcess?.stderr?.once('data', (error: string) => {
+                // 	clearTimeout(timeout);
+                // 	console.error(`Error:\n${error}`);
+                // 	this.isConnected = false;
+                // 	reject(error);
+                // });
             }
         });
     }
@@ -105,22 +128,27 @@ class SSHClient {
             this.commandResolve = resolve;
             this.commandReject = reject;
             this.output = '';
-            (_b = (_a = this.sshProcess) === null || _a === void 0 ? void 0 : _a.stdin) === null || _b === void 0 ? void 0 : _b.write(command + '\n');
-            const checkOutput = () => {
-                if (this.output) {
-                    console.log('Current output:', this.output);
-                    resolve(this.output);
-                }
-                else {
-                    setTimeout(checkOutput, 100);
-                }
-            };
-            checkOutput();
-            setTimeout(() => {
-                if (!this.output) {
-                    reject('Command timeout.');
-                }
-            }, 5000);
+            try {
+                (_b = (_a = this.sshProcess) === null || _a === void 0 ? void 0 : _a.stdin) === null || _b === void 0 ? void 0 : _b.write(command + '\n');
+                const checkOutput = () => {
+                    if (this.output) {
+                        console.log('Current output:', this.output);
+                        resolve(this.output);
+                    }
+                    else {
+                        setTimeout(checkOutput, 100);
+                    }
+                };
+                checkOutput();
+                setTimeout(() => {
+                    if (!this.output) {
+                        reject('Command timeout.');
+                    }
+                }, 2000);
+            }
+            catch (error) {
+                reject(`Failed to send command: ${error.message}`);
+            }
         });
     }
     disconnect() {
@@ -133,28 +161,51 @@ class SSHClient {
     }
     checkConnect() {
         return new Promise((resolve, reject) => {
-            var _a, _b, _c, _d, _e, _f;
+            var _a, _b;
             if (!this.isConnected) {
                 console.log('Not connected to SSH server.');
                 return resolve(false);
             }
+            this.output = '';
             (_b = (_a = this.sshProcess) === null || _a === void 0 ? void 0 : _a.stdin) === null || _b === void 0 ? void 0 : _b.write('show time\n');
-            const timeout = setTimeout(() => {
-                this.isConnected = false;
-                console.log('Connection check timeout. Bercut may be disconnected.');
-                resolve(false);
-            }, 1000);
-            (_d = (_c = this.sshProcess) === null || _c === void 0 ? void 0 : _c.stdout) === null || _d === void 0 ? void 0 : _d.once('data', () => {
-                clearTimeout(timeout);
-                this.isConnected = true;
-                resolve(true);
-            });
-            (_f = (_e = this.sshProcess) === null || _e === void 0 ? void 0 : _e.stderr) === null || _f === void 0 ? void 0 : _f.once('data', (error) => {
-                clearTimeout(timeout);
-                console.error(`Error:\n${error}`);
-                this.isConnected = false;
-                reject(error);
-            });
+            try {
+                const checkOutput = () => {
+                    if (this.output) {
+                        this.isConnected = true;
+                        resolve(true);
+                    }
+                    else {
+                        setTimeout(checkOutput, 100);
+                    }
+                };
+                checkOutput();
+                setTimeout(() => {
+                    if (!this.output) {
+                        console.log('Connection check timeout. Bercut may be disconnected.');
+                        this.isConnected = false;
+                        resolve(false);
+                    }
+                }, 2000);
+            }
+            catch (error) {
+                reject(`SSH server error ${error.message}`);
+            }
+            // const timeout = setTimeout(() => {
+            // 	this.isConnected = false;
+            // 	console.log('Connection check timeout. Bercut may be disconnected.');
+            // 	resolve(false);
+            // }, 1000);
+            // this.sshProcess?.stdout?.once('data', () => {
+            // 	clearTimeout(timeout);
+            // 	this.isConnected = true;
+            // 	resolve(true);
+            // });
+            // this.sshProcess?.stderr?.once('data', (error: string) => {
+            // 	clearTimeout(timeout);
+            // 	console.error(`Error:\n${error}`);
+            // 	this.isConnected = false;
+            // 	reject(error);
+            // });
         });
     }
 }
