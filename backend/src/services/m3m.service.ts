@@ -34,7 +34,7 @@ export class COMClient {
             parity: 'none', });
       this.portPath = portPath;
 
-      this.port.on('open', () => {
+      this.port.once('open', () => {
         this.isConnected = true;
         console.log(`COM port ${this.portPath} is open.`);
         resolve(true);
@@ -46,7 +46,7 @@ export class COMClient {
         resolve(false);
       });
 
-      this.port.on('error', (err) => {
+      this.port.once('error', (err) => {
         this.isConnected = false;
         console.error(`Error on COM port ${this.portPath}: ${err.message}`);
         reject(err);
@@ -141,12 +141,12 @@ export class COMClient {
         if (err) {
           return reject(err);
         }
-          this.port?.on('data', (data: any) => {
+          this.port?.once('data', (data: any) => {
 	   	    const deviceResponse = parseFloat(data);
 	      	resolve(deviceResponse);
 	      });
 
-	      this.port?.on('error', (err: any) => {
+	      this.port?.once('error', (err: any) => {
 	      	reject(err);
 	      });
 	  });
