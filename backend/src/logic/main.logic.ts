@@ -37,7 +37,6 @@ export async function getPower(mod: number): Promise<number> {
 
 export function parseBits(inputString: string): Promise<[number, number]>{
 	const regex = /bits\s(\d+)\sebits\s(\d+)/;
-
 	const matches = regex.exec(inputString);
 
 	return new Promise((resolve, reject) => {
@@ -45,9 +44,10 @@ export function parseBits(inputString: string): Promise<[number, number]>{
 		    const bits = parseInt(matches[1], 10);
 		    const ebits = parseInt(matches[2], 10);
 		    resolve([bits, ebits]);
-		} else {
-		    reject(new Error("No matches found in the input string."));
-		}
+		} 
+        // else {
+		//     reject(new Error("No matches found in the input string."));
+		// }
 		
 	})
 }

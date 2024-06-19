@@ -74,9 +74,9 @@ function parseBits(inputString) {
             const ebits = parseInt(matches[2], 10);
             resolve([bits, ebits]);
         }
-        else {
-            reject(new Error("No matches found in the input string."));
-        }
+        // else {
+        //     reject(new Error("No matches found in the input string."));
+        // }
     });
 }
 exports.parseBits = parseBits;
