@@ -79,8 +79,9 @@ function setupWebSocketServer(server) {
                         }
                         ;
                         if (device instanceof stantion_service_1.SNMPClient) {
-                            const data = yield device.getFromBase(command);
-                            ws.send(JSON.stringify({ type: 'receive-value', message: `Base answer ${data}` }));
+                            const data0 = yield device.getFromBase(command);
+                            const data1 = yield device.getFromSubscriber(command);
+                            ws.send(JSON.stringify({ type: 'receive-value', base: `Base answer ${data0}`, Sub: `Sub answer ${data1}` }));
                             break;
                         }
                         if (device instanceof m3m_service_1.COMClient) {

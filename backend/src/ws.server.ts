@@ -73,8 +73,10 @@ export function setupWebSocketServer(server: any) {
               break;
             };
             if (device instanceof SNMPClient){
-              const data = await device.getFromBase(command);
-              ws.send(JSON.stringify({ type: 'receive-value', message: `Base answer ${data}` }));
+              const data0 = await device.getFromBase(command);
+              const data1 = await device.getFromSubscriber(command);
+              
+              ws.send(JSON.stringify({ type: 'receive-value', base: `Base answer ${data0}`, Sub: `Sub answer ${data1}`}));
               break;
             }
             if (device instanceof COMClient){

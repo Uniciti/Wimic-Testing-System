@@ -60,6 +60,7 @@ export class ExpressTest {
 			await tcpClient.sendCommand(attValue-2);
 			await tcpClient.sendCommand(attValue-1);
 			await tcpClient.sendCommand(attValue);
+			await delay(1000);
 			x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
 			if (x == i.toString()) {
 				await sshClient.sendCommand('bert start');
