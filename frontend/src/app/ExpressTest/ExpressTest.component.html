@@ -41,7 +41,14 @@
       </div>
     </div>
     <div class="mt-6 text-center">
-      <button type="button" id="expressTestButton" (click)="Express_test()" class="px-6 py-2 bg-blue-500 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">Экспресс тест</button>
+      <!-- <button type="button" id="expressTestButton" (click)="Express_test()" class="px-6 py-2 bg-blue-500 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">Экспресс тест</button> -->
+      <p-button 
+      label="ЭКСПРЕСС ТЕСТ"
+      type="submit" 
+      icon="pi pi-times" 
+      [disabled]="expressTestPrs"
+      [loading]="loadingExpressTest" 
+      severity="success" />
     </div>
   </form>
 </div>  

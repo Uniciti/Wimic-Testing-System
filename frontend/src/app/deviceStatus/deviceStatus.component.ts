@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+//import { HttpClient } from '@angular/common/http';
 import { NgIf } from "@angular/common";
 import { Subscription, timer, interval } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
@@ -62,7 +62,7 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
   private subscription: Subscription = new Subscription();
   
   constructor(
-    private http: HttpClient,
+    //private http: HttpClient,
     private sharedWebSocketService: SharedWebSocketService, 
     private sharedService: SharedService,
     private notificationService: NotificationService,
@@ -172,7 +172,6 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
           subscription.unsubscribe();
           timeout.unsubscribe();
         } else {
-          console.log("ttttt");
           this.notificationService.showNotification('Ошибка подключения к Беркут-ЕТ');
           this.loadingBer = false;
           this.bercutConnected = false;
@@ -180,7 +179,6 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.log("ttttt");
         this.loadingBer = false;
         this.notificationService.showNotification('Ошибка подключения к Беркут-ЕТ');
         this.cdr.detectChanges();
