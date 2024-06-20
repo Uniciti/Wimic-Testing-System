@@ -57,6 +57,7 @@ class ExpressTest {
                 yield att_service_1.tcpClient.sendCommand(attValue - 2);
                 yield att_service_1.tcpClient.sendCommand(attValue - 1);
                 yield att_service_1.tcpClient.sendCommand(attValue);
+                yield (0, main_logic_1.delay)(1000);
                 x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
                 if (x == i.toString()) {
                     yield bert_service_1.sshClient.sendCommand('bert start');
