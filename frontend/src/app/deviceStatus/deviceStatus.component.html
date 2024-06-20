@@ -56,7 +56,7 @@
   </div>
 
   <div class="Bercut-content max-w-lg mx-0 p-4 border rounded-lg shadow-md mb-6">
-    <h2 class="text-xl font-semibold mb-4">Параметры станций</h2>
+    <h2 class="text-xl font-semibold mb-4">Станции</h2>
     <div class="buttons-wrap flex space-x-2 mb-4">
       <p-button 
         label="Подключиться" 
@@ -72,6 +72,7 @@
         *ngIf="statConnected"
         severity="danger" />
     </div>
+    <h3 class="text-l font-semibold mb-4">Параметры станций</h3>
     <form (ngSubmit)="sendOID()">
       <div class="space-y-4">
         <div class="card flex flex-wrap gap-3 p-fluid">
@@ -116,7 +117,7 @@
       </div>
     </form>
 
-    <h2 class="text-xl font-semibold mt-4 mb-4">IP адреса станций</h2>
+    <h3 class="text-l font-semibold mt-4 mb-4">IP адреса станций</h3>
     <form (ngSubmit)="sendIP()">
       <div class="form-group">
         <div class="card flex flex-wrap gap-3 p-fluid">
