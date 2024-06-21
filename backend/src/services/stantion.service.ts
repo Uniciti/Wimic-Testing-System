@@ -107,21 +107,15 @@ export class SNMPClient {
             if (varbind.type === snmp.ObjectType.Opaque) {
               const valueBuffer = varbind.value;
               if (Buffer.isBuffer(valueBuffer)) {
-                  console.log("Raw Buffer:", valueBuffer);
-
-                  // Extract the last 4 bytes (float value)
                   const floatBuffer = valueBuffer.slice(-4);
-
-                  // Read the float (32-bit) from the buffer using readFloatLE
                   const floatValue = floatBuffer.readFloatBE(0);
-
-                  resolve(floatValue)
+                  resolve(floatValue.toString())
               } else {
                   console.error("Expected a Buffer for the opaque float value.");
               }
               
             } else {
-                resolve(varbind.value);
+                resolve(varbind.value.toString());
             }
             
           }
