@@ -37,7 +37,7 @@ export class ExpressTest implements OnInit, OnDestroy {
   cable1: number | null = null;
   cable2: number | null = null;
   cable3: number | null = null;
-  //duration: number | null = null;
+  duration: number | null = null;
   
   private subscription: Subscription = new Subscription();
 
@@ -55,13 +55,13 @@ export class ExpressTest implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  load(property: 'loadingExpressTest'): void {
-    this[property] = true;
+  // load(property: 'loadingExpressTest'): void {
+  //   this[property] = true;
 
-    setTimeout(() => {
-      this[property] = false;
-    }, 4000);
-  }
+  //   setTimeout(() => {
+  //     this[property] = false;
+  //   }, 4000);
+  // }
 
   pullman() {
     this.ngZone.runOutsideAngular(() => {
@@ -94,24 +94,18 @@ export class ExpressTest implements OnInit, OnDestroy {
 
   Express_test() {
     this.loadingExpressTest = true;
-    const InputedParams = [
-      {
-        device: "Attenuators",
-        pa1: this.pa1,
-        pa2: this.pa2
-      },
-      {
-        device: "Splitter",
-        v1: this.splitterST,
-        v2: this.splitterM3M
-      },
-      {
-        device: "Cable",
-        c1: this.cable1,
-        c2: this.cable2,
-        c3: this.cable3
-      },
-    ];
+    const InputedParams = 
+    {
+      device: "Attenuators",
+      pa1: this.pa1,
+      pa2: this.pa2,
+      v1: this.splitterST,
+      v2: this.splitterM3M,
+      c1: this.cable1,
+      c2: this.cable2,
+      c3: this.cable3,
+      duration: this.duration
+    };
 
     const message = {"type": "send-command", "deviceId": "stat", "command": InputedParams};
     this.sharedWebSocketService.sendMessage(message);

@@ -144,14 +144,14 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
     })
   };
 
-  load(property: 'loadingAtt' | 'loadingBer' | 'loadingStat' | 'loadingM3M'
-    | 'loadingStatIp' | 'loadingStatParams' | 'loadingM3Msend'): void {
-    this[property] = true;
+  // load(property: 'loadingAtt' | 'loadingBer' | 'loadingStat' | 'loadingM3M'
+  //   | 'loadingStatIp' | 'loadingStatParams' | 'loadingM3Msend'): void {
+  //   this[property] = true;
 
-    setTimeout(() => {
-      this[property] = false;
-    }, 4000);
-  }
+  //   setTimeout(() => {
+  //     this[property] = false;
+  //   }, 4000);
+  // }
 
   connectBer() {
     this.loadingBer = true;
@@ -519,7 +519,7 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
     const isAbonentValid = this.validateIpAddress(this.inputIP_ABONENT);
 
     if (!isBaseValid || !isAbonentValid) {
-      this.notificationService.showError('Некорректный ввод IP адресов для станций ');
+      this.notificationService.showWarning('Некорректный ввод IP адресов для станций ');
       return;
     }
 

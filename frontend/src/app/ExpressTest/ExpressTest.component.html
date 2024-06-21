@@ -1,4 +1,4 @@
-<div class="container ml-5 mt-5 p-6 max-w-lg bg-white shadow-md rounded-lg">
+<div class="container p-6 max-w-lg bg-white shadow-md rounded-lg">
   <h2 class="text-xl font-semibold mb-4">Введите данные для расчета затухания в линии</h2>
   <form (ngSubmit)="Express_test()">
     <div class="card flex flex-wrap gap-3 p-fluid">
@@ -79,7 +79,16 @@
               class="w-full"
               required /> 
         </div>
-        <div class="w-1/2"></div>
+        <div class="w-1/2 pl-2">
+          <label for="duration" class="block text-sm font-medium text-gray-700">Время на одну модуляции</label>
+          <p-inputNumber
+              name="duration"
+              inputId="duration" 
+              [(ngModel)]="duration"
+              [placeholder]="'Введите время, с'"
+              class="w-full"
+              required />   
+        </div>
       </div>
     </div>
     <div class="mt-6 text-center">
