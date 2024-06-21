@@ -1,10 +1,13 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy, NgZone } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
 import { SharedWebSocketService } from '../SharedWebSocket.service';
 import { Subscription, timer } from 'rxjs';
-import { NotificationService } from '../Notifications/Notification.service';
+//import { NotificationService } from '../Notifications/Notification.service';
+import { NotificationService } from '../Notification.service';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-ExpressTest',
@@ -12,32 +15,41 @@ import { NotificationService } from '../Notifications/Notification.service';
   imports: [
     FormsModule,
     InputNumberModule,
-    ButtonModule
+    ButtonModule,
+    ProgressBarModule,
+    ToastModule
   ],
   templateUrl: './ExpressTest.component.html',
-  styleUrls: ['./ExpressTest.component.css']
+  styleUrls: ['./ExpressTest.component.css'],
+  providers: [ NotificationService ]
 })
+
 export class ExpressTest implements OnInit, OnDestroy {
   loadingExpressTest: boolean = false;
   expressTestPrs: boolean = false;
+  interval: any;
+  modulation: number = 0;
 
-  pa1: string = '';
-  pa2: string = '';
-  splitterM3M: string = '';
-  splitterST: string = '';
-  cable1: string = '';
-  cable2: string = '';
-  cable3: string = '';
-
+  pa1: number | null = null;
+  pa2: number | null = null;
+  splitterM3M: number | null = null;
+  splitterST: number | null = null;
+  cable1: number | null = null;
+  cable2: number | null = null;
+  cable3: number | null = null;
+  //duration: number | null = null;
+  
   private subscription: Subscription = new Subscription();
 
   constructor(
     private sharedWebSocketService: SharedWebSocketService,
     private cdr: ChangeDetectorRef,
     private notificationService: NotificationService,
+    private ngZone: NgZone,
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
@@ -51,49 +63,36 @@ export class ExpressTest implements OnInit, OnDestroy {
     }, 4000);
   }
 
+  pullman() {
+    this.ngZone.runOutsideAngular(() => {
+      this.interval = setInterval(() => {
+        this.ngZone.run(() => {
+          let subscription = this.sharedWebSocketService.getMessages().subscribe({
+            next: (message) => {
+              if (message.status === "modulation") {
+                this.modulation = message.modulation * 16.6;
+                if (message.status === "completed") {
+                  this.modulation = 0;
+                  this.notificationService.showSuccess("Тестирование успешно завершено, проверьте папку tests...");
+                  subscription.unsubscribe();
+                  clearInterval(this.interval);
+                }
+              }
+            },
+            error: (error) => {
+              this.expressTestPrs = false;
+              this.loadingExpressTest = false;
+              subscription.unsubscribe();
+              clearInterval(this.interval);
+          }});
+          this.subscription.add(subscription);
+        });
+      }, 2000);
+    });
+  }
+
+
   Express_test() {
-    // const button = document.getElementById('expressTestButton') as HTMLButtonElement;
-    // if (button) {
-    //   button.disabled = true;
-    //   button.style.opacity = '0.5';
-    // }
-
-    // const InputedParams = [
-    //   {
-    //     device: "Attenuators",
-    //     pa1: this.pa1,
-    //     pa2: this.pa2
-    //   },
-    //   {
-    //     device: "Splitter",
-    //     v1: this.splitterST,
-    //     v2: this.splitterM3M
-    //   },
-    //   {
-    //     device: "Cable",
-    //     c1: this.cable1,
-    //     c2: this.cable2,
-    //     c3: this.cable3
-    //   },
-    // ];
-
-    // // Send the POST request
-    // this.http.post('/Test/EXPRESS_TEST', InputedParams, { responseType: 'json' }).subscribe(
-    //   response => {
-    //     console.log(response);
-    //     if (button) {
-    //       button.disabled = false;
-    //       button.style.opacity = '1';
-    //     }
-    //   },
-    //   error => {
-    //     console.error('Ошибка запроса:', error);
-    //     if (button) {
-    //       button.disabled = false;
-    //       button.style.opacity = '1';
-    //     }
-    //   }
-    // );
     this.loadingExpressTest = true;
     const InputedParams = [
       {
@@ -117,34 +116,39 @@ export class ExpressTest implements OnInit, OnDestroy {
     const message = {"type": "send-command", "deviceId": "stat", "command": InputedParams};
     this.sharedWebSocketService.sendMessage(message);
 
-    const timeout = timer(5000).subscribe(() => {
+    const connectionTimeout = timer(5000).subscribe(() => {
       this.loadingExpressTest = false;
-      timeout.unsubscribe();
+      connectionTimeout.unsubscribe();
     });
 
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
-      if (message.type === "sended" && message.deviceId === "stat") {
-        this.expressTestPrs = true;
+        connectionTimeout.unsubscribe();
+        this.pullman();
+        if (message.type === "sended" && message.deviceId === "stat") {
+          this.expressTestPrs = true;
+          if (message.status === "completed") {
+            this.expressTestPrs = false;
+            this.loadingExpressTest = false;
+            this.cdr.detectChanges();
+            subscription.unsubscribe();
+          }
+        } else {
+          this.notificationService.showError('Проверьте подключение к устройствам');
+          this.expressTestPrs = false;
+          this.loadingExpressTest = false;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (error) => {
+        connectionTimeout.unsubscribe();
+        this.expressTestPrs = false;
         this.loadingExpressTest = false;
+        this.notificationService.showError('Проверьте подключение к устройствам');
         this.cdr.detectChanges();
         subscription.unsubscribe();
-        timeout.unsubscribe();
-      } else {
-        this.notificationService.showNotification('Проверьте подключение к устройствам');
-        this.loadingExpressTest = false;
-        this.cdr.detectChanges();
       }
-    }, error: (error) => {
-      this.loadingExpressTest = false;
-      this.notificationService.showNotification('Проверьте подключение к устройствам');
-      this.cdr.detectChanges();
-      subscription.unsubscribe();
-      timeout.unsubscribe();
-    }
     });
     this.subscription.add(subscription);
   }
-
-
 }

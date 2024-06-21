@@ -1,54 +1,99 @@
 <div class="container ml-5 mt-5 p-6 max-w-lg bg-white shadow-md rounded-lg">
   <h2 class="text-xl font-semibold mb-4">Введите данные для расчета затухания в линии</h2>
   <form (ngSubmit)="Express_test()">
-    <div class="grid grid-cols-1 gap-4">
-      <div>
-          <div class="flex-auto">
-        <!--<label for="pa1" class="block text-sm font-medium text-gray-700">IP адрес <strong>Базы</strong>:</label>
-         <p-inputNumber
+    <div class="card flex flex-wrap gap-3 p-fluid">
+      <div class="flex w-full">
+        <div class="w-1/2 pr-2">
+          <label for="pa1" class="block text-sm font-medium text-gray-700">Аттенюатор ПА1</label>
+          <p-inputNumber
               name="pa1"
               inputId="pa1" 
               [(ngModel)]="pa1"
-              placeholder="Введите частоту"
-              class="mt-1 px-3 py-2" />  -->
-        <label for="pa1" class="block text-sm font-medium text-gray-700">Аттенюатор ПА1</label>
-        <input id="pa1" type="text" [(ngModel)]="pa1" name="pa1" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Введите затухание, дБ" required>
-          </div>
+              [placeholder]="'Введите частоту'"
+              class="w-full"
+              required /> 
+        </div>
+        <div class="w-1/2 pl-2">
+          <label for="pa2" class="block text-sm font-medium text-gray-700">Аттенюатор ПА2</label>
+          <p-inputNumber
+              name="pa2"
+              inputId="pa2" 
+              [(ngModel)]="pa2"
+              [placeholder]="'Введите затухание, дБ'"
+              class="w-full"
+              required /> 
+        </div>
       </div>
-      <div>
-        <label for="pa2" class="block text-sm font-medium text-gray-700">Аттенюатор ПА2</label>
-        <input id="pa2" type="text" [(ngModel)]="pa2" name="pa2" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Введите затухание, дБ" required>
+      <div class="flex w-full">
+        <div class="w-1/2 pr-2">
+          <label for="splitterM3M" class="block text-sm font-medium text-gray-700">Разветвитель на М3М</label>
+          <p-inputNumber
+              name="splitterM3M"
+              inputId="splitterM3M" 
+              [(ngModel)]="splitterM3M"
+              [placeholder]="'Введите затухание, дБ'"
+              class="w-full"
+              required /> 
+        </div>
+        <div class="w-1/2 pl-2">
+          <label for="splitterST" class="block text-sm font-medium text-gray-700">Разветвитель прямо</label>
+          <p-inputNumber
+              name="splitterST"
+              inputId="splitterST" 
+              [(ngModel)]="splitterST"
+              [placeholder]="'Введите затухание, дБ'"
+              class="w-full"
+              required /> 
+        </div>
       </div>
-      <div>
-        <label for="splitterM3M" class="block text-sm font-medium text-gray-700">Разветвитель на М3М</label>
-        <input id="splitterM3M" type="text" [(ngModel)]="splitterM3M" name="splitterM3M" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Введите затухание, дБ" required>
+      <div class="flex w-full">
+        <div class="w-1/2 pr-2">
+          <label for="cable1" class="block text-sm font-medium text-gray-700">Кабель 1</label>
+          <p-inputNumber
+              name="cable1"
+              inputId="cable1" 
+              [(ngModel)]="cable1"
+              [placeholder]="'Введите затухание, дБ'"
+              class="w-full"
+              required /> 
+        </div>
+        <div class="w-1/2 pl-2">
+          <label for="cable2" class="block text-sm font-medium text-gray-700">Кабель 2</label>
+          <p-inputNumber
+              name="cable2"
+              inputId="cable2" 
+              [(ngModel)]="cable2"
+              [placeholder]="'Введите затухание, дБ'"
+              class="w-full"
+              required /> 
+        </div>
       </div>
-      <div>
-        <label for="splitterST" class="block text-sm font-medium text-gray-700">Разветвитель прямо</label>
-        <input id="splitterST" type="text" [(ngModel)]="splitterST" name="splitterST" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Введите затухание, дБ" required>
-      </div>
-      <div>
-        <label for="cable1" class="block text-sm font-medium text-gray-700">Кабель 1</label>
-        <input id="cable1" type="text" [(ngModel)]="cable1" name="cable1" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Введите затухание, дБ" required>
-      </div>
-      <div>
-        <label for="cable2" class="block text-sm font-medium text-gray-700">Кабель 2</label>
-        <input id="cable2" type="text" [(ngModel)]="cable2" name="cable2" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Введите затухание, дБ" required>
-      </div>
-      <div>
-        <label for="cable3" class="block text-sm font-medium text-gray-700">Кабель 3</label>
-        <input id="cable3" type="text" [(ngModel)]="cable3" name="cable3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Введите затухание, дБ" required>
+      <div class="flex w-full">
+        <div class="w-1/2 pr-2">
+          <label for="cable3" class="block text-sm font-medium text-gray-700">Кабель 3</label>
+          <p-inputNumber
+              name="cable3"
+              inputId="cable3" 
+              [(ngModel)]="cable3"
+              [placeholder]="'Введите затухание, дБ'"
+              class="w-full"
+              required /> 
+        </div>
+        <div class="w-1/2"></div>
       </div>
     </div>
     <div class="mt-6 text-center">
-      <!-- <button type="button" id="expressTestButton" (click)="Express_test()" class="px-6 py-2 bg-blue-500 text-white font-medium text-sm leading-tight uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out">Экспресс тест</button> -->
+      <div class="card mt-5 mb-5">
+        <p-toast position="top-center" key="my-toast" [style]="{ 'z-index': '2000' }" />
+        <p-progressBar [value]="modulation" />
+      </div>
       <p-button 
-      label="ЭКСПРЕСС ТЕСТ"
-      type="submit" 
-      icon="pi pi-times" 
-      [disabled]="expressTestPrs"
-      [loading]="loadingExpressTest" 
-      severity="success" />
+        label="ЭКСПРЕСС ТЕСТ"
+        type="submit" 
+        icon="pi pi-times" 
+        [disabled]="expressTestPrs"
+        [loading]="loadingExpressTest" 
+        severity="success" />
     </div>
   </form>
-</div>  
+</div>

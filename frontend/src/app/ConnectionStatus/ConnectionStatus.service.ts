@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Subscription, interval } from 'rxjs';
-import { SharedWebSocketService } from '../SharedWebSocket.service';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +17,7 @@ export class SharedService {
   // stat$ = this.berSubject.asObservable();
   // m3m$ = this.berSubject.asObservable();
 
-  constructor(private sharedWebSocketService: SharedWebSocketService) { }
+  constructor() { }
 
   private IP_BaseStatusSource = new BehaviorSubject<string>('');
   currentIP_BaseStatus = this.IP_BaseStatusSource.asObservable();
@@ -26,7 +25,7 @@ export class SharedService {
   private IP_AbonentStatusSource = new BehaviorSubject<string>('');
   currentIP_AbonentStatus = this.IP_AbonentStatusSource.asObservable();
 
-  private frequencyStatusSource = new BehaviorSubject<string>('');
+  private frequencyStatusSource = new BehaviorSubject<string | null>(null);
   currentFrequencyStatus = this.frequencyStatusSource.asObservable();
 
   private BandwidthStatusSource = new BehaviorSubject<string>('');
@@ -35,7 +34,7 @@ export class SharedService {
   private AttenuationStatusSource = new BehaviorSubject<string>('');
   currentAttenuationStatus = this.AttenuationStatusSource.asObservable();
 
-  private OffsetStatusSource = new BehaviorSubject<string>('');
+  private OffsetStatusSource = new BehaviorSubject<string | null>(null);
   currentOffsetStatus = this.OffsetStatusSource.asObservable();
 
   private BercutStatus = new BehaviorSubject<boolean>(false);
@@ -50,7 +49,7 @@ export class SharedService {
   private M3MStatus = new BehaviorSubject<boolean>(false);
   currentM3MStatus = this.M3MStatus.asObservable();
 
-  changeOidParamsStatus(_Frequency: string, _Bandwidth: string) {
+  changeOidParamsStatus(_Frequency: string | null, _Bandwidth: string) {
     this.frequencyStatusSource.next(_Frequency);
 	  this.BandwidthStatusSource.next(_Bandwidth);
   }
@@ -60,7 +59,7 @@ export class SharedService {
 	  this.IP_AbonentStatusSource.next(_IP_Abonent);
   }
 
-  changeOffsetM3MStatus(_Offset: string) {
+  changeOffsetM3MStatus(_Offset: string | null) {
 	  this.OffsetStatusSource.next(_Offset);
   }
   

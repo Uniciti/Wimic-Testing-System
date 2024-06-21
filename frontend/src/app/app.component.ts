@@ -4,9 +4,11 @@ import { HeaderComponent } from './header/header.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { deviceStatusComponent } from './deviceStatus/deviceStatus.component';
 import { ExpressTest } from './ExpressTest/ExpressTest.component';
-import { NotificationComponent } from './Notifications/Notification.component';
+//import { NotificationComponent } from './Notifications/Notification.component';
 import { ConnectionStatusComponent } from './ConnectionStatus/ConnectionStatus.component';
-import { HttpClientModule } from '@angular/common/http';
+// import { HttpClientModule } from '@angular/common/http';
+import { NotificationService } from './Notification.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-root',
@@ -15,12 +17,13 @@ import { HttpClientModule } from '@angular/common/http';
     SidebarComponent, 
     deviceStatusComponent, 
     ExpressTest,
-    NotificationComponent,
+    //NotificationComponent,
     ConnectionStatusComponent, 
     RouterOutlet, 
-    HttpClientModule
+    //HttpClientModule
     ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css' ],
+  providers: [ NotificationService, MessageService ]
 })
 export class AppComponent {}

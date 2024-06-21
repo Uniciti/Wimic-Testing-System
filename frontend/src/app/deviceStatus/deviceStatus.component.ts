@@ -9,8 +9,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { SharedWebSocketService } from '../SharedWebSocket.service';
 import { SharedService } from '../ConnectionStatus/ConnectionStatus.service';
-import { NotificationService } from '../Notifications/Notification.service';
-  
+// import { NotificationService } from '../Notifications/Notification.service';
+import { NotificationService } from '../Notification.service';
+import { ToastModule } from 'primeng/toast';
+
 interface Message {
   type: string;
   ber: boolean;
@@ -28,10 +30,12 @@ interface Message {
     ButtonModule,
     SelectButtonModule,
     InputNumberModule,
-    InputTextModule
+    InputTextModule,
+    ToastModule
   ],
   templateUrl: './deviceStatus.component.html',
-  styleUrls: ['./deviceStatus.component.css']
+  styleUrls: ['./deviceStatus.component.css'],
+  providers: [ NotificationService ]
 })
 
 export class deviceStatusComponent implements OnInit, OnDestroy {
@@ -44,12 +48,11 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
 
   inputIP_BASE: string = '';
   inputIP_ABONENT: string = '';
-  errorMessage: string | null = null;
-  inputFrequency: string = '';
+  inputFrequency: string | null = null;
   selectionBandwidth: string = '';
   inputAttenuation: string = '';
   inputCommandBer: string = '';
-  inputOffset: string = '';
+  inputOffset: string | null = null;
 
   loadingAtt: boolean = false;
   loadingBer: boolean = false;
@@ -75,7 +78,7 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
   //       this.attConnected = true;
   //     }
   //     else if (message.deviceId === "attenuator" && message.type === "is-connected" && message.isConnected == false) {
-  //       this.notificationService.showNotification('Аттенюатор отключился ');
+  //       this.notificationService.showError('Аттенюатор отключился ');
   //      // this.subscription.unsubscribe();
   //       this.attConnected = false;
   //     }
@@ -83,7 +86,7 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
   //       this.bercutConnected = true;
   //     }
   //     else if (message.deviceId === "bercut" && message.type === "is-connected" &&  message.isConnected == false) {
-  //       this.notificationService.showNotification('Беркут-ЕТ отключился ');
+  //       this.notificationService.showError('Беркут-ЕТ отключился ');
   //       //this.sharedService.stopSendingMessagesAtt();
   //       //this.subscription.unsubscribe();
   //       this.bercutConnected = false;
@@ -172,7 +175,7 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
           subscription.unsubscribe();
           timeout.unsubscribe();
         } else {
-          this.notificationService.showNotification('Ошибка подключения к Беркут-ЕТ');
+          this.notificationService.showError('Ошибка подключения к Беркут-ЕТ');
           this.loadingBer = false;
           this.bercutConnected = false;
           this.cdr.detectChanges();
@@ -180,7 +183,7 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.loadingBer = false;
-        this.notificationService.showNotification('Ошибка подключения к Беркут-ЕТ');
+        this.notificationService.showError('Ошибка подключения к Беркут-ЕТ');
         this.cdr.detectChanges();
         subscription.unsubscribe();
         timeout.unsubscribe();
@@ -212,14 +215,14 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
         timeout.unsubscribe();
       }
       else {
-        this.notificationService.showNotification('Ошибка отключения от Беркут-ЕТ');
+        this.notificationService.showError('Ошибка отключения от Беркут-ЕТ');
         this.loadingBer = false;
         this.bercutConnected = true;
         this.cdr.detectChanges();
       }
     }, error: (error) => {
       this.loadingBer = false;
-      this.notificationService.showNotification('Ошибка отключения от Беркут-ЕТ');
+      this.notificationService.showError('Ошибка отключения от Беркут-ЕТ');
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();
@@ -249,14 +252,14 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
         subscription.unsubscribe();
         timeout.unsubscribe();
       } else {
-        this.notificationService.showNotification('Ошибка подключения к аттенюатору');
+        this.notificationService.showError('Ошибка подключения к аттенюатору');
         this.loadingAtt = false;
         this.attConnected = false;
         this.cdr.detectChanges();
       }
     }, error: (error) => {
       this.loadingAtt = false;
-      this.notificationService.showNotification('Ошибка подключения к аттенюатору');
+      this.notificationService.showError('Ошибка подключения к аттенюатору');
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();
@@ -287,14 +290,14 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
         subscription.unsubscribe();
         timeout.unsubscribe();
       } else {
-        this.notificationService.showNotification('Ошибка отключения от аттенюатора');
+        this.notificationService.showError('Ошибка отключения от аттенюатора');
         this.loadingAtt = false;
         this.attConnected = true;
         this.cdr.detectChanges();
       }
     }, error: (error) => {
       this.loadingAtt = false;
-      this.notificationService.showNotification('Ошибка отключения от аттенюатора');
+      this.notificationService.showError('Ошибка отключения от аттенюатора');
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();
@@ -324,14 +327,14 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
         subscription.unsubscribe();
         timeout.unsubscribe();
       } else {
-        this.notificationService.showNotification('Ошибка подключения к cтанциям');
+        this.notificationService.showError('Ошибка подключения к cтанциям');
         this.loadingStat = false;
         this.statConnected = false;
         this.cdr.detectChanges();
       }
     }, error: (error) => {
       this.loadingStat = false;
-      this.notificationService.showNotification('Ошибка подключения к cтанциям');
+      this.notificationService.showError('Ошибка подключения к cтанциям');
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();
@@ -360,14 +363,14 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
         subscription.unsubscribe();
         timeout.unsubscribe();
       } else {
-        this.notificationService.showNotification('Ошибка отключения от станций');
+        this.notificationService.showError('Ошибка отключения от станций');
         this.loadingStat = false;
         this.statConnected = true;
         this.cdr.detectChanges();
       }
     }, error: (error) => {
       this.loadingStat = false;
-      this.notificationService.showNotification('Ошибка отключения от станций');
+      this.notificationService.showError('Ошибка отключения от станций');
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();
@@ -396,14 +399,14 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
         subscription.unsubscribe();
         timeout.unsubscribe();
       } else {
-        this.notificationService.showNotification('Ошибка подключения к M3M');
+        this.notificationService.showError('Ошибка подключения к M3M');
         this.loadingM3M = false;
         this.M3MConnected = false;
         this.cdr.detectChanges();
       }
     }, error: (error) => {
       this.loadingM3M = false;
-      this.notificationService.showNotification('Ошибка подключения к M3M');
+      this.notificationService.showError('Ошибка подключения к M3M');
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();
@@ -434,14 +437,14 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
         subscription.unsubscribe();
         timeout.unsubscribe();
       } else {
-        this.notificationService.showNotification('Ошибка отключения от M3M');
+        this.notificationService.showError('Ошибка отключения от M3M');
         this.loadingM3M = false;
         this.M3MConnected = true;
         this.cdr.detectChanges();
       }
     }, error: (error) => {
       this.loadingM3M = false;
-      this.notificationService.showNotification('Ошибка отключения от M3M');
+      this.notificationService.showError('Ошибка отключения от M3M');
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();
@@ -486,19 +489,18 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
       next: (message) => {
       if (message.type === "sended" && message.deviceId === "stat") {
         this.loadingStatParams = false;
-        //this.attConnected = false;
         this.sharedService.changeOidParamsStatus(InputedParams.frequency, InputedParams.width);
         this.cdr.detectChanges();
         subscription.unsubscribe();
         timeout.unsubscribe();
       } else {
-        this.notificationService.showNotification('Ошибка отправки параметров к станциям');
+        this.notificationService.showError('Ошибка отправки параметров к станциям');
         this.loadingStatParams = false;
         this.cdr.detectChanges();
       }
     }, error: (error) => {
       this.loadingStatParams = false;
-      this.notificationService.showNotification('Ошибка отправки параметров к станциям');
+      this.notificationService.showError('Ошибка отправки параметров к станциям');
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();
@@ -517,7 +519,7 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
     const isAbonentValid = this.validateIpAddress(this.inputIP_ABONENT);
 
     if (!isBaseValid || !isAbonentValid) {
-      this.notificationService.showNotification('Некорректный ввод IP адресов для станций ');
+      this.notificationService.showError('Некорректный ввод IP адресов для станций ');
       return;
     }
 
@@ -540,13 +542,13 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
         subscription.unsubscribe();
         timeout.unsubscribe();
       } else {
-        this.notificationService.showNotification('Ошибка отправки параметров к станциям');
+        this.notificationService.showError('Ошибка отправки параметров к станциям');
         this.loadingStatIp = false;
         this.cdr.detectChanges();
       }
     }, error: (error) => {
       this.loadingStatIp = false;
-      this.notificationService.showNotification('Ошибка отправки параметров к станциям');
+      this.notificationService.showError('Ошибка отправки параметров к станциям');
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();
@@ -592,13 +594,13 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
         subscription.unsubscribe();
         timeout.unsubscribe();
       } else {
-        this.notificationService.showNotification('Ошибка отправки компенсации к M3M');
+        this.notificationService.showError('Ошибка отправки компенсации к M3M');
         this.loadingM3Msend = false;
         this.cdr.detectChanges();
       }
     }, error: (error) => {
       this.loadingM3Msend = false;
-      this.notificationService.showNotification('Ошибка отправки компенсации к M3M');
+      this.notificationService.showError('Ошибка отправки компенсации к M3M');
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();
