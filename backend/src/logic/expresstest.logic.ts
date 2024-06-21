@@ -110,15 +110,21 @@ export class ExpressTest {
 				await sshClient.sendCommand('bert stop');
 				await delay(1000);
 				const lostBytes = txBytes - rxBytes
-				const errorRate = (lostBytes / txBytes) * 100;
+				const errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
 				const snr = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
+				let verdict = "Пройдено";
+				if (0.1 < errorRate) {
+					verdict = "Не пройдено";
+				}
+
 				dataArray.push({"Модуляция": modName[i],
 								"Аттен, ДБ": attValue,
-								"С/Ш": snr,
+								"С/Ш": (parseFloat(snr.slice(0, 5))),
 								"Отправлено, байт": txBytes, 
 								"Принято, байт": rxBytes, 
 								"Потеряно, байт": lostBytes, 
-								"Процент ошибок, %": errorRate
+								"Процент ошибок, %": errorRate,
+								"Статус": verdict
 							});
 
 			}

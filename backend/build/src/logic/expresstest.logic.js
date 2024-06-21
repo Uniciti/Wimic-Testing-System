@@ -66,8 +66,6 @@ class ExpressTest {
                 x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
                 if (x == i.toString()) {
                     yield bert_service_1.sshClient.sendCommand('statistics clear');
-                    yield (0, main_logic_1.setBertSpeed)(consts_logic_1.speed[i]);
-                    yield bert_service_1.sshClient.sendCommand('statistics clear');
                     yield (0, main_logic_1.delay)(1000);
                     yield (0, main_logic_1.setBertSpeed)(consts_logic_1.speed[i]);
                     yield (0, main_logic_1.delay)(1000);
@@ -104,15 +102,20 @@ class ExpressTest {
                     yield bert_service_1.sshClient.sendCommand('bert stop');
                     yield (0, main_logic_1.delay)(1000);
                     const lostBytes = txBytes - rxBytes;
-                    const errorRate = (lostBytes / txBytes) * 100;
+                    const errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
                     const snr = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
+                    let verdict = "Пройдено";
+                    if (0.1 < errorRate) {
+                        verdict = "Не пройдено";
+                    }
                     dataArray.push({ "Модуляция": consts_logic_1.modName[i],
                         "Аттен, ДБ": attValue,
-                        "С/Ш": snr,
+                        "С/Ш": (parseFloat(snr.slice(0, 5))),
                         "Отправлено, байт": txBytes,
                         "Принято, байт": rxBytes,
                         "Потеряно, байт": lostBytes,
-                        "Процент ошибок, %": errorRate
+                        "Процент ошибок, %": errorRate,
+                        "Статус": verdict
                     });
                 }
             }
