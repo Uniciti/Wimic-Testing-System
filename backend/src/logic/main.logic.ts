@@ -11,7 +11,6 @@ export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, 
 
 export async function setBertSpeed(speed: number): Promise<void> {
     try {
-        await sshClient.sendCommand
         await sshClient.sendCommand('configure');
         await delay(200);
         await sshClient.sendCommand(`bert rate ${speed} kbps`);
@@ -24,6 +23,34 @@ export async function setBertSpeed(speed: number): Promise<void> {
     }
 }
 
+export async function setBertDuration(duration: number): Promise<void> {
+    try {
+
+        const millisecondsInASecond = 1000;
+        const millisecondsInAMinute = 60 * millisecondsInASecond;
+        const millisecondsInAnHour = 60 * millisecondsInAMinute;
+
+        const hours = Math.floor(duration / millisecondsInAnHour);
+        const remainingAfterHours = duration % millisecondsInAnHour;
+
+        const minutes = Math.floor(remainingAfterHours / millisecondsInAMinute);
+        const remainingAfterMinutes = remainingAfterHours % millisecondsInAMinute;
+
+        const seconds = Math.floor(remainingAfterMinutes / millisecondsInASecond);
+
+        const formatNumber = (num: number) => num.toString().padStart(2, '0');
+
+        await sshClient.sendCommand('configure');
+        await delay(200);
+        await sshClient.sendCommand(`bert duration ${formatNumber(hours)}.${formatNumber(minutes)}.${formatNumber(seconds)}`);
+        await delay(200);
+        await sshClient.sendCommand('exit');
+        await delay(200);
+    } catch (error) {
+        console.error('Error occurred:', error);
+        throw error;
+    }
+}
 
 export async function getPower(speed: number): Promise<number> {
     let m3mPow: number = 0;

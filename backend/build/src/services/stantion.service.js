@@ -107,7 +107,6 @@ class SNMPClient {
                         if (varbind.type === net_snmp_1.default.ObjectType.Opaque) {
                             const valueBuffer = varbind.value;
                             if (buffer_1.Buffer.isBuffer(valueBuffer)) {
-                                console.log("Raw Buffer:", valueBuffer);
                                 const floatBuffer = valueBuffer.slice(-4);
                                 const floatValue = floatBuffer.readFloatBE(0);
                                 resolve(floatValue.toString());

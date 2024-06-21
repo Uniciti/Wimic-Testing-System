@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeDataToExcel = exports.parseData = exports.getPower = exports.setBertSpeed = exports.delay = void 0;
+exports.writeDataToExcel = exports.parseData = exports.getPower = exports.setBertDuration = exports.setBertSpeed = exports.delay = void 0;
 const bert_service_1 = require("../services/bert.service");
 const m3m_service_1 = require("../services/m3m.service");
 const XLSX = __importStar(require("xlsx"));
@@ -41,7 +41,6 @@ exports.delay = delay;
 function setBertSpeed(speed) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield bert_service_1.sshClient.sendCommand;
             yield bert_service_1.sshClient.sendCommand('configure');
             yield (0, exports.delay)(200);
             yield bert_service_1.sshClient.sendCommand(`bert rate ${speed} kbps`);
@@ -56,6 +55,32 @@ function setBertSpeed(speed) {
     });
 }
 exports.setBertSpeed = setBertSpeed;
+function setBertDuration(duration) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const millisecondsInASecond = 1000;
+            const millisecondsInAMinute = 60 * millisecondsInASecond;
+            const millisecondsInAnHour = 60 * millisecondsInAMinute;
+            const hours = Math.floor(duration / millisecondsInAnHour);
+            const remainingAfterHours = duration % millisecondsInAnHour;
+            const minutes = Math.floor(remainingAfterHours / millisecondsInAMinute);
+            const remainingAfterMinutes = remainingAfterHours % millisecondsInAMinute;
+            const seconds = Math.floor(remainingAfterMinutes / millisecondsInASecond);
+            const formatNumber = (num) => num.toString().padStart(2, '0');
+            yield bert_service_1.sshClient.sendCommand('configure');
+            yield (0, exports.delay)(200);
+            yield bert_service_1.sshClient.sendCommand(`bert duration ${formatNumber(hours)}.${formatNumber(minutes)}.${formatNumber(seconds)}`);
+            yield (0, exports.delay)(200);
+            yield bert_service_1.sshClient.sendCommand('exit');
+            yield (0, exports.delay)(200);
+        }
+        catch (error) {
+            console.error('Error occurred:', error);
+            throw error;
+        }
+    });
+}
+exports.setBertDuration = setBertDuration;
 function getPower(speed) {
     return __awaiter(this, void 0, void 0, function* () {
         let m3mPow = 0;
@@ -95,8 +120,8 @@ function parseData(data) {
         const txFramesValues = txFramesLine.trim().split(/\s+/);
         const rxFramesValues = rxFramesLine.trim().split(/\s+/);
         try {
-            const txFrames = parseInt(txFramesValues[2], 10); // Вторая цифра после Tx frames
-            const rxFrames = parseInt(rxFramesValues[3], 10); // Третья цифра после Rx frames
+            const txFrames = parseInt(txFramesValues[2], 10);
+            const rxFrames = parseInt(rxFramesValues[3], 10);
             resolve([txFrames, rxFrames]);
         }
         catch (error) {
