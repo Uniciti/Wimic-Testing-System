@@ -4,9 +4,13 @@
 @tailwind utilities;
 
 .p-button {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.p-inputnumber {
+   height: 2.5rem;
 }
 
 @layer tailwind-base, primeng, tailwind-utilities;

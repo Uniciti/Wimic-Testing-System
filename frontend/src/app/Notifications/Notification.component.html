@@ -2,8 +2,8 @@
   <div *ngFor="let notification of notifications" 
        class="p-4 text-white rounded shadow-md w-96 flex justify-between items-center transition-transform"
        [ngClass]="{
-         'bg-red-600': notification.message != 'залупа',
-         'bg-green-600': notification.message == 'залупа',
+         'bg-red-600': notification.message != 'Тестирование успешно завершено, проверьте папку tests...',
+         'bg-green-600': notification.message == 'Тестирование успешно завершено, проверьте папку tests...',
          'fade-out': notification.closing
        }">
     <span>{{ notification.message }}</span>

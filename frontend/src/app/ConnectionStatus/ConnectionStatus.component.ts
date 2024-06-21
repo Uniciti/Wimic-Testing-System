@@ -20,10 +20,10 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
 
   _IP_Abonent: string = '';
   _IP_Base: string = '';
-  _Frequency: string = '';  
+  _Frequency: string | null = null;  
   _Bandwidth: string = '';
   _Attenuation: string = '';
-  _Offset: string = '';
+  _Offset: string | null = null;
   
   private subscription: Subscription = new Subscription();
 
