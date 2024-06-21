@@ -68,8 +68,6 @@ export class ExpressTest {
 			x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
 			if (x == i.toString()) {
 				await sshClient.sendCommand('statistics clear');
-				await setBertSpeed(speed[i])
-				await sshClient.sendCommand('statistics clear');
 				await delay(1000);
 				await setBertSpeed(speed[i])
 				await delay(1000);
