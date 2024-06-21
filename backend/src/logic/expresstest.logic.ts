@@ -1,9 +1,10 @@
 import { speed, sens, modName } from './consts.logic';
-import { getPower, parseBits, writeDataToExcel, delay } from './main.logic';
+import { getPower, parseData, writeDataToExcel, delay, setBertSpeed} from './main.logic';
 import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { comClient, COMClient } from '../services/m3m.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
+import { broadcast } from '../ws.server';
 import 'dotenv/config';
 
 export class ExpressTest {
@@ -49,10 +50,11 @@ export class ExpressTest {
 	}
 
 	public async test(): Promise<void> {
-		
 		comClient.sendCommand(this.offset);
+		await delay(1000);
 		const dataArray: any[] = [];
 		for(let i = 6; i >= 0; i --) {
+			broadcast("expresstest", (6 - i).toString());
 			const m3mPow = await getPower(speed[i]);
 			const attValue = Math.round(this.calculateAtt(sens[i], m3mPow));
 			await tcpClient.sendCommand(attValue);
@@ -62,28 +64,42 @@ export class ExpressTest {
 			await tcpClient.sendCommand(attValue);
 			await delay(1000);
 			x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
+			await sshClient.sendCommand('statistics clear');
+			await setBertSpeed(speed[i])
 			if (x == i.toString()) {
+				await sshClient.sendCommand('statistics clear');
+				await delay(500);
+				await setBertSpeed(speed[i])
+				await delay(500);
 				await sshClient.sendCommand('bert start');
 				await delay(4000);
-				let bits: number = 0;
-				let ebits: number = 0;
+				let txBytes: number = 0;
+				let rxBytes: number = 0;
 				for (let j = 0; j < 5; j++) {
-					const data = await sshClient.sendCommand('show bert trial');
+					const data = await sshClient.sendCommand('statistics show');
 					await delay(1000);
-					const [parsedBits, parsedEbits] = await parseBits(data);
-			        bits = parsedBits;
-			        ebits = parsedEbits;
-					console.log('bits_Ebits: ', bits, ebits);
+					[txBytes, rxBytes] = await parseData(data);
+					console.log('TX/RX: ', txBytes, rxBytes);
 				}
 				await sshClient.sendCommand('bert stop');
 				await delay(1000);
-				const errorRate = (ebits / (ebits + bits)) * 100;
-				dataArray.push({modulation: modName[i], bits, ebits, errorRate});
+				const lostBytes = txBytes - rxBytes
+				const errorRate = (lostBytes / txBytes) * 100;
+				const snr = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
+				dataArray.push({"Модуляция": modName[i],
+								"Аттен, ДБ": attValue,
+								"С/Ш": snr,
+								"Отправлено, байт": txBytes, 
+								"Принято, байт": rxBytes, 
+								"Потеряно, байт": lostBytes, 
+								"Процент ошибок, %": errorRate
+							});
 
 			}
 		}
 		console.log(dataArray);
 		writeDataToExcel(dataArray);
+		broadcast("expresstest", "completed");
 
 	}
 

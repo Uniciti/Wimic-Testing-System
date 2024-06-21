@@ -104,6 +104,7 @@ export class SSHClient {
 			            if (!this.output) {
 			            	console.log('Connection check timeout. Bercut may be disconnected.');
 			            	this.isConnected = false;
+			            	this.firstTime = true;
 			                resolve(false)
 			            }
 			        }, 2000);

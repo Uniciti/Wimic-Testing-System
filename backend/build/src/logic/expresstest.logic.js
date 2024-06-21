@@ -16,6 +16,7 @@ const att_service_1 = require("../services/att.service");
 const bert_service_1 = require("../services/bert.service");
 const m3m_service_1 = require("../services/m3m.service");
 const stantion_service_1 = require("../services/stantion.service");
+const ws_server_1 = require("../ws.server");
 require("dotenv/config");
 class ExpressTest {
     // private duration: number = 0;
@@ -50,6 +51,7 @@ class ExpressTest {
             m3m_service_1.comClient.sendCommand(this.offset);
             const dataArray = [];
             for (let i = 6; i >= 0; i--) {
+                (0, ws_server_1.broadcast)("expresstest", (6 - i).toString());
                 const m3mPow = yield (0, main_logic_1.getPower)(consts_logic_1.speed[i]);
                 const attValue = Math.round(this.calculateAtt(consts_logic_1.sens[i], m3mPow));
                 yield att_service_1.tcpClient.sendCommand(attValue);
@@ -59,27 +61,41 @@ class ExpressTest {
                 yield att_service_1.tcpClient.sendCommand(attValue);
                 yield (0, main_logic_1.delay)(1000);
                 x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
+                yield bert_service_1.sshClient.sendCommand('statistics clear');
+                yield (0, main_logic_1.setBertSpeed)(consts_logic_1.speed[i]);
                 if (x == i.toString()) {
+                    yield bert_service_1.sshClient.sendCommand('statistics clear');
+                    yield (0, main_logic_1.delay)(500);
+                    yield (0, main_logic_1.setBertSpeed)(consts_logic_1.speed[i]);
+                    yield (0, main_logic_1.delay)(500);
                     yield bert_service_1.sshClient.sendCommand('bert start');
                     yield (0, main_logic_1.delay)(4000);
-                    let bits = 0;
-                    let ebits = 0;
+                    let txBytes = 0;
+                    let rxBytes = 0;
                     for (let j = 0; j < 5; j++) {
-                        const data = yield bert_service_1.sshClient.sendCommand('show bert trial');
+                        const data = yield bert_service_1.sshClient.sendCommand('statistics show');
                         yield (0, main_logic_1.delay)(1000);
-                        const [parsedBits, parsedEbits] = yield (0, main_logic_1.parseBits)(data);
-                        bits = parsedBits;
-                        ebits = parsedEbits;
-                        console.log('bits_Ebits: ', bits, ebits);
+                        [txBytes, rxBytes] = yield (0, main_logic_1.parseData)(data);
+                        console.log('TX/RX: ', txBytes, rxBytes);
                     }
                     yield bert_service_1.sshClient.sendCommand('bert stop');
                     yield (0, main_logic_1.delay)(1000);
-                    const errorRate = (ebits / (ebits + bits)) * 100;
-                    dataArray.push({ modulation: consts_logic_1.modName[i], bits, ebits, errorRate });
+                    const lostBytes = txBytes - rxBytes;
+                    const errorRate = (lostBytes / txBytes) * 100;
+                    const snr = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
+                    dataArray.push({ "Модуляция": consts_logic_1.modName[i],
+                        "Аттен, ДБ": attValue,
+                        "С/Ш": snr,
+                        "Отправлено, байт": txBytes,
+                        "Принято, байт": rxBytes,
+                        "Потерято, байт": lostBytes,
+                        "Процент ошибок, %": errorRate
+                    });
                 }
             }
             console.log(dataArray);
             (0, main_logic_1.writeDataToExcel)(dataArray);
+            (0, ws_server_1.broadcast)("expresstest", "completed");
         });
     }
 }

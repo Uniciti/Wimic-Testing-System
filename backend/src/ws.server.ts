@@ -15,8 +15,10 @@ const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} 
   
 };
 
+let wss: WebSocket.Server;
+
 export function setupWebSocketServer(server: any) {
-  const wss = new WebSocket.Server({ server });
+  wss = new WebSocket.Server({ server });
   wss.on('connection', (ws: WebSocket) => {
     console.log('Client connected');
 
@@ -152,3 +154,16 @@ export function setupWebSocketServer(server: any) {
   console.log(`WebSocket server is set up and running.`);
 
 }
+
+export const broadcast = (testId: string, data: string) => {
+  if (!wss) {
+      console.error("WebSocket server is not set up");
+      return;
+  }
+
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ testId, "message": data }));
+    }
+  });
+};

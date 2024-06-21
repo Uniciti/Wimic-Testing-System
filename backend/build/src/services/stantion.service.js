@@ -108,20 +108,17 @@ class SNMPClient {
                             const valueBuffer = varbind.value;
                             if (buffer_1.Buffer.isBuffer(valueBuffer)) {
                                 console.log("Raw Buffer:", valueBuffer);
-                                // Extract the last 4 bytes (float value)
                                 const floatBuffer = valueBuffer.slice(-4);
-                                // Read the float (32-bit) from the buffer using readFloatLE
                                 const floatValue = floatBuffer.readFloatBE(0);
-                                console.log("Decoded Float Value:", floatValue);
+                                resolve(floatValue.toString());
                             }
                             else {
                                 console.error("Expected a Buffer for the opaque float value.");
                             }
                         }
                         else {
-                            console.log(`Value: ${varbind.value}`);
+                            resolve(varbind.value.toString());
                         }
-                        resolve(varbind.value.toString());
                     }
                 }
             });

@@ -32,19 +32,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeDataToExcel = exports.parseBits = exports.getPower = exports.delay = void 0;
+exports.writeDataToExcel = exports.parseData = exports.getPower = exports.setBertSpeed = exports.delay = void 0;
 const bert_service_1 = require("../services/bert.service");
 const m3m_service_1 = require("../services/m3m.service");
 const XLSX = __importStar(require("xlsx"));
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 exports.delay = delay;
-function getPower(mod) {
+function setBertSpeed(speed) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield bert_service_1.sshClient.sendCommand;
+            yield bert_service_1.sshClient.sendCommand('configure');
+            yield (0, exports.delay)(200);
+            yield bert_service_1.sshClient.sendCommand(`bert rate ${speed} kbps`);
+            yield (0, exports.delay)(200);
+            yield bert_service_1.sshClient.sendCommand('exit');
+            yield (0, exports.delay)(200);
+        }
+        catch (error) {
+            console.error('Error occurred:', error);
+            throw error;
+        }
+    });
+}
+exports.setBertSpeed = setBertSpeed;
+function getPower(speed) {
     return __awaiter(this, void 0, void 0, function* () {
         let m3mPow = 0;
         try {
             yield bert_service_1.sshClient.sendCommand('configure');
             yield (0, exports.delay)(200);
-            yield bert_service_1.sshClient.sendCommand(`txgen rate ${mod} kbps`);
+            yield bert_service_1.sshClient.sendCommand(`txgen rate ${speed} kbps`);
             yield (0, exports.delay)(200);
             yield bert_service_1.sshClient.sendCommand('exit');
             yield (0, exports.delay)(200);
@@ -65,21 +83,29 @@ function getPower(mod) {
     });
 }
 exports.getPower = getPower;
-function parseBits(inputString) {
-    const regex = /bits\s(\d+)\sebits\s(\d+)/;
-    const matches = regex.exec(inputString);
+function parseData(data) {
     return new Promise((resolve, reject) => {
-        if (matches) {
-            const bits = parseInt(matches[1], 10);
-            const ebits = parseInt(matches[2], 10);
-            resolve([bits, ebits]);
+        const lines = data.split('\n');
+        const txFramesLine = lines.find(line => line.trim().startsWith('Tx bytes'));
+        const rxFramesLine = lines.find(line => line.trim().startsWith('Rx bytes'));
+        if (!txFramesLine || !rxFramesLine) {
+            reject(new Error('Required lines not found in data'));
+            return;
         }
-        // else {
-        //     reject(new Error("No matches found in the input string."));
-        // }
+        const txFramesValues = txFramesLine.trim().split(/\s+/);
+        const rxFramesValues = rxFramesLine.trim().split(/\s+/);
+        try {
+            const txFrames = parseInt(txFramesValues[2], 10); // Вторая цифра после Tx frames
+            const rxFrames = parseInt(rxFramesValues[3], 10); // Третья цифра после Rx frames
+            resolve([txFrames, rxFrames]);
+        }
+        catch (error) {
+            reject(new Error('Failed to parse numbers from lines'));
+        }
     });
 }
-exports.parseBits = parseBits;
+exports.parseData = parseData;
+;
 function writeDataToExcel(newData) {
     // const filePath = path.join(__dirname, 'test.xlsx');
     const worksheet = XLSX.utils.json_to_sheet(newData);

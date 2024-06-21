@@ -58,7 +58,7 @@ export class TcpClient {
 
   public connect(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      if (!this.isConnected) return;
+      if (this.isConnected) return;
 
       console.log(`Attempting to connect to TCP server at ${this.host}:${this.port}...`);
 

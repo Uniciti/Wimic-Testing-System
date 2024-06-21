@@ -45,7 +45,7 @@ class TcpClient {
     }
     connect() {
         return new Promise((resolve, reject) => {
-            if (!this.isConnected)
+            if (this.isConnected)
                 return;
             console.log(`Attempting to connect to TCP server at ${this.host}:${this.port}...`);
             this.setupListeners();

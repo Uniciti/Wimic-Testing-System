@@ -8,13 +8,30 @@ import path from 'path';
 
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export async function getPower(mod: number): Promise<number> {
+
+export async function setBertSpeed(speed: number): Promise<void> {
+    try {
+        await sshClient.sendCommand
+        await sshClient.sendCommand('configure');
+        await delay(200);
+        await sshClient.sendCommand(`bert rate ${speed} kbps`);
+        await delay(200);
+        await sshClient.sendCommand('exit');
+        await delay(200);
+    } catch (error) {
+        console.error('Error occurred:', error);
+        throw error;
+    }
+}
+
+
+export async function getPower(speed: number): Promise<number> {
     let m3mPow: number = 0;
 
     try {
         await sshClient.sendCommand('configure');
         await delay(200);
-        await sshClient.sendCommand(`txgen rate ${mod} kbps`);
+        await sshClient.sendCommand(`txgen rate ${speed} kbps`);
         await delay(200);
         await sshClient.sendCommand('exit');
         await delay(200);
@@ -35,23 +52,31 @@ export async function getPower(mod: number): Promise<number> {
 }
 
 
-export function parseBits(inputString: string): Promise<[number, number]>{
-	const regex = /bits\s(\d+)\sebits\s(\d+)/;
-	const matches = regex.exec(inputString);
+export function parseData(data: string): Promise<[number, number]> {
+    return new Promise((resolve, reject) => {
+        const lines = data.split('\n');
 
-	return new Promise((resolve, reject) => {
-		if (matches) {
-		    const bits = parseInt(matches[1], 10);
-		    const ebits = parseInt(matches[2], 10);
-		    resolve([bits, ebits]);
-		} 
-        // else {
-		//     reject(new Error("No matches found in the input string."));
-		// }
-		
-	})
-}
+        const txFramesLine = lines.find(line => line.trim().startsWith('Tx bytes'));
+        const rxFramesLine = lines.find(line => line.trim().startsWith('Rx bytes'));
 
+        if (!txFramesLine || !rxFramesLine) {
+            reject(new Error('Required lines not found in data'));
+            return;
+        }
+
+        const txFramesValues = txFramesLine.trim().split(/\s+/);
+        const rxFramesValues = rxFramesLine.trim().split(/\s+/);
+
+        try {
+            const txFrames = parseInt(txFramesValues[2], 10);
+            const rxFrames = parseInt(rxFramesValues[3], 10);
+
+            resolve([txFrames, rxFrames]);
+        } catch (error) {
+            reject(new Error('Failed to parse numbers from lines'));
+        }
+    });
+};
 
 export function writeDataToExcel(newData: any[]): void {
 	// const filePath = path.join(__dirname, 'test.xlsx');

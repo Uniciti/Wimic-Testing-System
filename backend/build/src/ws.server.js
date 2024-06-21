@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setupWebSocketServer = void 0;
+exports.broadcast = exports.setupWebSocketServer = void 0;
 const ws_1 = __importDefault(require("ws"));
 // import { Device } from './interfaces/device.interface';
 const att_service_1 = require("./services/att.service");
@@ -27,8 +27,9 @@ const devices = {
     'stat': stantion_service_1.snmpClient,
     'm3m': m3m_service_1.comClient,
 };
+let wss;
 function setupWebSocketServer(server) {
-    const wss = new ws_1.default.Server({ server });
+    wss = new ws_1.default.Server({ server });
     wss.on('connection', (ws) => {
         console.log('Client connected');
         ws.on('message', (message) => __awaiter(this, void 0, void 0, function* () {
@@ -146,3 +147,15 @@ function setupWebSocketServer(server) {
     console.log(`WebSocket server is set up and running.`);
 }
 exports.setupWebSocketServer = setupWebSocketServer;
+const broadcast = (testId, data) => {
+    if (!wss) {
+        console.error("WebSocket server is not set up");
+        return;
+    }
+    wss.clients.forEach(client => {
+        if (client.readyState === ws_1.default.OPEN) {
+            client.send(JSON.stringify({ testId, "message": data }));
+        }
+    });
+};
+exports.broadcast = broadcast;
