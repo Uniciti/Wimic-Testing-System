@@ -1,5 +1,5 @@
 import { speed, sens, modName } from './consts.logic';
-import { getPower, parseData, writeDataToExcel, delay, setBertSpeed} from './main.logic';
+import { getPower, parseData, writeDataToExcel, delay, setBertSpeed, setBertDuration} from './main.logic';
 import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { comClient, COMClient } from '../services/m3m.service';
@@ -19,7 +19,7 @@ export class ExpressTest {
 	private pa1ToSplit: number = 0;
 	private splitToAtt: number = 0;
 	private attToPa2: number = 0;
-	// private duration: number = 0;
+	private duration: number = 0;
 
 	constructor(
 		pa1: number,
@@ -29,7 +29,7 @@ export class ExpressTest {
 		pa1ToSplit: number,
 		splitToAtt: number,
 		attToPa2: number,
-		// duration: number
+		duration: number
 		) {
 
 		this.pa1 = pa1;
@@ -39,7 +39,7 @@ export class ExpressTest {
 		this.pa1ToSplit = pa1ToSplit;
 		this.splitToAtt = splitToAtt;
 		this.attToPa2 = attToPa2;
-		// this.duration = duration;
+		this.duration = duration * 1000;
 		this.offset = Math.round(pa1 + splitterM3M + pa1ToSplit) + 3;
 		this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt;
 	}
@@ -51,6 +51,8 @@ export class ExpressTest {
 
 	public async test(): Promise<void> {
 		comClient.sendCommand(this.offset);
+		await delay(1000);
+		setBertDuration(this.duration * 7 + 1000);
 		await delay(1000);
 		const dataArray: any[] = [];
 		for(let i = 6; i >= 0; i --) {
@@ -64,35 +66,65 @@ export class ExpressTest {
 			await tcpClient.sendCommand(attValue);
 			await delay(1000);
 			x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
-			await sshClient.sendCommand('statistics clear');
-			await setBertSpeed(speed[i])
 			if (x == i.toString()) {
 				await sshClient.sendCommand('statistics clear');
-				await delay(500);
+				await delay(1000);
 				await setBertSpeed(speed[i])
-				await delay(500);
+				await delay(1000);
 				await sshClient.sendCommand('bert start');
-				await delay(4000);
+				await delay(1000);
 				let txBytes: number = 0;
 				let rxBytes: number = 0;
-				for (let j = 0; j < 5; j++) {
-					const data = await sshClient.sendCommand('statistics show');
-					await delay(1000);
-					[txBytes, rxBytes] = await parseData(data);
-					console.log('TX/RX: ', txBytes, rxBytes);
-				}
+
+				let intervalChecker: NodeJS.Timeout;
+
+				const startTest =  async () => {
+				    intervalChecker = setInterval(async () => {
+				        try {
+				            const data = await sshClient.sendCommand('statistics show');
+				            delay(500);
+				            const [tx, rx] = await parseData(data);
+				            delay(500);
+				            txBytes = tx;
+				            rxBytes = rx;
+				            console.log('TX/RX: ', txBytes, rxBytes);
+				        } catch (error: any) {
+				            console.log(`SSH server error ${error.message}`);
+				        }
+				    }, 5000);
+
+				    await delay(this.duration);
+				    clearInterval(intervalChecker);
+				    
+				};
+
+				await startTest();
+				
+				// for (let j = 0; j < 5; j++) {
+				// 	const data = await sshClient.sendCommand('statistics show');
+				// 	await delay(1000);
+				// 	[txBytes, rxBytes] = await parseData(data);
+				// 	console.log('TX/RX: ', txBytes, rxBytes);
+				// }
+
 				await sshClient.sendCommand('bert stop');
 				await delay(1000);
 				const lostBytes = txBytes - rxBytes
-				const errorRate = (lostBytes / txBytes) * 100;
+				const errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
 				const snr = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
+				let verdict = "Пройдено";
+				if (0.1 < errorRate) {
+					verdict = "Не пройдено";
+				}
+
 				dataArray.push({"Модуляция": modName[i],
 								"Аттен, ДБ": attValue,
-								"С/Ш": snr,
+								"С/Ш": (parseFloat(snr.slice(0, 5))),
 								"Отправлено, байт": txBytes, 
 								"Принято, байт": rxBytes, 
 								"Потеряно, байт": lostBytes, 
-								"Процент ошибок, %": errorRate
+								"Процент ошибок, %": errorRate,
+								"Статус": verdict
 							});
 
 			}

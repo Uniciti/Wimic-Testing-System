@@ -89,7 +89,7 @@ export function setupWebSocketServer(server: any) {
           
 
           case 'express-test':
-            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.4, 1.6, 1.8);
+            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.4, 1.6, 1.8, 60);
             testtest.test();
             break;
 
