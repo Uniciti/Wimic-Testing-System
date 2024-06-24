@@ -5,6 +5,7 @@ import { sshClient, SSHClient } from './services/bert.service';
 import { snmpClient, SNMPClient } from './services/stantion.service';
 import { comClient, COMClient } from './services/m3m.service';
 import { ExpressTest } from './logic/expresstest.logic';
+import { setPathName, pathToFile, fileName } from './logic/main.logic';
 import 'dotenv/config';
 
 const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} = {
@@ -24,7 +25,7 @@ export function setupWebSocketServer(server: any) {
 
     ws.on('message', async (message: string) => {
       const parsedMessage = JSON.parse(message);
-      const { type, deviceId, command, value, ber, att, stat, M3M } = parsedMessage;
+      const { type, deviceId, command, value, ber, att, stat, M3M, filename, path } = parsedMessage;
       const device = devices[deviceId] || 'connectChecker';
 
       if (!device) {
@@ -34,6 +35,12 @@ export function setupWebSocketServer(server: any) {
 
       try {
         switch (type) {
+
+
+          case 'set-path':
+            setPathName(path, filename);
+            ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
+            break;
           
           case 'connect':
             const conStatus = await device.connect();

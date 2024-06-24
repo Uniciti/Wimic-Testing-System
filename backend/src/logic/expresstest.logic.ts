@@ -45,7 +45,7 @@ export class ExpressTest {
 	}
 
 	private calculateAtt(mod: number, m3mPow: number): number {
-		const mainAtt = mod + m3mPow - this.baseAtt;
+		const mainAtt = Math.floor(mod + m3mPow - this.baseAtt);
 		return mainAtt;
 	}
 
@@ -56,8 +56,22 @@ export class ExpressTest {
 		await delay(1000);
 		const dataArray: any[] = [];
 		for(let i = 6; i >= 0; i --) {
+
+			dataArray.push({"Модуляция": modName[i],
+								"Аттен, ДБ": "none",
+								"С/Ш": "none",
+								"Отправлено, байт": "none", 
+								"Принято, байт": "none", 
+								"Потеряно, байт": "none", 
+								"Процент ошибок, %": "none",
+								"Статус": "Ошибка поиска модуляции",
+								
+							});
+
 			broadcast("expresstest", (6 - i).toString());
+
 			const m3mPow = await getPower(speed[i]);
+
 			const attValue = Math.round(this.calculateAtt(sens[i], m3mPow));
 			await tcpClient.sendCommand(attValue);
 			let x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
@@ -109,6 +123,13 @@ export class ExpressTest {
 
 				await sshClient.sendCommand('bert stop');
 				await delay(1000);
+				const data = await sshClient.sendCommand('statistics show');
+	            delay(500);
+	            const [tx, rx] = await parseData(data);
+	            delay(500);
+	            txBytes = tx;
+	            rxBytes = rx;
+
 				const lostBytes = txBytes - rxBytes
 				const errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
 				const snr = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
@@ -117,20 +138,22 @@ export class ExpressTest {
 					verdict = "Не пройдено";
 				}
 
-				dataArray.push({"Модуляция": modName[i],
+				dataArray[dataArray.length - 1] = {
+								"Модуляция": modName[i],
 								"Аттен, ДБ": attValue,
 								"С/Ш": (parseFloat(snr.slice(0, 5))),
 								"Отправлено, байт": txBytes, 
 								"Принято, байт": rxBytes, 
 								"Потеряно, байт": lostBytes, 
 								"Процент ошибок, %": errorRate,
-								"Статус": verdict
-							});
+								"Статус": verdict,
+
+							};
 
 			}
 		}
 		console.log(dataArray);
-		writeDataToExcel(dataArray);
+		writeDataToExcel(dataArray, "express test");
 		broadcast("expresstest", "completed");
 
 	}

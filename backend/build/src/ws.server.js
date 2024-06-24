@@ -20,6 +20,7 @@ const bert_service_1 = require("./services/bert.service");
 const stantion_service_1 = require("./services/stantion.service");
 const m3m_service_1 = require("./services/m3m.service");
 const expresstest_logic_1 = require("./logic/expresstest.logic");
+const main_logic_1 = require("./logic/main.logic");
 require("dotenv/config");
 const devices = {
     'attenuator': att_service_1.tcpClient,
@@ -34,7 +35,7 @@ function setupWebSocketServer(server) {
         console.log('Client connected');
         ws.on('message', (message) => __awaiter(this, void 0, void 0, function* () {
             const parsedMessage = JSON.parse(message);
-            const { type, deviceId, command, value, ber, att, stat, M3M } = parsedMessage;
+            const { type, deviceId, command, value, ber, att, stat, M3M, filename, path } = parsedMessage;
             const device = devices[deviceId] || 'connectChecker';
             if (!device) {
                 ws.send(JSON.stringify({ type: 'error', message: `Device ${deviceId} not found` }));
@@ -42,6 +43,10 @@ function setupWebSocketServer(server) {
             }
             try {
                 switch (type) {
+                    case 'set-path':
+                        (0, main_logic_1.setPathName)(path, filename);
+                        ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
+                        break;
                     case 'connect':
                         const conStatus = yield device.connect();
                         ws.send(JSON.stringify({ type: 'connect', deviceId, conStatus }));

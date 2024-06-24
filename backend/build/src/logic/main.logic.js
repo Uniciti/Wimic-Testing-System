@@ -32,10 +32,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeDataToExcel = exports.parseData = exports.getPower = exports.setBertDuration = exports.setBertSpeed = exports.delay = void 0;
+exports.setPathName = exports.writeDataToExcel = exports.parseData = exports.getPower = exports.setBertDuration = exports.setBertSpeed = exports.delay = exports.fileName = exports.pathToFile = void 0;
 const bert_service_1 = require("../services/bert.service");
 const m3m_service_1 = require("../services/m3m.service");
 const XLSX = __importStar(require("xlsx"));
+exports.pathToFile = "/";
+exports.fileName = "test.xlsx";
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 exports.delay = delay;
 function setBertSpeed(speed) {
@@ -83,7 +85,7 @@ function setBertDuration(duration) {
 exports.setBertDuration = setBertDuration;
 function getPower(speed) {
     return __awaiter(this, void 0, void 0, function* () {
-        let m3mPow = 0;
+        let m3mPow = null;
         try {
             yield bert_service_1.sshClient.sendCommand('configure');
             yield (0, exports.delay)(200);
@@ -94,7 +96,9 @@ function getPower(speed) {
             yield bert_service_1.sshClient.sendCommand('txgen start');
             yield (0, exports.delay)(2000);
             // console.log("ToooClooose");
-            m3mPow = yield m3m_service_1.comClient.receiveData();
+            while (m3mPow === null) {
+                m3mPow = yield m3m_service_1.comClient.receiveData();
+            }
             // console.log("YouuuuWIIIINN!");
             yield (0, exports.delay)(200);
             yield bert_service_1.sshClient.sendCommand('txgen stop');
@@ -131,11 +135,16 @@ function parseData(data) {
 }
 exports.parseData = parseData;
 ;
-function writeDataToExcel(newData) {
+function writeDataToExcel(newData, testName) {
     // const filePath = path.join(__dirname, 'test.xlsx');
     const worksheet = XLSX.utils.json_to_sheet(newData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-    XLSX.writeFile(workbook, 'test.xlsx');
+    XLSX.utils.book_append_sheet(workbook, worksheet, testName);
+    XLSX.writeFile(workbook, exports.pathToFile + exports.fileName);
 }
 exports.writeDataToExcel = writeDataToExcel;
+function setPathName(path, name) {
+    exports.pathToFile = (path + "/") || "/";
+    exports.fileName = (name + ".xlsx") || "test.xlsx";
+}
+exports.setPathName = setPathName;

@@ -43,7 +43,7 @@ class ExpressTest {
         this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt;
     }
     calculateAtt(mod, m3mPow) {
-        const mainAtt = mod + m3mPow - this.baseAtt;
+        const mainAtt = Math.floor(mod + m3mPow - this.baseAtt);
         return mainAtt;
     }
     test() {
@@ -54,6 +54,15 @@ class ExpressTest {
             yield (0, main_logic_1.delay)(1000);
             const dataArray = [];
             for (let i = 6; i >= 0; i--) {
+                dataArray.push({ "Модуляция": consts_logic_1.modName[i],
+                    "Аттен, ДБ": "none",
+                    "С/Ш": "none",
+                    "Отправлено, байт": "none",
+                    "Принято, байт": "none",
+                    "Потеряно, байт": "none",
+                    "Процент ошибок, %": "none",
+                    "Статус": "Ошибка поиска модуляции",
+                });
                 (0, ws_server_1.broadcast)("expresstest", (6 - i).toString());
                 const m3mPow = yield (0, main_logic_1.getPower)(consts_logic_1.speed[i]);
                 const attValue = Math.round(this.calculateAtt(consts_logic_1.sens[i], m3mPow));
@@ -101,6 +110,12 @@ class ExpressTest {
                     // }
                     yield bert_service_1.sshClient.sendCommand('bert stop');
                     yield (0, main_logic_1.delay)(1000);
+                    const data = yield bert_service_1.sshClient.sendCommand('statistics show');
+                    (0, main_logic_1.delay)(500);
+                    const [tx, rx] = yield (0, main_logic_1.parseData)(data);
+                    (0, main_logic_1.delay)(500);
+                    txBytes = tx;
+                    rxBytes = rx;
                     const lostBytes = txBytes - rxBytes;
                     const errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
                     const snr = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
@@ -108,19 +123,20 @@ class ExpressTest {
                     if (0.1 < errorRate) {
                         verdict = "Не пройдено";
                     }
-                    dataArray.push({ "Модуляция": consts_logic_1.modName[i],
+                    dataArray[dataArray.length - 1] = {
+                        "Модуляция": consts_logic_1.modName[i],
                         "Аттен, ДБ": attValue,
                         "С/Ш": (parseFloat(snr.slice(0, 5))),
                         "Отправлено, байт": txBytes,
                         "Принято, байт": rxBytes,
                         "Потеряно, байт": lostBytes,
                         "Процент ошибок, %": errorRate,
-                        "Статус": verdict
-                    });
+                        "Статус": verdict,
+                    };
                 }
             }
             console.log(dataArray);
-            (0, main_logic_1.writeDataToExcel)(dataArray);
+            (0, main_logic_1.writeDataToExcel)(dataArray, "express test");
             (0, ws_server_1.broadcast)("expresstest", "completed");
         });
     }
