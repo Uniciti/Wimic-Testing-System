@@ -42,7 +42,9 @@ function setupWebSocketServer(server) {
                 return;
             }
             try {
+                // большая часть команд является отладочными и не будет использоваться в конечном продукте
                 switch (type) {
+                    // case 'stat-ip-switch':
                     case 'set-path':
                         (0, main_logic_1.setPathName)(path, filename);
                         ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
@@ -96,7 +98,7 @@ function setupWebSocketServer(server) {
                             break;
                         }
                     case 'express-test':
-                        const testtest = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.4, 1.6, 1.8, 60);
+                        const testtest = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60);
                         testtest.test();
                         break;
                     case 'disconnect':

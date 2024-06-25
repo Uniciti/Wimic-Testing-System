@@ -45,7 +45,7 @@ export class ExpressTest {
 	}
 
 	private calculateAtt(mod: number, m3mPow: number): number {
-		const mainAtt = Math.floor(mod + m3mPow - this.baseAtt);
+		const mainAtt = Math.ceil(mod + m3mPow - this.baseAtt);
 		return mainAtt;
 	}
 
@@ -129,7 +129,10 @@ export class ExpressTest {
 	            delay(500);
 	            txBytes = tx;
 	            rxBytes = rx;
-
+	            if (txBytes <= rxBytes) {
+	            	rxBytes = txBytes;
+	            }
+	            delay(200);
 				const lostBytes = txBytes - rxBytes
 				const errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
 				const snr = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');

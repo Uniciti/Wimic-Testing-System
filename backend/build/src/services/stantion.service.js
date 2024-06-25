@@ -16,8 +16,8 @@ exports.snmpClient = exports.SNMPClient = void 0;
 const net_snmp_1 = __importDefault(require("net-snmp"));
 const buffer_1 = require("buffer");
 const ping_1 = __importDefault(require("ping"));
-const BASE_HOST = process.env.BASE_HOST || '172.16.17.173';
-const SUBSCRIBER_HOST = process.env.SUBSCRIBER_HOST || '172.16.17.84';
+const BASE_HOST = process.env.BASE_HOST || '172.16.17.202';
+const SUBSCRIBER_HOST = process.env.SUBSCRIBER_HOST || '172.16.17.205';
 const SNMP_COMMUNITY = process.env.SNMP_COMMUNITY || 'public';
 // const SNMP_VERSION = process.env.SNMP_VERSION || '2c';
 class SNMPClient {
@@ -46,6 +46,7 @@ class SNMPClient {
         });
     }
     changeIp(baseHost, subscriberHost) {
+        this.disconnect();
         this.baseHost = baseHost;
         this.subscriberHost = subscriberHost;
         this.connect();

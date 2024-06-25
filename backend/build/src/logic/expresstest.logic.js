@@ -43,7 +43,7 @@ class ExpressTest {
         this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt;
     }
     calculateAtt(mod, m3mPow) {
-        const mainAtt = Math.floor(mod + m3mPow - this.baseAtt);
+        const mainAtt = Math.ceil(mod + m3mPow - this.baseAtt);
         return mainAtt;
     }
     test() {
@@ -53,7 +53,7 @@ class ExpressTest {
             (0, main_logic_1.setBertDuration)(this.duration * 7 + 1000);
             yield (0, main_logic_1.delay)(1000);
             const dataArray = [];
-            for (let i = 6; i >= 0; i--) {
+            for (let i = 6; i >= 4; i--) {
                 dataArray.push({ "Модуляция": consts_logic_1.modName[i],
                     "Аттен, ДБ": "none",
                     "С/Ш": "none",
@@ -116,6 +116,9 @@ class ExpressTest {
                     (0, main_logic_1.delay)(500);
                     txBytes = tx;
                     rxBytes = rx;
+                    if (txBytes <= rxBytes) {
+                        rxBytes = txBytes;
+                    }
                     const lostBytes = txBytes - rxBytes;
                     const errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
                     const snr = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');

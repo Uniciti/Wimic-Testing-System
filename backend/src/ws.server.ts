@@ -34,7 +34,10 @@ export function setupWebSocketServer(server: any) {
       }
 
       try {
+        // большая часть команд является отладочными и не будет использоваться в конечном продукте
         switch (type) {
+
+          // case 'stat-ip-switch':
 
 
           case 'set-path':
@@ -96,7 +99,7 @@ export function setupWebSocketServer(server: any) {
           
 
           case 'express-test':
-            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.4, 1.6, 1.8, 60);
+            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60);
             testtest.test();
             break;
 
