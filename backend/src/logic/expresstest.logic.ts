@@ -135,7 +135,7 @@ export class ExpressTest {
 			broadcast("expresstest", (6 - i).toString());
 
 			const m3mPow = await getPower(this.speed[i]);
-
+			console.log(m3mPow);
 			const attValue = Math.round(this.calculateAtt(this.sens[i], m3mPow));
 			await tcpClient.sendCommand(attValue);
 			let x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
@@ -196,7 +196,7 @@ export class ExpressTest {
 	            if (txBytes <= rxBytes) {
 	            	rxBytes = txBytes;
 	            }
-	            delay(200);
+	            delay(500);
 				const lostBytes = txBytes - rxBytes
 				const errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
 				const snr = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');

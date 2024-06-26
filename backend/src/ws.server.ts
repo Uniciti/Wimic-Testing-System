@@ -100,7 +100,7 @@ export function setupWebSocketServer(server: any) {
           
 
           case 'express-test':
-            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 20);
+            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
             const eresult = await testtest.setBandwidth()
             console.log(eresult);
             if (eresult) {

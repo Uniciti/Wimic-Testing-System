@@ -99,7 +99,7 @@ function setupWebSocketServer(server) {
                             break;
                         }
                     case 'express-test':
-                        const testtest = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 20);
+                        const testtest = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
                         const eresult = yield testtest.setBandwidth();
                         console.log(eresult);
                         if (eresult) {

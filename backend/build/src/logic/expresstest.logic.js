@@ -120,13 +120,14 @@ class ExpressTest {
                 });
                 (0, ws_server_1.broadcast)("expresstest", (6 - i).toString());
                 const m3mPow = yield (0, main_logic_1.getPower)(this.speed[i]);
+                console.log(m3mPow);
                 const attValue = Math.round(this.calculateAtt(this.sens[i], m3mPow));
                 yield att_service_1.tcpClient.sendCommand(attValue);
                 let x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
                 yield att_service_1.tcpClient.sendCommand(attValue - 2);
                 yield att_service_1.tcpClient.sendCommand(attValue - 1);
                 yield att_service_1.tcpClient.sendCommand(attValue);
-                yield (0, main_logic_1.delay)(1000);
+                yield (0, main_logic_1.delay)(2000);
                 x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
                 if (x == i.toString()) {
                     yield bert_service_1.sshClient.sendCommand('statistics clear');
@@ -174,7 +175,7 @@ class ExpressTest {
                     if (txBytes <= rxBytes) {
                         rxBytes = txBytes;
                     }
-                    (0, main_logic_1.delay)(200);
+                    (0, main_logic_1.delay)(500);
                     const lostBytes = txBytes - rxBytes;
                     const errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
                     const snr = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
