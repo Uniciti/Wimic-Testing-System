@@ -20,6 +20,7 @@ const bert_service_1 = require("./services/bert.service");
 const stantion_service_1 = require("./services/stantion.service");
 const m3m_service_1 = require("./services/m3m.service");
 const expresstest_logic_1 = require("./logic/expresstest.logic");
+const main_logic_1 = require("./logic/main.logic");
 require("dotenv/config");
 const devices = {
     'attenuator': att_service_1.tcpClient,
@@ -34,14 +35,20 @@ function setupWebSocketServer(server) {
         console.log('Client connected');
         ws.on('message', (message) => __awaiter(this, void 0, void 0, function* () {
             const parsedMessage = JSON.parse(message);
-            const { type, deviceId, command, value, ber, att, stat, M3M } = parsedMessage;
+            const { type, deviceId, command, value, ber, att, stat, M3M, filename, path } = parsedMessage;
             const device = devices[deviceId] || 'connectChecker';
             if (!device) {
                 ws.send(JSON.stringify({ type: 'error', message: `Device ${deviceId} not found` }));
                 return;
             }
             try {
+                // большая часть команд является отладочными и не будет использоваться в конечном продукте
                 switch (type) {
+                    // case 'stat-ip-switch':
+                    case 'set-path':
+                        (0, main_logic_1.setPathName)(path, filename);
+                        ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
+                        break;
                     case 'connect':
                         const conStatus = yield device.connect();
                         ws.send(JSON.stringify({ type: 'connect', deviceId, conStatus }));
@@ -63,7 +70,8 @@ function setupWebSocketServer(server) {
                         }
                         if (device instanceof stantion_service_1.SNMPClient) {
                             let args = command.split(" ");
-                            const deviseRes = yield device.setToBase(args[0], parseInt(args[1], 10));
+                            yield device.setToBase(args[0], parseInt(args[1], 10));
+                            yield device.setToSubscriber(args[0], parseInt(args[1], 10));
                             ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
                             break;
                         }
@@ -91,8 +99,12 @@ function setupWebSocketServer(server) {
                             break;
                         }
                     case 'express-test':
-                        const testtest = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.4, 1.6, 1.8, 60);
-                        testtest.test();
+                        const testtest = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+                        const eresult = yield testtest.setBandwidth();
+                        console.log(eresult);
+                        if (eresult) {
+                            testtest.test();
+                        }
                         break;
                     case 'disconnect':
                         device.disconnect();

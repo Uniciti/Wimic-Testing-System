@@ -5,6 +5,7 @@ import { sshClient, SSHClient } from './services/bert.service';
 import { snmpClient, SNMPClient } from './services/stantion.service';
 import { comClient, COMClient } from './services/m3m.service';
 import { ExpressTest } from './logic/expresstest.logic';
+import { setPathName, pathToFile, fileName } from './logic/main.logic';
 import 'dotenv/config';
 
 const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} = {
@@ -24,7 +25,7 @@ export function setupWebSocketServer(server: any) {
 
     ws.on('message', async (message: string) => {
       const parsedMessage = JSON.parse(message);
-      const { type, deviceId, command, value, ber, att, stat, M3M } = parsedMessage;
+      const { type, deviceId, command, value, ber, att, stat, M3M, filename, path } = parsedMessage;
       const device = devices[deviceId] || 'connectChecker';
 
       if (!device) {
@@ -33,7 +34,16 @@ export function setupWebSocketServer(server: any) {
       }
 
       try {
+        // большая часть команд является отладочными и не будет использоваться в конечном продукте
         switch (type) {
+
+          // case 'stat-ip-switch':
+
+
+          case 'set-path':
+            setPathName(path, filename);
+            ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
+            break;
           
           case 'connect':
             const conStatus = await device.connect();
@@ -57,7 +67,8 @@ export function setupWebSocketServer(server: any) {
             }
             if (device instanceof SNMPClient){
               let args = command.split(" ");
-              const deviseRes = await device.setToBase(args[0], parseInt(args[1], 10));
+              await device.setToBase(args[0], parseInt(args[1], 10));
+              await device.setToSubscriber(args[0], parseInt(args[1], 10));
               ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
               break;
             }
@@ -89,8 +100,13 @@ export function setupWebSocketServer(server: any) {
           
 
           case 'express-test':
-            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.4, 1.6, 1.8, 60);
-            testtest.test();
+            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+            const eresult = await testtest.setBandwidth()
+            console.log(eresult);
+            if (eresult) {
+              testtest.test();              
+            }
+
             break;
 
 

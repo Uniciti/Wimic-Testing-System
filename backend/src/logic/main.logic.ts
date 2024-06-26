@@ -2,9 +2,12 @@ import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
 import { comClient, COMClient } from '../services/m3m.service';
-import { speed, sens, modName } from './consts.logic';
+// import { speed, sens, modName } from './consts.logic';
 import * as XLSX from 'xlsx';
 import path from 'path';
+
+export let pathToFile: string = "/home/pudge/";
+export let fileName: string = "test.xlsx";
 
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -53,7 +56,7 @@ export async function setBertDuration(duration: number): Promise<void> {
 }
 
 export async function getPower(speed: number): Promise<number> {
-    let m3mPow: number = 0;
+    let m3mPow: number | null = null;
 
     try {
         await sshClient.sendCommand('configure');
@@ -65,7 +68,9 @@ export async function getPower(speed: number): Promise<number> {
         await sshClient.sendCommand('txgen start');
         await delay(2000);
         // console.log("ToooClooose");
-        m3mPow = await comClient.receiveData();
+        while (m3mPow === null){
+            m3mPow = await comClient.receiveData();
+        }
         // console.log("YouuuuWIIIINN!");
         await delay(200);
         await sshClient.sendCommand('txgen stop');
@@ -105,13 +110,16 @@ export function parseData(data: string): Promise<[number, number]> {
     });
 };
 
-export function writeDataToExcel(newData: any[]): void {
+export function writeDataToExcel(newData: any[],  testName: string): void {
 	// const filePath = path.join(__dirname, 'test.xlsx');
 	const worksheet = XLSX.utils.json_to_sheet(newData);
 	const workbook = XLSX.utils.book_new();
-  	XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-  	XLSX.writeFile(workbook, 'test.xlsx');
-
+  	XLSX.utils.book_append_sheet(workbook, worksheet, testName);
+  	XLSX.writeFile(workbook, pathToFile + fileName);
 
 }
 
+export function setPathName(path: string, name: string) { 
+    pathToFile = (path + "/") || "/home/pudge/";
+    fileName = (name + ".xlsx") || "test.xlsx";
+}

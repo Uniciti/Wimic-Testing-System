@@ -19,7 +19,7 @@ const stantion_service_1 = require("../services/stantion.service");
 const ws_server_1 = require("../ws.server");
 require("dotenv/config");
 class ExpressTest {
-    constructor(pa1, pa2, splitterAtt, splitterM3M, pa1ToSplit, splitToAtt, attToPa2, duration) {
+    constructor(pa1, pa2, splitterAtt, splitterM3M, pa1ToSplit, splitToAtt, attToPa2, duration, bandwidth) {
         // private m3mPow: number = 0;
         this.offset = 0;
         this.baseAtt = 0;
@@ -31,6 +31,9 @@ class ExpressTest {
         this.splitToAtt = 0;
         this.attToPa2 = 0;
         this.duration = 0;
+        this.bandwidth = 10;
+        this.speed = consts_logic_1.speed10;
+        this.sens = consts_logic_1.sens10;
         this.pa1 = pa1;
         this.pa2 = pa2;
         this.splitterAtt = splitterAtt;
@@ -39,12 +42,63 @@ class ExpressTest {
         this.splitToAtt = splitToAtt;
         this.attToPa2 = attToPa2;
         this.duration = duration * 1000;
+        this.bandwidth = bandwidth;
         this.offset = Math.round(pa1 + splitterM3M + pa1ToSplit) + 3;
         this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt;
     }
     calculateAtt(mod, m3mPow) {
-        const mainAtt = mod + m3mPow - this.baseAtt;
+        const mainAtt = Math.ceil(mod + m3mPow - this.baseAtt);
         return mainAtt;
+    }
+    setBandwidth() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.bandwidth == 20) {
+                this.speed = consts_logic_1.speed20;
+                this.sens = consts_logic_1.sens20;
+                yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+                yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+                yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+                yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+            }
+            else {
+                this.speed = consts_logic_1.speed10;
+                this.sens = consts_logic_1.sens10;
+                yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+                yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+                yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+                yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+            }
+            yield (0, main_logic_1.delay)(5000);
+            console.log("check");
+            return new Promise((resolve, reject) => {
+                let pingStat0;
+                let pingStat1;
+                try {
+                    const checkOutput = () => __awaiter(this, void 0, void 0, function* () {
+                        const result = yield stantion_service_1.snmpClient.checkConnect();
+                        if (Array.isArray(result)) {
+                            [pingStat0, pingStat1] = result;
+                        }
+                        if (pingStat0 && pingStat1) {
+                            resolve(true);
+                        }
+                        else {
+                            setTimeout(checkOutput, 5000);
+                        }
+                    });
+                    checkOutput();
+                    setTimeout(() => {
+                        if (!(pingStat0 && pingStat1)) {
+                            console.log('Connection check timeout. Stations may be disconnected.');
+                            resolve(false);
+                        }
+                    }, 180000);
+                }
+                catch (error) {
+                    reject(`SNMP server error ${error.message}`);
+                }
+            });
+        });
     }
     test() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -54,20 +108,31 @@ class ExpressTest {
             yield (0, main_logic_1.delay)(1000);
             const dataArray = [];
             for (let i = 6; i >= 0; i--) {
+                dataArray.push({ "Модуляция": consts_logic_1.modName[i],
+                    "Аттен, ДБ": "none",
+                    "С/Ш": "none",
+                    "Отправлено, байт": "none",
+                    "Принято, байт": "none",
+                    "Потеряно, байт": "none",
+                    "Процент ошибок, %": "none",
+                    "Статус": "Ошибка поиска модуляции",
+                    "Полоса": this.bandwidth,
+                });
                 (0, ws_server_1.broadcast)("expresstest", (6 - i).toString());
-                const m3mPow = yield (0, main_logic_1.getPower)(consts_logic_1.speed[i]);
-                const attValue = Math.round(this.calculateAtt(consts_logic_1.sens[i], m3mPow));
+                const m3mPow = yield (0, main_logic_1.getPower)(this.speed[i]);
+                console.log(m3mPow);
+                const attValue = Math.round(this.calculateAtt(this.sens[i], m3mPow));
                 yield att_service_1.tcpClient.sendCommand(attValue);
                 let x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
                 yield att_service_1.tcpClient.sendCommand(attValue - 2);
                 yield att_service_1.tcpClient.sendCommand(attValue - 1);
                 yield att_service_1.tcpClient.sendCommand(attValue);
-                yield (0, main_logic_1.delay)(1000);
+                yield (0, main_logic_1.delay)(2000);
                 x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
                 if (x == i.toString()) {
                     yield bert_service_1.sshClient.sendCommand('statistics clear');
                     yield (0, main_logic_1.delay)(1000);
-                    yield (0, main_logic_1.setBertSpeed)(consts_logic_1.speed[i]);
+                    yield (0, main_logic_1.setBertSpeed)(this.speed[i]);
                     yield (0, main_logic_1.delay)(1000);
                     yield bert_service_1.sshClient.sendCommand('bert start');
                     yield (0, main_logic_1.delay)(1000);
@@ -101,6 +166,16 @@ class ExpressTest {
                     // }
                     yield bert_service_1.sshClient.sendCommand('bert stop');
                     yield (0, main_logic_1.delay)(1000);
+                    const data = yield bert_service_1.sshClient.sendCommand('statistics show');
+                    (0, main_logic_1.delay)(500);
+                    const [tx, rx] = yield (0, main_logic_1.parseData)(data);
+                    (0, main_logic_1.delay)(500);
+                    txBytes = tx;
+                    rxBytes = rx;
+                    if (txBytes <= rxBytes) {
+                        rxBytes = txBytes;
+                    }
+                    (0, main_logic_1.delay)(500);
                     const lostBytes = txBytes - rxBytes;
                     const errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
                     const snr = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
@@ -108,19 +183,21 @@ class ExpressTest {
                     if (0.1 < errorRate) {
                         verdict = "Не пройдено";
                     }
-                    dataArray.push({ "Модуляция": consts_logic_1.modName[i],
+                    dataArray[dataArray.length - 1] = {
+                        "Модуляция": consts_logic_1.modName[i],
                         "Аттен, ДБ": attValue,
                         "С/Ш": (parseFloat(snr.slice(0, 5))),
                         "Отправлено, байт": txBytes,
                         "Принято, байт": rxBytes,
                         "Потеряно, байт": lostBytes,
                         "Процент ошибок, %": errorRate,
-                        "Статус": verdict
-                    });
+                        "Статус": verdict,
+                        "Полоса": this.bandwidth,
+                    };
                 }
             }
             console.log(dataArray);
-            (0, main_logic_1.writeDataToExcel)(dataArray);
+            (0, main_logic_1.writeDataToExcel)(dataArray, "express test");
             (0, ws_server_1.broadcast)("expresstest", "completed");
         });
     }
