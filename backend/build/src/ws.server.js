@@ -70,7 +70,8 @@ function setupWebSocketServer(server) {
                         }
                         if (device instanceof stantion_service_1.SNMPClient) {
                             let args = command.split(" ");
-                            const deviseRes = yield device.setToBase(args[0], parseInt(args[1], 10));
+                            yield device.setToBase(args[0], parseInt(args[1], 10));
+                            yield device.setToSubscriber(args[0], parseInt(args[1], 10));
                             ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
                             break;
                         }
@@ -98,8 +99,12 @@ function setupWebSocketServer(server) {
                             break;
                         }
                     case 'express-test':
-                        const testtest = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60);
-                        testtest.test();
+                        const testtest = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 20);
+                        const eresult = yield testtest.setBandwidth();
+                        console.log(eresult);
+                        if (eresult) {
+                            testtest.test();
+                        }
                         break;
                     case 'disconnect':
                         device.disconnect();

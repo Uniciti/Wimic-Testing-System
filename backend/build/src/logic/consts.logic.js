@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.speed = exports.sens = exports.modName = void 0;
+exports.speed20 = exports.sens20 = exports.speed10 = exports.sens10 = exports.modName = void 0;
 exports.modName = [
     'BPSK 1/2',
     'QPSK 1/2',
@@ -10,7 +10,7 @@ exports.modName = [
     'QAM64 2/3',
     'QAM64 3/4'
 ];
-exports.sens = [
+exports.sens10 = [
     88.5,
     85.5,
     83,
@@ -19,7 +19,7 @@ exports.sens = [
     72.5,
     70.5
 ];
-exports.speed = [
+exports.speed10 = [
     1600,
     3500,
     5250,
@@ -27,4 +27,22 @@ exports.speed = [
     10500,
     14500,
     16500
+];
+exports.sens20 = [
+    86,
+    82.5,
+    80,
+    77,
+    73.5,
+    70,
+    67.5
+];
+exports.speed20 = [
+    3500,
+    7400,
+    11500,
+    15000,
+    23000,
+    30750,
+    34000
 ];

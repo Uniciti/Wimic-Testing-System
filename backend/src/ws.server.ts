@@ -67,7 +67,8 @@ export function setupWebSocketServer(server: any) {
             }
             if (device instanceof SNMPClient){
               let args = command.split(" ");
-              const deviseRes = await device.setToBase(args[0], parseInt(args[1], 10));
+              await device.setToBase(args[0], parseInt(args[1], 10));
+              await device.setToSubscriber(args[0], parseInt(args[1], 10));
               ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
               break;
             }
@@ -99,8 +100,13 @@ export function setupWebSocketServer(server: any) {
           
 
           case 'express-test':
-            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60);
-            testtest.test();
+            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 20);
+            const eresult = await testtest.setBandwidth()
+            console.log(eresult);
+            if (eresult) {
+              testtest.test();              
+            }
+
             break;
 
 

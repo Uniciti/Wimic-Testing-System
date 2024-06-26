@@ -2,7 +2,7 @@ import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
 import { comClient, COMClient } from '../services/m3m.service';
-import { speed, sens, modName } from './consts.logic';
+// import { speed, sens, modName } from './consts.logic';
 import * as XLSX from 'xlsx';
 import path from 'path';
 

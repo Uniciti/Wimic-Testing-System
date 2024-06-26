@@ -35,6 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.setPathName = exports.writeDataToExcel = exports.parseData = exports.getPower = exports.setBertDuration = exports.setBertSpeed = exports.delay = exports.fileName = exports.pathToFile = void 0;
 const bert_service_1 = require("../services/bert.service");
 const m3m_service_1 = require("../services/m3m.service");
+// import { speed, sens, modName } from './consts.logic';
 const XLSX = __importStar(require("xlsx"));
 exports.pathToFile = "/home/pudge/";
 exports.fileName = "test.xlsx";
