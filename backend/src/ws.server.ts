@@ -5,6 +5,7 @@ import { sshClient, SSHClient } from './services/bert.service';
 import { snmpClient, SNMPClient } from './services/stantion.service';
 import { comClient, COMClient } from './services/m3m.service';
 import { ExpressTest } from './logic/expresstest.logic';
+import { FullTest } from './logic/fulltest.logic';
 import { setPathName, pathToFile, fileName } from './logic/main.logic';
 import 'dotenv/config';
 
@@ -109,6 +110,15 @@ export function setupWebSocketServer(server: any) {
 
             break;
 
+          case 'full-test':
+            const testtestq = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+            const eresultq = await testtestq.setBandwidth()
+            console.log(eresultq);
+            if (eresultq) {
+              testtestq.test();              
+            }
+
+            break;
 
           case 'disconnect':
             device.disconnect();
