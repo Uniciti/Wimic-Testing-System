@@ -95,13 +95,13 @@ function getPower(speed) {
             yield bert_service_1.sshClient.sendCommand('exit');
             yield (0, exports.delay)(200);
             yield bert_service_1.sshClient.sendCommand('txgen start');
-            yield (0, exports.delay)(2000);
+            yield (0, exports.delay)(2500);
             // console.log("ToooClooose");
             while (m3mPow === null) {
                 m3mPow = yield m3m_service_1.comClient.receiveData();
             }
             // console.log("YouuuuWIIIINN!");
-            yield (0, exports.delay)(200);
+            yield (0, exports.delay)(500);
             yield bert_service_1.sshClient.sendCommand('txgen stop');
             yield (0, exports.delay)(1000);
         }

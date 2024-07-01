@@ -20,6 +20,7 @@ const bert_service_1 = require("./services/bert.service");
 const stantion_service_1 = require("./services/stantion.service");
 const m3m_service_1 = require("./services/m3m.service");
 const expresstest_logic_1 = require("./logic/expresstest.logic");
+const fulltest_logic_1 = require("./logic/fulltest.logic");
 const main_logic_1 = require("./logic/main.logic");
 require("dotenv/config");
 const devices = {
@@ -104,6 +105,14 @@ function setupWebSocketServer(server) {
                         console.log(eresult);
                         if (eresult) {
                             testtest.test();
+                        }
+                        break;
+                    case 'full-test':
+                        const testtestq = new fulltest_logic_1.FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+                        const eresultq = yield testtestq.setBandwidth();
+                        console.log(eresultq);
+                        if (eresultq) {
+                            testtestq.test();
                         }
                         break;
                     case 'disconnect':

@@ -123,12 +123,12 @@ class ExpressTest {
                 console.log(m3mPow);
                 const attValue = Math.round(this.calculateAtt(this.sens[i], m3mPow));
                 yield att_service_1.tcpClient.sendCommand(attValue);
-                let x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
+                // let x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
                 yield att_service_1.tcpClient.sendCommand(attValue - 2);
                 yield att_service_1.tcpClient.sendCommand(attValue - 1);
                 yield att_service_1.tcpClient.sendCommand(attValue);
                 yield (0, main_logic_1.delay)(2000);
-                x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
+                const x = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
                 if (x == i.toString()) {
                     yield bert_service_1.sshClient.sendCommand('statistics clear');
                     yield (0, main_logic_1.delay)(1000);
@@ -165,7 +165,7 @@ class ExpressTest {
                     // 	console.log('TX/RX: ', txBytes, rxBytes);
                     // }
                     yield bert_service_1.sshClient.sendCommand('bert stop');
-                    yield (0, main_logic_1.delay)(1000);
+                    yield (0, main_logic_1.delay)(2000);
                     const data = yield bert_service_1.sshClient.sendCommand('statistics show');
                     (0, main_logic_1.delay)(500);
                     const [tx, rx] = yield (0, main_logic_1.parseData)(data);

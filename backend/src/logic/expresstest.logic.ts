@@ -118,7 +118,7 @@ export class ExpressTest {
 		setBertDuration(this.duration * 7 + 1000);
 		await delay(1000);
 		const dataArray: any[] = [];
-		for(let i = 6; i >= 0; i --) {
+		for(let i = 6; i >= 0; i--) {
 
 			dataArray.push({"Модуляция": modName[i],
 								"Аттен, ДБ": "none",
@@ -186,7 +186,7 @@ export class ExpressTest {
 				// }
 
 				await sshClient.sendCommand('bert stop');
-				await delay(1000);
+				await delay(2000);
 				const data = await sshClient.sendCommand('statistics show');
 	            delay(500);
 	            const [tx, rx] = await parseData(data);
