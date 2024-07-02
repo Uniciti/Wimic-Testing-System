@@ -301,21 +301,6 @@ class FullTest {
                 if (pinN < this.sens[i]) {
                     pinVerdict = "Чуствительность не соответствует";
                 }
-                // dataArray[dataArray.length - 1] = {
-                // 					"Модуляция": modName[i],
-                // 					"Аттен, ДБ": attValue,
-                // 					"С/Ш": (parseFloat(snr.slice(0, 5))),
-                // 					"Pin": pinN,
-                // 					"Чуствительность":this.sens[i];
-                // 					"Pin станция": pinV,
-                // 					"Отправлено, байт": txBytes, 
-                // 					"Принято, байт": rxBytes, 
-                // 					"Потеряно, байт": lostBytes, 
-                // 					"Процент ошибок, %": errorRate,
-                // 					"Статус": verdict,
-                // 					"Статус чуствительности":pinVerdict,
-                // 					"Полоса": this.bandwidth,
-                // 				};
                 dataArray.push({
                     "Модуляция": consts_logic_1.modName[i],
                     "Аттен, ДБ": attValue,
