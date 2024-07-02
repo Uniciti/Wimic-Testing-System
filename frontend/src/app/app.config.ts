@@ -1,12 +1,12 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter, Routes } from '@angular/router';
-import { deviceStatusComponent } from './deviceStatus/deviceStatus.component';
-import { ExpressTest } from './ExpressTest/ExpressTest.component';
+import { DeviceStatusComponent } from './deviceStatus/deviceStatus.component';
+import { mainTestsComponent } from './mainTests/mainTests.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/deviceStatus', pathMatch: 'full' },
-  { path: 'deviceStatus', component: deviceStatusComponent },
-  { path: 'expressTest', component: ExpressTest }
+  { path: 'deviceStatus', component: DeviceStatusComponent },
+  { path: 'mainTests', component: mainTestsComponent }
 ];
 
 export const appConfig: ApplicationConfig = {

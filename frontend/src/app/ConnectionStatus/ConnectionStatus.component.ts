@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { SharedWebSocketService } from '../SharedWebSocket.service';
-import { SharedService } from './ConnectionStatus.service';
+import { ConnectionStatusService } from '../core/services/ConnectionStatus.service';
 import { NgClass } from "@angular/common";
 import { Subscription } from 'rxjs';
 
@@ -18,8 +18,8 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
   StationStatus: string = '';
   M3MStatus: string = '';
 
-  _IP_Abonent: string = '';
-  _IP_Base: string = '';
+  _IP_Abonent: string | null = '';
+  _IP_Base: string | null = '';
   _Frequency: string | null = null;  
   _Bandwidth: string = '';
   _Attenuation: string = '';
@@ -30,10 +30,10 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
   //public messages: any[] = [];
   //public isConnected: boolean = false;
 
-  constructor(private sharedWebSocketService: SharedWebSocketService, private sharedService: SharedService) { }
+  constructor(private sharedWebSocketService: SharedWebSocketService, private connectionStatusService: ConnectionStatusService) { }
 
   ngOnInit() {
-    this.sharedWebSocketService.connect();
+    //this.sharedWebSocketService.connect();
 
     // this.subscription.add(this.sharedWebSocketService.getMessages().subscribe(message => {
     //   //this.updateStatus(message);
@@ -47,43 +47,43 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
     //   this.sharedWebSocketService.sendMessage(message);
     // });
 
-    this.subscription.add(this.sharedService.currentIP_BaseStatus.subscribe(_IP_Base => {
+    this.subscription.add(this.connectionStatusService.currentIP_BaseStatus.subscribe(_IP_Base => {
       this._IP_Base = _IP_Base;
     }));
 
-    this.subscription.add(this.sharedService.currentIP_AbonentStatus.subscribe(_IP_Abonent => {
+    this.subscription.add(this.connectionStatusService.currentIP_AbonentStatus.subscribe(_IP_Abonent => {
       this._IP_Abonent = _IP_Abonent;
     }));
 
-    this.subscription.add(this.sharedService.currentFrequencyStatus.subscribe(_Frequency => {
+    this.subscription.add(this.connectionStatusService.currentFrequencyStatus.subscribe(_Frequency => {
       this._Frequency = _Frequency;
     }));
 
-    this.subscription.add(this.sharedService.currentBandwidthStatus.subscribe(_Bandwidth => {
+    this.subscription.add(this.connectionStatusService.currentBandwidthStatus.subscribe(_Bandwidth => {
       this._Bandwidth = _Bandwidth;
     }));
 
-    this.subscription.add(this.sharedService.currentAttenuationStatus.subscribe(_Attenuation => {
+    this.subscription.add(this.connectionStatusService.currentAttenuationStatus.subscribe(_Attenuation => {
       this._Attenuation = _Attenuation;
     }));
 
-    this.subscription.add(this.sharedService.currentOffsetStatus.subscribe(_Offset => {
+    this.subscription.add(this.connectionStatusService.currentOffsetStatus.subscribe(_Offset => {
       this._Offset = _Offset;
     }));
 
-    this.subscription.add(this.sharedService.currentBercutStatus.subscribe(_bercutStatus => {
+    this.subscription.add(this.connectionStatusService.currentBercutStatus.subscribe(_bercutStatus => {
       this.bercutStatus = _bercutStatus ? "Подключено" : "Отключено";
     }));
 
-    this.subscription.add(this.sharedService.currentAttenuatorStatus.subscribe(_attStatus => {
+    this.subscription.add(this.connectionStatusService.currentAttenuatorStatus.subscribe(_attStatus => {
       this.attStatus = _attStatus ? "Подключено" : "Отключено"
     }));
 
-    this.subscription.add(this.sharedService.currentStationStatus.subscribe(_StationStatus => {
+    this.subscription.add(this.connectionStatusService.currentStationStatus.subscribe(_StationStatus => {
       this.StationStatus = _StationStatus ? "Подключено" : "Отключено"
     }));
 
-    this.subscription.add(this.sharedService.currentM3MStatus.subscribe(_M3MStatus => {
+    this.subscription.add(this.connectionStatusService.currentM3MStatus.subscribe(_M3MStatus => {
       this.M3MStatus = _M3MStatus ? "Подключено" : "Отключено"
     }));
   }
@@ -92,7 +92,6 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
-    this.sharedWebSocketService.disconnect();
   }
 
   // private updateStatus(message: any): void {

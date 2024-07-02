@@ -6,26 +6,26 @@
       <p-button 
         label="Подключиться" 
         icon="pi pi-times" 
-        [loading]="loadingBer" 
-        *ngIf="!bercutConnected"
-        (click)="connectBer()" />
+        [loading]="loadingButtons['Ber']" 
+        *ngIf="!connectionsButtons['Ber']"
+        (click)="connectToDevice('Ber')" />
       <!-- <button *ngIf="!bercutConnected" [disabled]="clickConBer" type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-sm py-1 px-2 rounded" (click)="connectBer()">Подключиться</button> -->
       <p-button 
         label="Отключиться" 
         icon="pi pi-times" 
-        [loading]="loadingBer" 
-        (click)="disconnectBer()" 
-        *ngIf="bercutConnected"
+        [loading]="loadingButtons['Ber']" 
+        *ngIf="connectionsButtons['Ber']"
+        (click)="disconnectToDevice('Ber')"
         severity="danger" />
       <!-- <button *ngIf="bercutConnected" [disabled]="clickDisBer" type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold text-sm py-1 px-2 rounded" (click)="disconnectBer()">Отключиться</button> -->
     </div>
-     <div class="form-group">
+     <!-- <div class="form-group">
       <label for="inputCommandBer" class="block text-sm font-medium text-gray-700">Команда для устройства:</label>
       <input type="text" [(ngModel)]="inputCommandBer" id="inputCommandBer" placeholder="Введите комманду" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-    </div>
-    <div class="mt-4">
+    </div> -->
+    <!-- <div class="mt-4">
       <button (click)="sendCommandBer()" type="button" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить команду</button>
-    </div> 
+    </div>  -->
   </div>
 
   <div class="container max-w-lg mx-0 p-4 border rounded-lg shadow-md mb-6">
@@ -34,16 +34,16 @@
       <p-button 
         label="Подключиться" 
         icon="pi pi-times" 
-        [loading]="loadingAtt" 
-        *ngIf="!attConnected"
-        (click)="connectAtt()" />
+        [loading]="loadingButtons['Att']" 
+        *ngIf="!connectionsButtons['Att']"
+        (click)="connectToDevice('Att')" />
       <!-- <button *ngIf="!attConnected" [disabled]="clickConAtt" type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-sm py-1 px-2 rounded" (click)="connectAtt()">Подключиться</button> -->
       <p-button 
         label="Отключиться" 
         icon="pi pi-times" 
-        [loading]="loadingAtt" 
-        (click)="disconnectAtt()" 
-        *ngIf="attConnected"
+        [loading]="loadingButtons['Att']" 
+        *ngIf="connectionsButtons['Att']"
+        (click)="disconnectToDevice('Att')" 
         severity="danger" />
       <!-- <button *ngIf="attConnected" [disabled]="clickDisAtt" type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold text-sm py-1 px-2 rounded" (click)="disconnectAtt()">Отключиться</button> -->
     </div>
@@ -62,19 +62,19 @@
       <p-button 
         label="Подключиться" 
         icon="pi pi-times" 
-        [loading]="loadingStat" 
-        *ngIf="!statConnected"
-        (click)="connectStat()" />
+        [loading]="loadingButtons['Stat']" 
+        *ngIf="connectionsButtons['Stat']"
+        (click)="connectToDevice('Stat')"  />
       <p-button 
         label="Отключиться" 
         icon="pi pi-times" 
-        [loading]="loadingStat" 
-        (click)="disconnectStat()" 
-        *ngIf="statConnected"
+        [loading]="loadingButtons['Stat']" 
+        *ngIf="connectionsButtons['Stat']"
+        (click)="disconnectToDevice('Stat')" 
         severity="danger" />
     </div>
     <h3 class="text-l font-semibold mb-4">Параметры станций</h3>
-    <form (ngSubmit)="sendOID()">
+    <form (ngSubmit)="sendParams('StatOID')">
       <div class="space-y-4">
         <div class="card flex flex-wrap gap-3 p-fluid">
           <div class="flex-auto">
@@ -91,7 +91,7 @@
           <label for="inputFrequency" class="block text-sm font-medium text-gray-700">Частота станций, КГц:</label>
           <input type="number" name="inputFrequency" [(ngModel)]="inputFrequency" id="inputFrequency" placeholder="Введите частоту" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" autofocus> 
         </div> -->
-        <div class="card justify-content-center">
+        <!-- <div class="card justify-content-center">
           <label for="selectionBandwidth" class="block text-sm font-medium text-gray-700">Ширина полосы, МГц:</label>
           <p-selectButton 
             [options]="stationOptions" 
@@ -99,7 +99,7 @@
             optionLabel="label" 
             optionValue="value"
             id="selectionBandwidth" />
-        </div>
+        </div> -->
         <!-- <div class="form-group">
           <label for="selectionBandwidth" class="block text-sm font-medium text-gray-700">Ширина полосы:</label>
           <select id="selectionBandwidth" name="selectionBandwidth" [(ngModel)]="selectionBandwidth" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -112,8 +112,8 @@
             label="Отправить"
             type="submit" 
             icon="pi pi-times" 
-            [disabled]="!statConnected"
-            [loading]="loadingStatParams" 
+            [disabled]="!connectionsButtons['Stat']"
+            [loading]="loadingButtons['StatOID']" 
             severity="success" />
           <!-- <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить</button> -->
         </div>
@@ -121,12 +121,12 @@
     </form>
 
     <h3 class="text-l font-semibold mt-4 mb-4">IP адреса станций</h3>
-    <form (ngSubmit)="sendIP()">
+    <form (ngSubmit)="sendParams('SendIP')">
       <div class="form-group">
         <div class="card flex flex-wrap gap-3 p-fluid">
           <div class="flex-auto">
             <label for="inputIP_BASE" class="block text-sm font-medium text-gray-700">IP адрес <strong>Базы</strong>:</label>
-            <input type="text" name="inputIP_BASE" pInputText [(ngModel)]="inputIP_BASE" class="mb-3 px-3 py-2" inputId="inputIP_BASE" placeholder="192.168.0.1"/>
+            <input id="inputIP_BASE" type="text" name="inputIP_BASE" pInputText [(ngModel)]="inputIP_BASE" class="mb-3 px-3 py-2" inputId="inputIP_BASE" placeholder="192.168.0.1"/>
           </div>
         </div>
         <!-- <label for="inputIP_BASE" class="block text-sm font-medium text-gray-700">IP адрес <strong>Базы</strong>:</label>
@@ -136,7 +136,7 @@
         <div class="card flex flex-wrap gap-3 p-fluid">
           <div class="flex-auto">
             <label for="inputIP_ABONENT" class="block text-sm font-medium text-gray-700">IP адрес <strong>Абонента</strong>:</label>
-            <input type="text" name="inputIP_ABONENT" pInputText [(ngModel)]="inputIP_ABONENT" class="mb-3 px-3 py-2" inputId="inputIP_ABONENT" placeholder="192.168.0.2"/>
+            <input id="inputIP_ABONENT" type="text" name="inputIP_ABONENT" pInputText [(ngModel)]="inputIP_ABONENT" class="mb-3 px-3 py-2" inputId="inputIP_ABONENT" placeholder="192.168.0.2"/>
           </div>
         </div>
       </div>
@@ -145,8 +145,8 @@
           label="Отправить"
           type="submit" 
           icon="pi pi-times" 
-          [disabled]="!statConnected"
-          [loading]="loadingStatIp" 
+          [disabled]="!connectionsButtons['Stat']"
+          [loading]="loadingButtons['StatIP']" 
           severity="success" />
         <!-- <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить</button> -->
         <p-button 
@@ -164,18 +164,18 @@
       <p-button 
         label="Подключиться" 
         icon="pi pi-times" 
-        [loading]="loadingM3M" 
-        *ngIf="!M3MConnected"
-        (click)="connectM3M()" />
+        [loading]="loadingButtons['M3M']" 
+        *ngIf="!connectionsButtons['M3M']"
+        (click)="connectToDevice('M3M')" />
       <p-button 
         label="Отключиться" 
         icon="pi pi-times" 
-        [loading]="loadingM3M" 
-        (click)="disconnectM3M()" 
-        *ngIf="M3MConnected"
+        [loading]="loadingButtons['M3M']" 
+        *ngIf="connectionsButtons['M3M']"
+        (click)="disconnectToDevice('M3M')" 
         severity="danger" />
     </div>
-    <form (ngSubmit)="sendM3M()">
+    <form (ngSubmit)="sendParams('M3Moffset')">
       <div class="card flex flex-wrap gap-3 p-fluid">
         <div class="flex-auto">
           <label for="inputOffset" class="block text-sm font-medium text-gray-700">Компенсация ослабления, дБ:</label>
@@ -194,8 +194,8 @@
         label="Отправить"
         type="submit" 
         icon="pi pi-times"
-        [disabled]="!M3MConnected" 
-        [loading]="loadingM3Msend" 
+        [disabled]="!connectionsButtons['M3M']"
+        [loading]="loadingButtons['M3Moffset']" 
         severity="success" />
         <!-- <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить</button> -->
       </div>

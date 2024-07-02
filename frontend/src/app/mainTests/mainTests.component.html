@@ -1,7 +1,29 @@
 <div class="container p-6 max-w-lg bg-white shadow-md rounded-lg">
-  <h2 class="text-xl font-semibold mb-4">Введите данные для расчета затухания в линии</h2>
-  <form (ngSubmit)="Express_test()">
+  <h2 class="text-xl font-semibold mb-4">Введите данные для тестирования</h2>
+  <form (ngSubmit)="Test(selectionTestType)">
     <div class="card flex flex-wrap gap-3 p-fluid">
+      <div class="flex w-full">
+        <div class="w-1/2 pr-2">
+          <label for="selectionBandwidth" class="block text-sm font-medium text-gray-700">Ширина полосы, МГц</label>
+          <p-selectButton 
+            [options]="testOptions" 
+            [(ngModel)]="selectionBandwidth" 
+            optionLabel="label" 
+            optionValue="value"
+            id="selectionBandwidth"
+            required />
+        </div>
+        <div class="w-1/2 pl-2">
+          <label for="selectionTestType" class="block text-sm font-medium text-gray-700">Тип теста</label>
+          <p-selectButton 
+            [options]="testOptions" 
+            [(ngModel)]="selectionTestType" 
+            optionLabel="label" 
+            optionValue="value"
+            id="selectionTestType"
+            required />
+        </div>
+      </div>
       <div class="flex w-full">
         <div class="w-1/2 pr-2">
           <label for="pa1" class="block text-sm font-medium text-gray-700">Аттенюатор ПА1</label>
@@ -90,19 +112,23 @@
               required />   
         </div>
       </div>
-    </div>
-    <div class="mt-6 text-center">
-      <div class="card mt-5 mb-5">
-        <p-toast position="top-center" key="my-toast" [style]="{ 'z-index': '2000' }" />
-        <p-progressBar [value]="modulation" />
+      <div class="mt-4 text-center w-full">
+        <div class="card mt-5 mb-5">
+          <p-toast position="top-center" key="my-toast" [style]="{ 'z-index': '2000' }" />
+          <p-progressBar [value]="modulation" />
+        </div>
       </div>
-      <p-button 
-        label="ЭКСПРЕСС ТЕСТ"
-        type="submit" 
-        icon="pi pi-times" 
-        [disabled]="expressTestPrs"
-        [loading]="loadingExpressTest" 
-        severity="success" />
+      <div class="flex justify-center w-full mt-4">
+        <p-button 
+          label="Начать тестирование"
+          type="submit" 
+          icon="pi pi-times" 
+          [disabled]="TestProcessing"
+          [loading]="loadingTest" 
+          severity="success"
+          position="center"
+          class="mx-auto" />
+      </div>
     </div>
   </form>
 </div>

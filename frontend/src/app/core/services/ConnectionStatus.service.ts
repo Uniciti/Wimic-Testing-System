@@ -4,7 +4,7 @@ import { BehaviorSubject, Subscription, interval } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class SharedService {
+export class ConnectionStatusService {
 
   //private subscription_interval: Subscription = new Subscription();
   // private berSubject = new BehaviorSubject<boolean>(false);
@@ -19,10 +19,10 @@ export class SharedService {
 
   constructor() { }
 
-  private IP_BaseStatusSource = new BehaviorSubject<string>('');
+  private IP_BaseStatusSource = new BehaviorSubject<string | null>(null);
   currentIP_BaseStatus = this.IP_BaseStatusSource.asObservable();
 
-  private IP_AbonentStatusSource = new BehaviorSubject<string>('');
+  private IP_AbonentStatusSource = new BehaviorSubject<string | null>(null);
   currentIP_AbonentStatus = this.IP_AbonentStatusSource.asObservable();
 
   private frequencyStatusSource = new BehaviorSubject<string | null>(null);
@@ -49,12 +49,12 @@ export class SharedService {
   private M3MStatus = new BehaviorSubject<boolean>(false);
   currentM3MStatus = this.M3MStatus.asObservable();
 
-  changeOidParamsStatus(_Frequency: string | null, _Bandwidth: string) {
+  changeOidParamsStatus(_Frequency: string | null) {
     this.frequencyStatusSource.next(_Frequency);
-	  this.BandwidthStatusSource.next(_Bandwidth);
+	  //this.BandwidthStatusSource.next(_Bandwidth);
   }
 
-  changeIpParamsStatus(_IP_Base: string, _IP_Abonent: string) {
+  changeIpParamsStatus(_IP_Base: string | null, _IP_Abonent: string | null) {
     this.IP_BaseStatusSource.next(_IP_Base);
 	  this.IP_AbonentStatusSource.next(_IP_Abonent);
   }
@@ -69,16 +69,16 @@ export class SharedService {
 
   updateStatus(device: string, value: boolean): void {
     switch(device) {
-      case "ber":
+      case "Ber":
         this.BercutStatus.next(value);
         break;
-      case "att":
+      case "Att":
         this.AttenuatorStatus.next(value);
         break;
-      case "stat":
+      case "Stat":
         this.StationStatus.next(value);
         break;
-      case "m3m":
+      case "M3M":
         this.M3MStatus.next(value);
         break;
       default:

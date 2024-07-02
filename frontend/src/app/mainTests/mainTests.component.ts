@@ -2,33 +2,37 @@ import { Component, OnInit, ChangeDetectorRef, OnDestroy, NgZone } from '@angula
 import { FormsModule } from '@angular/forms';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { SharedWebSocketService } from '../SharedWebSocket.service';
 import { Subscription, timer } from 'rxjs';
-//import { NotificationService } from '../Notifications/Notification.service';
 import { NotificationService } from '../Notification.service';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
-  selector: 'app-ExpressTest',
+  selector: 'app-mainTests',
   standalone: true,
   imports: [
     FormsModule,
     InputNumberModule,
     ButtonModule,
     ProgressBarModule,
-    ToastModule
+    ToastModule,
+    SelectButtonModule
   ],
-  templateUrl: './ExpressTest.component.html',
-  styleUrls: ['./ExpressTest.component.css'],
+  templateUrl: './mainTests.component.html',
+  styleUrls: ['./mainTests.component.css'],
   providers: [ NotificationService ]
 })
 
-export class ExpressTest implements OnInit, OnDestroy {
-  loadingExpressTest: boolean = false;
-  expressTestPrs: boolean = false;
+export class mainTestsComponent implements OnInit, OnDestroy {
+  loadingTest: boolean = false;
+  TestProcessing: boolean = false;
   interval: any;
   modulation: number = 0;
+
+  selectionTestType: string = "express"
+  selectionBandwidth: number =  3;
 
   pa1: number | null = null;
   pa2: number | null = null;
@@ -38,6 +42,9 @@ export class ExpressTest implements OnInit, OnDestroy {
   cable2: number | null = null;
   cable3: number | null = null;
   duration: number | null = null;
+
+  testOptions: any[] = [{ label: 'Экспресс тест', value: "express_test" },{ label: 'Полный тест', value: "full_test" }];
+  stationOptions: any[] = [{ label: '10 МГц', value: 3 },{ label: '20 МГц', value: 5 }];
   
   private subscription: Subscription = new Subscription();
 
@@ -48,20 +55,18 @@ export class ExpressTest implements OnInit, OnDestroy {
     private ngZone: NgZone,
   ) {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void { }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 
-  // load(property: 'loadingExpressTest'): void {
-  //   this[property] = true;
-
-  //   setTimeout(() => {
-  //     this[property] = false;
-  //   }, 4000);
-  // }
+  buttonsControlTest(sub:  Subscription) {
+    this.TestProcessing = false;
+    this.loadingTest = false;
+    this.cdr.detectChanges();
+    sub.unsubscribe();
+  }
 
   pullman() {
     this.ngZone.runOutsideAngular(() => {
@@ -70,7 +75,7 @@ export class ExpressTest implements OnInit, OnDestroy {
           let subscription = this.sharedWebSocketService.getMessages().subscribe({
             next: (message) => {
               if (message.status === "modulation") {
-                this.modulation = message.modulation * 16.6;
+                this.modulation = message.modulation *  16.6;
                 if (message.status === "completed") {
                   this.modulation = 0;
                   this.notificationService.showSuccess("Тестирование успешно завершено, проверьте папку tests...");
@@ -80,8 +85,8 @@ export class ExpressTest implements OnInit, OnDestroy {
               }
             },
             error: (error) => {
-              this.expressTestPrs = false;
-              this.loadingExpressTest = false;
+              this.TestProcessing = false;
+              this.loadingTest = false;
               subscription.unsubscribe();
               clearInterval(this.interval);
           }});
@@ -91,12 +96,10 @@ export class ExpressTest implements OnInit, OnDestroy {
     });
   }
 
-
-  Express_test() {
-    this.loadingExpressTest = true;
+  Test(Test_type: string) {
+    this.loadingTest = true;
     const InputedParams = 
     {
-      device: "Attenuators",
       pa1: this.pa1,
       pa2: this.pa2,
       v1: this.splitterST,
@@ -104,43 +107,34 @@ export class ExpressTest implements OnInit, OnDestroy {
       c1: this.cable1,
       c2: this.cable2,
       c3: this.cable3,
-      duration: this.duration
+      duration: this.duration,
+      bandwidth: this.selectionBandwidth
     };
 
-    const message = {"type": "send-command", "deviceId": "stat", "command": InputedParams};
+    const message = {"type": `${Test_type}`, "deviceId": "stat", "command": InputedParams};
     this.sharedWebSocketService.sendMessage(message);
 
     const connectionTimeout = timer(5000).subscribe(() => {
-      this.loadingExpressTest = false;
+      this.loadingTest = false;
       connectionTimeout.unsubscribe();
     });
 
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
-        connectionTimeout.unsubscribe();
-        this.pullman();
         if (message.type === "sended" && message.deviceId === "stat") {
-          this.expressTestPrs = true;
-          if (message.status === "completed") {
-            this.expressTestPrs = false;
-            this.loadingExpressTest = false;
-            this.cdr.detectChanges();
-            subscription.unsubscribe();
+          this.pullman();
+          connectionTimeout.unsubscribe();
+          this.TestProcessing = true;
+          if (message.status !== "completed") {
+            this.notificationService.showError('Проверьте подключение к устройствам');
           }
-        } else {
-          this.notificationService.showError('Проверьте подключение к устройствам');
-          this.expressTestPrs = false;
-          this.loadingExpressTest = false;
-          this.cdr.detectChanges();
-        }
+        } 
+          this.buttonsControlTest(subscription);
       },
       error: (error) => {
         connectionTimeout.unsubscribe();
-        this.expressTestPrs = false;
-        this.loadingExpressTest = false;
         this.notificationService.showError('Проверьте подключение к устройствам');
-        this.cdr.detectChanges();
-        subscription.unsubscribe();
+        this.buttonsControlTest(subscription);
       }
     });
     this.subscription.add(subscription);
