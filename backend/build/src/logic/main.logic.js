@@ -37,7 +37,7 @@ const bert_service_1 = require("../services/bert.service");
 const m3m_service_1 = require("../services/m3m.service");
 // import { speed, sens, modName } from './consts.logic';
 const XLSX = __importStar(require("xlsx"));
-exports.pathToFile = "~/";
+exports.pathToFile = "/home/vlad/";
 exports.fileName = "test.xlsx";
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 exports.delay = delay;
@@ -145,7 +145,7 @@ function writeDataToExcel(newData, testName) {
 }
 exports.writeDataToExcel = writeDataToExcel;
 function setPathName(path, name) {
-    exports.pathToFile = (path + "/") || "~/";
+    exports.pathToFile = (path + "/") || "/home/vlad/";
     exports.fileName = (name + ".xlsx") || "test.xlsx";
 }
 exports.setPathName = setPathName;

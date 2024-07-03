@@ -4,8 +4,9 @@ import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { comClient, COMClient } from '../services/m3m.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
-import { broadcast } from '../ws.server';
+import { testBroadcast } from '../ws.server';
 import 'dotenv/config';
+import { resolve } from 'path';
 
 export class FullTest {
 	// private m3mPow: number = 0;
@@ -113,275 +114,279 @@ export class FullTest {
 	
 
 	public async test(): Promise<void> {
-		comClient.sendCommand(this.offset);
-		await delay(1000);
-		setBertDuration(this.duration * 7 + 1000);
-		await delay(1000);
-		const dataArray: any[] = [];
-		for(let i = 6; i >= 6; i--) {
-
-			// dataArray.push({"Модуляция": modName[i],
-			// 				"Аттен, ДБ": "none",
-			// 				"С/Ш": "none",
-			// 				"Pin": "none",
-			// 				"Чуствительность":this.sens[i];
-			// 				"Pin станция": "none",
-			// 				"Отправлено, байт": "none", 
-			// 				"Принято, байт": "none", 
-			// 				"Потеряно, байт": "none", 
-			// 				"Процент ошибок, %": "none",
-			// 				"Статус": "Ошибка поиска модуляции",
-			// 				"Статус чуствительности":"Ошибка поиска модуляции",
-			// 				"Полоса": this.bandwidth,
-							
-			// 			});
-
-			broadcast("fulltest", (6 - i).toString());
-
-			const m3mPow = await getPower(this.speed[i]);
-			console.log(m3mPow);
-			let attValue = Math.round(this.calculateAtt(this.sens[i], m3mPow));
-			await tcpClient.sendCommand(attValue);
+		return new Promise(async (resolve) => {
+			comClient.sendCommand(this.offset);
 			await delay(1000);
-			let x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
+			setBertDuration(this.duration * 7 + 1000);
+			await delay(1000);
+			const dataArray: any[] = [];
+			for(let i = 6; i >= 6; i--) {
+
+				// dataArray.push({"Модуляция": modName[i],
+				// 				"Аттен, ДБ": "none",
+				// 				"С/Ш": "none",
+				// 				"Pin": "none",
+				// 				"Чуствительность":this.sens[i];
+				// 				"Pin станция": "none",
+				// 				"Отправлено, байт": "none", 
+				// 				"Принято, байт": "none", 
+				// 				"Потеряно, байт": "none", 
+				// 				"Процент ошибок, %": "none",
+				// 				"Статус": "Ошибка поиска модуляции",
+				// 				"Статус чуствительности":"Ошибка поиска модуляции",
+				// 				"Полоса": this.bandwidth,
+								
+				// 			});
+
+				testBroadcast("fulltest", (6 - i).toString());
+
+				const m3mPow = await getPower(this.speed[i]);
+				console.log(m3mPow);
+				let attValue = Math.round(this.calculateAtt(this.sens[i], m3mPow));
+				await tcpClient.sendCommand(attValue);
+				await delay(1000);
+				let x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
 
 
-			let txBytes: number = 0;
-			let rxBytes: number = 0;
-			let lostBytes: number = 0;
-			let errorRate: number = 0;
+				let txBytes: number = 0;
+				let rxBytes: number = 0;
+				let lostBytes: number = 0;
+				let errorRate: number = 0;
 
-			let pinVerdict = "Чуствительность соответствует";
-			let verdict = "Пройдено";
-			let pinN = 0;
-			let pinV = "";
+				let pinVerdict = "Чуствительность соответствует";
+				let verdict = "Пройдено";
+				let pinN = 0;
+				let pinV = "";
 
 
-			if (i != 0){
-				while (x != i.toString()) {
-					console.log(modName[i], i);
-					console.log(modName[parseInt(x)], parseInt(x));
-					if (parseInt(x) < i) {
-						attValue -= 1;
-						await tcpClient.sendCommand(attValue);
-						await delay(2000);
-						x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
-					} else {
+				if (i != 0){
+					while (x != i.toString()) {
+						console.log(modName[i], i);
+						console.log(modName[parseInt(x)], parseInt(x));
+						if (parseInt(x) < i) {
+							attValue -= 1;
+							await tcpClient.sendCommand(attValue);
+							await delay(2000);
+							x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
+						} else {
+							attValue += 1;
+							await tcpClient.sendCommand(attValue);
+							await delay(2000);
+							x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
+						}
+
+					}
+
+					while (x == i.toString()) {
 						attValue += 1;
 						await tcpClient.sendCommand(attValue);
 						await delay(2000);
 						x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
 					}
 
-				}
 
-				while (x == i.toString()) {
-					attValue += 1;
-					await tcpClient.sendCommand(attValue);
-					await delay(2000);
-					x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
-				}
+					do {
+						await tcpClient.sendCommand(attValue-2);
+						await delay(1000);
+						await tcpClient.sendCommand(attValue-1);
+						attValue -= 1;
+						await delay(2000);
+
+						x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
+						if (parseInt(x) > i) {
+							pinVerdict = "Ошибка чуствительности";
+							verdict = "Не пройдено";
+							pinN = (attValue + this.baseAtt) - m3mPow;
+							pinV = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.2.0');
+							break;
+						}
 
 
-				do {
-					await tcpClient.sendCommand(attValue-2);
-					await delay(1000);
-					await tcpClient.sendCommand(attValue-1);
-					attValue -= 1;
-					await delay(2000);
-
-					x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
-					if (parseInt(x) > i) {
-						pinVerdict = "Ошибка чуствительности";
-						verdict = "Не пройдено";
+						
 						pinN = (attValue + this.baseAtt) - m3mPow;
 						pinV = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.2.0');
-						break;
+
+						await sshClient.sendCommand('statistics clear');
+						await delay(1000);
+						await setBertSpeed(this.speed[i])
+						await delay(1000);
+						await sshClient.sendCommand('bert start');
+						await delay(1000);
+
+						// let intervalChecker: NodeJS.Timeout;
+
+						// const startTest =  async () => {
+						//     intervalChecker = setInterval(async () => {
+						//         try {
+						//             const data = await sshClient.sendCommand('statistics show');
+						//             delay(500);
+						//             const [tx, rx] = await parseData(data);
+						//             delay(500);
+						//             txBytes = tx;
+						//             rxBytes = rx;
+						//             console.log('TX/RX: ', txBytes, rxBytes);
+						//         } catch (error: any) {
+						//             console.log(`SSH server error ${error.message}`);
+						//         }
+						//     }, 5000);
+
+						//     await delay(this.duration);
+						//     clearInterval(intervalChecker);
+							
+						// };
+
+						// await startTest();
+
+
+						await delay(this.duration);
+
+						await sshClient.sendCommand('bert stop');
+						await delay(2000);
+						const data = await sshClient.sendCommand('statistics show');
+						delay(500);
+						const [tx, rx] = await parseData(data);
+						delay(500);
+						txBytes = tx;
+						rxBytes = rx;
+						if (txBytes <= rxBytes) {
+							rxBytes = txBytes;
+						}
+						delay(500);
+						lostBytes = txBytes - rxBytes
+						errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
+						console.log(errorRate);
+						console.log(0.1 < errorRate);
+
+
+					} while (0.1 < errorRate);
+
+				} else {
+
+					while (x != i.toString()) {
+						attValue += 1;
+						await tcpClient.sendCommand(attValue);
+						await delay(2000);
+						x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
 					}
 
+					do {
+						attValue += 1;
+						await tcpClient.sendCommand(attValue);
+						await delay(2000);
 
-					
-					pinN = (attValue + this.baseAtt) - m3mPow;
-					pinV = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.2.0');
+						await sshClient.sendCommand('statistics clear');
+						await delay(1000);
+						await setBertSpeed(this.speed[i])
+						await delay(1000);
+						await sshClient.sendCommand('bert start');
+						await delay(1000);
 
-					await sshClient.sendCommand('statistics clear');
-					await delay(1000);
-					await setBertSpeed(this.speed[i])
-					await delay(1000);
-					await sshClient.sendCommand('bert start');
-					await delay(1000);
+						await delay(10000);
 
-					// let intervalChecker: NodeJS.Timeout;
-
-					// const startTest =  async () => {
-					//     intervalChecker = setInterval(async () => {
-					//         try {
-					//             const data = await sshClient.sendCommand('statistics show');
-					//             delay(500);
-					//             const [tx, rx] = await parseData(data);
-					//             delay(500);
-					//             txBytes = tx;
-					//             rxBytes = rx;
-					//             console.log('TX/RX: ', txBytes, rxBytes);
-					//         } catch (error: any) {
-					//             console.log(`SSH server error ${error.message}`);
-					//         }
-					//     }, 5000);
-
-					//     await delay(this.duration);
-					//     clearInterval(intervalChecker);
-					    
-					// };
-
-					// await startTest();
+						await sshClient.sendCommand('bert stop');
+						await delay(2000);
+						const data = await sshClient.sendCommand('statistics show');
+						delay(500);
+						const [tx, rx] = await parseData(data);
+						delay(500);
+						txBytes = tx;
+						rxBytes = rx;
+						if (txBytes <= rxBytes) {
+							rxBytes = txBytes;
+						}
+						delay(500);
+						lostBytes = txBytes - rxBytes
+						errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
+						console.log(errorRate);
+						console.log(0.1 > errorRate);
 
 
-					await delay(this.duration);
+					} while (0.1 > errorRate);
 
-					await sshClient.sendCommand('bert stop');
-					await delay(2000);
-					const data = await sshClient.sendCommand('statistics show');
-		            delay(500);
-		            const [tx, rx] = await parseData(data);
-		            delay(500);
-		            txBytes = tx;
-		            rxBytes = rx;
-		            if (txBytes <= rxBytes) {
-		            	rxBytes = txBytes;
-		            }
-		            delay(500);
-					lostBytes = txBytes - rxBytes
-					errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
-					console.log(errorRate);
-					console.log(0.1 < errorRate);
+					do {
+						await tcpClient.sendCommand(attValue-2);
+						await delay(1000);
+						await tcpClient.sendCommand(attValue-1);
+						attValue -= 1;
+						await delay(2000);
+						
+						x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
+						if (x != i.toString()) {
+							pinVerdict = "Ошибка чуствительности";
+							verdict = "Не пройдено";
+							pinN = this.sens[i];
+							pinV = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.2.0');
+							break;
+						}
 
 
-				} while (0.1 < errorRate);
 
-			} else {
+						pinN = (attValue + this.baseAtt) - m3mPow;
+						pinV = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.2.0');
 
-				while (x != i.toString()) {
-					attValue += 1;
-					await tcpClient.sendCommand(attValue);
-					await delay(2000);
-					x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
+						await sshClient.sendCommand('statistics clear');
+						await delay(1000);
+						await setBertSpeed(this.speed[i])
+						await delay(1000);
+						await sshClient.sendCommand('bert start');
+						await delay(1000);
+						await delay(this.duration);
+						await sshClient.sendCommand('bert stop');
+						await delay(2000);
+						const data = await sshClient.sendCommand('statistics show');
+						delay(500);
+						const [tx, rx] = await parseData(data);
+						delay(500);
+						txBytes = tx;
+						rxBytes = rx;
+						if (txBytes <= rxBytes) {
+							rxBytes = txBytes;
+						}
+						delay(500);
+						lostBytes = txBytes - rxBytes
+						errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
+
+
+					} while (0.1 < errorRate);
 				}
 
-				do {
-					attValue += 1;
-					await tcpClient.sendCommand(attValue);
-					await delay(2000);
 
-					await sshClient.sendCommand('statistics clear');
-					await delay(1000);
-					await setBertSpeed(this.speed[i])
-					await delay(1000);
-					await sshClient.sendCommand('bert start');
-					await delay(1000);
+				const snr = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
+				
+				if (0.1 < errorRate) {
+					verdict = "Не пройдено";
+				}
 
-					await delay(10000);
+				
+				if (pinN < this.sens[i]) {
+					pinVerdict = "Чуствительность не соответствует"
+				}
 
-					await sshClient.sendCommand('bert stop');
-					await delay(2000);
-					const data = await sshClient.sendCommand('statistics show');
-		            delay(500);
-		            const [tx, rx] = await parseData(data);
-		            delay(500);
-		            txBytes = tx;
-		            rxBytes = rx;
-		            if (txBytes <= rxBytes) {
-		            	rxBytes = txBytes;
-		            }
-		            delay(500);
-					lostBytes = txBytes - rxBytes
-					errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
-					console.log(errorRate);
-					console.log(0.1 > errorRate);
+				dataArray.push({
+						"Модуляция": modName[i],
+						"Аттен, ДБ": attValue,
+						"С/Ш": (parseFloat(snr.slice(0, 5))),
+						"Pin": pinN,
+						"Чувствительность":this.sens[i],
+						"Pin станция": parseFloat(pinV),
+						"Отправлено, байт": txBytes, 
+						"Принято, байт": rxBytes, 
+						"Потеряно, байт": lostBytes, 
+						"Процент ошибок, %": errorRate,
+						"Статус": verdict,
+						"Статус чувствительности":pinVerdict,
+						"Полоса": this.bandwidth,
 
-
-				} while (0.1 > errorRate);
-
-				do {
-					await tcpClient.sendCommand(attValue-2);
-					await delay(1000);
-					await tcpClient.sendCommand(attValue-1);
-					attValue -= 1;
-					await delay(2000);
-					
-					x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
-					if (x != i.toString()) {
-						pinVerdict = "Ошибка чуствительности";
-						verdict = "Не пройдено";
-						pinN = this.sens[i];
-						pinV = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.2.0');
-						break;
-					}
-
-
-
-					pinN = (attValue + this.baseAtt) - m3mPow;
-					pinV = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.2.0');
-
-					await sshClient.sendCommand('statistics clear');
-					await delay(1000);
-					await setBertSpeed(this.speed[i])
-					await delay(1000);
-					await sshClient.sendCommand('bert start');
-					await delay(1000);
-					await delay(this.duration);
-					await sshClient.sendCommand('bert stop');
-					await delay(2000);
-					const data = await sshClient.sendCommand('statistics show');
-		            delay(500);
-		            const [tx, rx] = await parseData(data);
-		            delay(500);
-		            txBytes = tx;
-		            rxBytes = rx;
-		            if (txBytes <= rxBytes) {
-		            	rxBytes = txBytes;
-		            }
-		            delay(500);
-					lostBytes = txBytes - rxBytes
-					errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
-
-
-				} while (0.1 < errorRate);
-			}
-
-
-			const snr = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
+					});
 			
-			if (0.1 < errorRate) {
-				verdict = "Не пройдено";
 			}
 
-			
-			if (pinN < this.sens[i]) {
-				pinVerdict = "Чуствительность не соответствует"
-			}
-
-			dataArray.push({
-					"Модуляция": modName[i],
-					"Аттен, ДБ": attValue,
-					"С/Ш": (parseFloat(snr.slice(0, 5))),
-					"Pin": pinN,
-					"Чувствительность":this.sens[i],
-					"Pin станция": parseFloat(pinV),
-					"Отправлено, байт": txBytes, 
-					"Принято, байт": rxBytes, 
-					"Потеряно, байт": lostBytes, 
-					"Процент ошибок, %": errorRate,
-					"Статус": verdict,
-					"Статус чувствительности":pinVerdict,
-					"Полоса": this.bandwidth,
-
-				});
+			console.log(dataArray);
+			writeDataToExcel(dataArray, "full test");
+			testBroadcast("fulltest", "completed");
+			resolve();
+		});
 		
-		}
-
-		console.log(dataArray);
-		writeDataToExcel(dataArray, "full test");
-		broadcast("fulltest", "completed");
 
 	}
 }

@@ -2,8 +2,8 @@ import snmp from 'net-snmp';
 import { Buffer } from 'buffer';
 import ping from 'ping';
 
-const BASE_HOST = process.env.BASE_HOST || '172.16.17.202';
-const SUBSCRIBER_HOST = process.env.SUBSCRIBER_HOST || '172.16.17.205';
+const BASE_HOST = process.env.BASE_HOST || '172.16.17.173';
+const SUBSCRIBER_HOST = process.env.SUBSCRIBER_HOST || '172.16.17.84';
 const SNMP_COMMUNITY = process.env.SNMP_COMMUNITY || 'public';
 // const SNMP_VERSION = process.env.SNMP_VERSION || '2c';
 

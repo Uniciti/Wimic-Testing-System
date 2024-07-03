@@ -6,6 +6,7 @@ import { snmpClient, SNMPClient } from './services/stantion.service';
 import { comClient, COMClient } from './services/m3m.service';
 import { ExpressTest } from './logic/expresstest.logic';
 import { FullTest } from './logic/fulltest.logic';
+import { queue, Queue } from './logic/queue.logic';
 import { setPathName, pathToFile, fileName } from './logic/main.logic';
 import 'dotenv/config';
 
@@ -101,24 +102,49 @@ export function setupWebSocketServer(server: any) {
           
 
           case 'express-test':
-            const testtest = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-            const eresult = await testtest.setBandwidth()
+            const testtest1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+            const eresult = await testtest1.setBandwidth()
             console.log(eresult);
             if (eresult) {
-              testtest.test();              
+              await testtest1.test();              
             }
 
             break;
 
           case 'full-test':
-            const testtestq = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-            const eresultq = await testtestq.setBandwidth()
+            const testtest2 = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+            const eresultq = await testtest2.setBandwidth()
             console.log(eresultq);
             if (eresultq) {
-              testtestq.test();              
+              await testtest2.test();              
             }
 
             break;
+
+          case 'queue-test':
+            const testtestq1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+            const testtestq3 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+            const testtestq2 = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+            queue.addTest(testtestq1);
+            queue.addTest(testtestq1);
+            queue.addTest(testtestq3);
+            queue.addTest(testtestq2);
+            //const resultq = await testtestq1.setBandwidth()
+            const resultq = true;
+            console.log(resultq);
+            if (resultq) {
+              queue.start();
+            }
+            break;
+
+          case 'fuck-go-back':
+            queue.stop();
+            break;
+
+          case 'fuck-go-forward':
+            queue.start();
+            break;
+
 
           case 'disconnect':
             device.disconnect();
@@ -181,10 +207,10 @@ export function setupWebSocketServer(server: any) {
 
 }
 
-export const broadcast = (testId: string, data: string) => {
+export function testBroadcast(testId: string, data: string) {
   if (!wss) {
-      console.error("WebSocket server is not set up");
-      return;
+    console.error("WebSocket server is not set up");
+    return;
   }
 
   wss.clients.forEach(client => {
@@ -192,4 +218,18 @@ export const broadcast = (testId: string, data: string) => {
       client.send(JSON.stringify({ testId, "message": data }));
     }
   });
-};
+}
+
+export function queueBroadcast(queue: string, data: string) {
+  if (!wss) {
+    console.error("WebSocket server is not set up");
+    return;
+  }
+
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ queue, "message": data }));
+    }
+  });
+}
+
