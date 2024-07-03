@@ -20,11 +20,18 @@ class Queue {
     addTest(test) {
         if (!this.queue.includes(test)) {
             this.queue.push(test);
-            (0, ws_server_1.queueBroadcast)("complete", `now you have ${this.queue.length} in queue`);
+            (0, ws_server_1.queueBroadcast)("complete", `now you have ${this.queue.length} tests in queue`);
         }
         else {
             (0, ws_server_1.queueBroadcast)("warn", "test already in queue");
         }
+    }
+    showContent() {
+        const queueDescriptions = this.getQueueDescriptions();
+        (0, ws_server_1.queueBroadcast)("content", JSON.stringify(queueDescriptions));
+    }
+    getQueueDescriptions() {
+        return this.queue.map(test => test.jsonParser());
     }
     start() {
         return __awaiter(this, void 0, void 0, function* () {

@@ -220,7 +220,7 @@ export function testBroadcast(testId: string, data: string) {
   });
 }
 
-export function queueBroadcast(queue: string, data: string) {
+export function queueBroadcast(queue: string, data: any) {
   if (!wss) {
     console.error("WebSocket server is not set up");
     return;
