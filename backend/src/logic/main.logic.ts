@@ -6,7 +6,7 @@ import { comClient, COMClient } from '../services/m3m.service';
 import * as XLSX from 'xlsx';
 import path from 'path';
 
-export let pathToFile: string = "/home/pudge/";
+export let pathToFile: string = "/home/vlad/";
 export let fileName: string = "test.xlsx";
 
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -120,6 +120,6 @@ export function writeDataToExcel(newData: any[],  testName: string): void {
 }
 
 export function setPathName(path: string, name: string) { 
-    pathToFile = (path + "/") || "/home/pudge/";
+    pathToFile = (path + "/") || "/home/vlad/";
     fileName = (name + ".xlsx") || "test.xlsx";
 }

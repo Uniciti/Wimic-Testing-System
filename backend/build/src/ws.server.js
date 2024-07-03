@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.broadcast = exports.setupWebSocketServer = void 0;
+exports.queueBroadcast = exports.testBroadcast = exports.setupWebSocketServer = void 0;
 const ws_1 = __importDefault(require("ws"));
 // import { Device } from './interfaces/device.interface';
 const att_service_1 = require("./services/att.service");
@@ -21,6 +21,7 @@ const stantion_service_1 = require("./services/stantion.service");
 const m3m_service_1 = require("./services/m3m.service");
 const expresstest_logic_1 = require("./logic/expresstest.logic");
 const fulltest_logic_1 = require("./logic/fulltest.logic");
+const queue_logic_1 = require("./logic/queue.logic");
 const main_logic_1 = require("./logic/main.logic");
 require("dotenv/config");
 const devices = {
@@ -100,20 +101,41 @@ function setupWebSocketServer(server) {
                             break;
                         }
                     case 'express-test':
-                        const testtest = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-                        const eresult = yield testtest.setBandwidth();
+                        const testtest1 = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+                        const eresult = yield testtest1.setBandwidth();
                         console.log(eresult);
                         if (eresult) {
-                            testtest.test();
+                            yield testtest1.test();
                         }
                         break;
                     case 'full-test':
-                        const testtestq = new fulltest_logic_1.FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-                        const eresultq = yield testtestq.setBandwidth();
+                        const testtest2 = new fulltest_logic_1.FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+                        const eresultq = yield testtest2.setBandwidth();
                         console.log(eresultq);
                         if (eresultq) {
-                            testtestq.test();
+                            yield testtest2.test();
                         }
+                        break;
+                    case 'queue-test':
+                        const testtestq1 = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+                        const testtestq3 = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+                        const testtestq2 = new fulltest_logic_1.FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
+                        queue_logic_1.queue.addTest(testtestq1);
+                        queue_logic_1.queue.addTest(testtestq1);
+                        queue_logic_1.queue.addTest(testtestq3);
+                        queue_logic_1.queue.addTest(testtestq2);
+                        //const resultq = await testtestq1.setBandwidth()
+                        const resultq = true;
+                        console.log(resultq);
+                        if (resultq) {
+                            queue_logic_1.queue.start();
+                        }
+                        break;
+                    case 'fuck-go-back':
+                        queue_logic_1.queue.stop();
+                        break;
+                    case 'fuck-go-forward':
+                        queue_logic_1.queue.start();
                         break;
                     case 'disconnect':
                         device.disconnect();
@@ -168,7 +190,7 @@ function setupWebSocketServer(server) {
     console.log(`WebSocket server is set up and running.`);
 }
 exports.setupWebSocketServer = setupWebSocketServer;
-const broadcast = (testId, data) => {
+function testBroadcast(testId, data) {
     if (!wss) {
         console.error("WebSocket server is not set up");
         return;
@@ -178,5 +200,17 @@ const broadcast = (testId, data) => {
             client.send(JSON.stringify({ testId, "message": data }));
         }
     });
-};
-exports.broadcast = broadcast;
+}
+exports.testBroadcast = testBroadcast;
+function queueBroadcast(queue, data) {
+    if (!wss) {
+        console.error("WebSocket server is not set up");
+        return;
+    }
+    wss.clients.forEach(client => {
+        if (client.readyState === ws_1.default.OPEN) {
+            client.send(JSON.stringify({ queue, "message": data }));
+        }
+    });
+}
+exports.queueBroadcast = queueBroadcast;
