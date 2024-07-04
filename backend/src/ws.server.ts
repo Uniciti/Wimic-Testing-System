@@ -129,12 +129,15 @@ export function setupWebSocketServer(server: any) {
             queue.addTest(testtestq1);
             queue.addTest(testtestq3);
             queue.addTest(testtestq2);
+            queue.showContent();
+            queue.removeTest(1);
+            queue.showContent();
             //const resultq = await testtestq1.setBandwidth()
             const resultq = true;
             console.log(resultq);
-            if (resultq) {
-              queue.start();
-            }
+            // if (resultq) {
+            //   queue.start();
+            // }
             break;
 
           case 'fuck-go-back':
@@ -220,7 +223,7 @@ export function testBroadcast(testId: string, data: string) {
   });
 }
 
-export function queueBroadcast(queue: string, data: string) {
+export function queueBroadcast(queue: string, data: any) {
   if (!wss) {
     console.error("WebSocket server is not set up");
     return;

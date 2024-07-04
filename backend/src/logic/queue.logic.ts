@@ -12,13 +12,32 @@ export class Queue {
         
         if (!this.queue.includes(test)) {
             this.queue.push(test);
-            queueBroadcast("complete", `now you have ${this.queue.length} in queue`);
+            queueBroadcast("complete", `now you have ${this.queue.length} tests in queue`);
         } else {
             queueBroadcast("warn", "test already in queue");
         }
 
     }
     
+    public showContent() {
+        const queueDescriptions = this.getQueueDescriptions();
+        queueBroadcast("content", queueDescriptions);
+
+    }
+
+    public removeTest(index: number): void {
+        if (index >= 0 && index < this.queue.length) {
+            const removedTest = this.queue.splice(index, 1)[0];
+            queueBroadcast("removed", "test removed");
+        } else {
+            queueBroadcast("warn", "invalid index");
+        }
+    }
+
+    private getQueueDescriptions(): { name: string; duration: number; bandwidth: number; offset: number; baseAtt: number; }[] {
+        return this.queue.map(test => test.jsonParser());
+    }
+
     public async start(): Promise<void> {
 
         if (this.running) {

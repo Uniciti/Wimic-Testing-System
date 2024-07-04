@@ -231,5 +231,15 @@ export class ExpressTest {
 
 	}
 
+	public jsonParser() {
+		return {
+			name: "expresstest",
+			duration: this.duration / 1000,
+			bandwidth: this.bandwidth,
+			offset: this.offset,
+			baseAtt: this.baseAtt,
+		};
+	}
+
 	
 }
