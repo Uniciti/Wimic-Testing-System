@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, ChildProcess, execSync } from 'child_process';
 import 'dotenv/config';
 
 const BERT_PROXY = process.env.BERT_PROXY || 'admin@172.16.17.32';

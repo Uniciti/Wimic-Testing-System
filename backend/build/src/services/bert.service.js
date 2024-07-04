@@ -41,6 +41,7 @@ class SSHClient {
             console.log(`Child process exited with code ${code}`);
             this.isConnected = false;
             (_a = this.sshProcess) === null || _a === void 0 ? void 0 : _a.kill();
+            this.sshProcess = null;
         });
     }
     connect() {

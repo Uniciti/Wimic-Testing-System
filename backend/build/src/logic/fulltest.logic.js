@@ -123,7 +123,8 @@ class FullTest {
                     // 				"Статус чуствительности":"Ошибка поиска модуляции",
                     // 				"Полоса": this.bandwidth,
                     // 			});
-                    (0, ws_server_1.testBroadcast)("fulltest", (6 - i).toString());
+                    const message = { testid: "fulltest", message: (6 - i).toString() };
+                    (0, ws_server_1.broadcaster)(JSON.stringify(message));
                     const m3mPow = yield (0, main_logic_1.getPower)(this.speed[i]);
                     console.log(m3mPow);
                     let attValue = Math.round(this.calculateAtt(this.sens[i], m3mPow));
@@ -320,7 +321,8 @@ class FullTest {
                 }
                 console.log(dataArray);
                 (0, main_logic_1.writeDataToExcel)(dataArray, "full test");
-                (0, ws_server_1.testBroadcast)("fulltest", "completed");
+                const message = { testid: "fulltest", message: "completed" };
+                (0, ws_server_1.broadcaster)(JSON.stringify(message));
                 resolve();
             }));
         });

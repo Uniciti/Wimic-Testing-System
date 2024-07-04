@@ -103,7 +103,8 @@ export function setupWebSocketServer(server: any) {
 
           case 'express-test':
             const testtest1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-            const eresult = await testtest1.setBandwidth()
+            // const eresult = await testtest1.setBandwidth();
+            const eresult = true;
             console.log(eresult);
             if (eresult) {
               await testtest1.test();              
@@ -113,7 +114,8 @@ export function setupWebSocketServer(server: any) {
 
           case 'full-test':
             const testtest2 = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-            const eresultq = await testtest2.setBandwidth()
+            // const eresultq = await testtest2.setBandwidth();
+            const eresultq = true;
             console.log(eresultq);
             if (eresultq) {
               await testtest2.test();              
@@ -210,18 +212,6 @@ export function setupWebSocketServer(server: any) {
 
 }
 
-export function testBroadcast(testId: string, data: string) {
-  if (!wss) {
-    console.error("WebSocket server is not set up");
-    return;
-  }
-
-  wss.clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({ testId, "message": data }));
-    }
-  });
-}
 
 export function queueBroadcast(queue: string, data: any) {
   if (!wss) {
@@ -232,6 +222,19 @@ export function queueBroadcast(queue: string, data: any) {
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify({ queue, "message": data }));
+    }
+  });
+}
+
+export function broadcaster(data: any) {
+  if (!wss) {
+    console.error("WebSocket server is not set up");
+    return;
+  }
+
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(data);
     }
   });
 }

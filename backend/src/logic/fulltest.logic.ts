@@ -4,7 +4,7 @@ import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { comClient, COMClient } from '../services/m3m.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
-import { testBroadcast } from '../ws.server';
+import { broadcaster } from '../ws.server';
 import 'dotenv/config';
 import { resolve } from 'path';
 
@@ -137,8 +137,8 @@ export class FullTest {
 				// 				"Полоса": this.bandwidth,
 								
 				// 			});
-
-				testBroadcast("fulltest", (6 - i).toString());
+				const message  = {testid: "fulltest", message: (6 - i).toString()}
+				broadcaster(JSON.stringify(message));
 
 				const m3mPow = await getPower(this.speed[i]);
 				console.log(m3mPow);
@@ -383,7 +383,8 @@ export class FullTest {
 
 			console.log(dataArray);
 			writeDataToExcel(dataArray, "full test");
-			testBroadcast("fulltest", "completed");
+			const message  = {testid: "fulltest", message: "completed"}
+			broadcaster(JSON.stringify(message));
 			resolve();
 		});
 		

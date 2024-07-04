@@ -1,10 +1,10 @@
 import { speed10, sens10, speed20, sens20, modName } from './consts.logic';
-import { getPower, parseData, writeDataToExcel, delay, setBertSpeed, setBertDuration} from './main.logic';
+import { getPower, parseData, writeDataToExcel, delay, setBertSpeed, setBertDuration, validator} from './main.logic';
 import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { comClient, COMClient } from '../services/m3m.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
-import { testBroadcast } from '../ws.server';
+import { broadcaster } from '../ws.server';
 import 'dotenv/config';
 import { resolve } from 'path';
 
@@ -114,6 +114,14 @@ export class ExpressTest {
 	
 
 	public async test(): Promise<void> {
+
+		const valid = await validator();
+		console.log(valid);
+		if (!valid) {
+			return;
+		}
+
+
 		return new Promise(async (resolve) => {
 			comClient.sendCommand(this.offset);
 			await delay(1000);
@@ -134,7 +142,8 @@ export class ExpressTest {
 									
 								});
 
-				testBroadcast("expresstest", (6 - i).toString());
+				const message  = {testid: "expresstest", message: (6 - i).toString()}
+				broadcaster(JSON.stringify(message));
 
 				const m3mPow = await getPower(this.speed[i]);
 				console.log(m3mPow);
@@ -158,23 +167,41 @@ export class ExpressTest {
 
 					let intervalChecker: NodeJS.Timeout;
 
+					let valid: boolean = true;
 					const startTest =  async () => {
 						intervalChecker = setInterval(async () => {
-							try {
-								const data = await sshClient.sendCommand('statistics show');
-								delay(500);
-								const [tx, rx] = await parseData(data);
-								delay(500);
-								txBytes = tx;
-								rxBytes = rx;
-								console.log('TX/RX: ', txBytes, rxBytes);
-							} catch (error: any) {
-								console.log(`SSH server error ${error.message}`);
+							// try {
+							// 	const data = await sshClient.sendCommand('statistics show');
+							// 	delay(500);
+							// 	const [tx, rx] = await parseData(data);
+							// 	delay(500);
+							// 	txBytes = tx;
+							// 	rxBytes = rx;
+							// 	console.log('TX/RX: ', txBytes, rxBytes);
+							// } catch (error: any) {
+							// 	console.log(`SSH server error ${error.message}`);
+							// }
+
+							valid = await validator();
+
+							if (!valid) {
+								clearInterval(intervalChecker);
 							}
+
 						}, 5000);
 
-						await delay(this.duration);
+						// await delay(this.duration);
+
+						const start = Date.now();
+						while (Date.now() - start < this.duration) {
+							if (!valid) {
+								break;
+							}
+							await delay(100);
+						}
+
 						clearInterval(intervalChecker);
+				
 						
 					};
 
@@ -224,7 +251,8 @@ export class ExpressTest {
 			}
 			console.log(dataArray);
 			writeDataToExcel(dataArray, "express test");
-			testBroadcast("expresstest", "completed");
+			const message  = {testid: "expresstest", message: "completed"}
+			broadcaster(JSON.stringify(message));
 			resolve();
 		});
 		
