@@ -18,10 +18,10 @@ class TcpClient {
         this.output = '';
         this.client = new net_1.default.Socket();
         this.isConnected = false;
-    }
-    setupListeners() {
-        if (!this.client)
-            return;
+        this.client.on('close', () => {
+            this.isConnected = false;
+            console.log('TCP connection closed.');
+        });
         this.client.on('data', (data) => {
             this.output += data.toString();
             if (this.commandResolve) {
@@ -38,17 +38,16 @@ class TcpClient {
                 this.commandReject = null;
             }
         });
-        this.client.on('close', () => {
-            this.isConnected = false;
-            console.log('TCP connection closed.');
-        });
     }
+    // private setupListeners(): void {
+    //   if (!this.client) return;
+    // }
     connect() {
         return new Promise((resolve, reject) => {
             if (this.isConnected)
                 return;
             console.log(`Attempting to connect to TCP server at ${this.host}:${this.port}...`);
-            this.setupListeners();
+            // this.setupListeners()
             const connectionTimeout = setTimeout(() => {
                 console.error('Connection timed out.');
                 this.isConnected = false;

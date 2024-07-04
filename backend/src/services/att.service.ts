@@ -20,20 +20,18 @@ export class TcpClient {
     this.output = '';
     this.client = new net.Socket();
     this.isConnected = false;
-  }
-
-
-  private setupListeners(): void {
-    if (!this.client) return;
-
+    this.client.on('close', () => {
+      this.isConnected = false;
+      console.log('TCP connection closed.');
+    });
     this.client.on('data', (data: string) => {
-        this.output += data.toString();
+      this.output += data.toString();
 
-        if (this.commandResolve) {
-            this.commandResolve(this.output);
-            this.commandResolve = null;
-            this.commandReject = null;
-        }
+      if (this.commandResolve) {
+          this.commandResolve(this.output);
+          this.commandResolve = null;
+          this.commandReject = null;
+      }
     });
 
     this.client.on('error', (error: string) => {
@@ -43,16 +41,17 @@ export class TcpClient {
             this.commandResolve = null;
             this.commandReject = null;
         }
-    });    
-
-    this.client.on('close', () => {
-      this.isConnected = false;
-      console.log('TCP connection closed.');
-    });
-
-
-
+    }); 
   }
+
+
+  // private setupListeners(): void {
+  //   if (!this.client) return;
+
+   
+
+
+  // }
 
 
 
@@ -62,7 +61,7 @@ export class TcpClient {
 
       console.log(`Attempting to connect to TCP server at ${this.host}:${this.port}...`);
 
-      this.setupListeners()
+      // this.setupListeners()
 
       const connectionTimeout = setTimeout(() => {
         console.error('Connection timed out.');
