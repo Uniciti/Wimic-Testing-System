@@ -124,12 +124,15 @@ function setupWebSocketServer(server) {
                         queue_logic_1.queue.addTest(testtestq1);
                         queue_logic_1.queue.addTest(testtestq3);
                         queue_logic_1.queue.addTest(testtestq2);
+                        queue_logic_1.queue.showContent();
+                        queue_logic_1.queue.removeTest(1);
+                        queue_logic_1.queue.showContent();
                         //const resultq = await testtestq1.setBandwidth()
                         const resultq = true;
                         console.log(resultq);
-                        if (resultq) {
-                            queue_logic_1.queue.start();
-                        }
+                        // if (resultq) {
+                        //   queue.start();
+                        // }
                         break;
                     case 'fuck-go-back':
                         queue_logic_1.queue.stop();

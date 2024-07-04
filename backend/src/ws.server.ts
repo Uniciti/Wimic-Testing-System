@@ -129,12 +129,15 @@ export function setupWebSocketServer(server: any) {
             queue.addTest(testtestq1);
             queue.addTest(testtestq3);
             queue.addTest(testtestq2);
+            queue.showContent();
+            queue.removeTest(1);
+            queue.showContent();
             //const resultq = await testtestq1.setBandwidth()
             const resultq = true;
             console.log(resultq);
-            if (resultq) {
-              queue.start();
-            }
+            // if (resultq) {
+            //   queue.start();
+            // }
             break;
 
           case 'fuck-go-back':

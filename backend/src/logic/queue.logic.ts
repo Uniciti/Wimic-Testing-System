@@ -21,8 +21,17 @@ export class Queue {
     
     public showContent() {
         const queueDescriptions = this.getQueueDescriptions();
-        queueBroadcast("content", JSON.stringify(queueDescriptions));
+        queueBroadcast("content", queueDescriptions);
 
+    }
+
+    public removeTest(index: number): void {
+        if (index >= 0 && index < this.queue.length) {
+            const removedTest = this.queue.splice(index, 1)[0];
+            queueBroadcast("removed", "test removed");
+        } else {
+            queueBroadcast("warn", "invalid index");
+        }
     }
 
     private getQueueDescriptions(): { name: string; duration: number; bandwidth: number; offset: number; baseAtt: number; }[] {
