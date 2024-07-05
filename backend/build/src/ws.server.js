@@ -37,7 +37,7 @@ function setupWebSocketServer(server) {
         console.log('Client connected');
         ws.on('message', (message) => __awaiter(this, void 0, void 0, function* () {
             const parsedMessage = JSON.parse(message);
-            const { type, deviceId, command, value, ber, att, stat, M3M, filename, path } = parsedMessage;
+            const { type, deviceId, command, value, ber, att, stat, m3m, filename, path } = parsedMessage;
             const device = devices[deviceId] || 'connectChecker';
             if (!device) {
                 ws.send(JSON.stringify({ type: 'error', message: `Device ${deviceId} not found` }));
@@ -118,6 +118,17 @@ function setupWebSocketServer(server) {
                             yield testtest2.test();
                         }
                         break;
+                    case "att-test":
+                        const responseatt = { type: 'is-connected' };
+                        while (true) {
+                            const result = yield att_service_1.tcpClient.checkConnect();
+                            if (typeof result === 'boolean') {
+                                responseatt.pingAtt = result;
+                            }
+                            ws.send(JSON.stringify(responseatt));
+                            yield (0, main_logic_1.delay)(3500);
+                        }
+                        break;
                     case 'queue-test':
                         const testtestq1 = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
                         const testtestq3 = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
@@ -171,7 +182,7 @@ function setupWebSocketServer(server) {
                                 response.pingStat1 = pingStat1;
                             }
                         }
-                        if (M3M) {
+                        if (m3m) {
                             const device = devices['m3m'];
                             const result = yield device.checkConnect();
                             if (typeof result === 'boolean') {

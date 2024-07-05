@@ -20,10 +20,12 @@ export class TcpClient {
     this.output = '';
     this.client = new net.Socket();
     this.isConnected = false;
+
     this.client.on('close', () => {
       this.isConnected = false;
       console.log('TCP connection closed.');
     });
+
     this.client.on('data', (data: string) => {
       this.output += data.toString();
 
@@ -66,7 +68,7 @@ export class TcpClient {
       const connectionTimeout = setTimeout(() => {
         console.error('Connection timed out.');
         this.isConnected = false;
-        this.client.destroy(); // Завершаем попытку подключения
+        this.client.destroy(); 
         resolve(false);
       }, 5000);
 

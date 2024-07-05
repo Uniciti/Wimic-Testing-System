@@ -51,7 +51,7 @@ class TcpClient {
             const connectionTimeout = setTimeout(() => {
                 console.error('Connection timed out.');
                 this.isConnected = false;
-                this.client.destroy(); // Завершаем попытку подключения
+                this.client.destroy();
                 resolve(false);
             }, 5000);
             this.client.connect(this.port, this.host, () => {

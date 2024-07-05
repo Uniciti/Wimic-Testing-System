@@ -20,9 +20,12 @@ export class COMClient {
 
   public async connect(): Promise<boolean> {
   	const portPath = await this.findPort();
+    if (this.isConnected && this.port) {
+      return true;
+    } 
 
     if (!portPath) {
-      throw new Error(`No device with path containing 'ttyUSB' found.`);
+      return false;
     }
 
     return new Promise((resolve, reject) => {
@@ -57,7 +60,7 @@ export class COMClient {
   public disconnect(): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.port) {
-        return resolve();
+        resolve();
       }
 
       this.port?.close((err) => {
@@ -78,7 +81,7 @@ export class COMClient {
   	return new Promise((resolve, reject) => {
   	  if (!this.isConnected || !this.port) {
   	  	console.log('Not connected to COM.');
-        return resolve(false);
+        resolve(false);
       }
 
       try {
@@ -87,6 +90,7 @@ export class COMClient {
       		resolve(true);
       	} else {
       		this.isConnected = false;
+          this.disconnect();
       		resolve(false);
       	}
       } catch(err) {

@@ -7,7 +7,7 @@ import { comClient, COMClient } from './services/m3m.service';
 import { ExpressTest } from './logic/expresstest.logic';
 import { FullTest } from './logic/fulltest.logic';
 import { queue, Queue } from './logic/queue.logic';
-import { setPathName, pathToFile, fileName } from './logic/main.logic';
+import { setPathName, pathToFile, fileName, delay } from './logic/main.logic';
 import 'dotenv/config';
 
 const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} = {
@@ -27,7 +27,7 @@ export function setupWebSocketServer(server: any) {
 
     ws.on('message', async (message: string) => {
       const parsedMessage = JSON.parse(message);
-      const { type, deviceId, command, value, ber, att, stat, M3M, filename, path } = parsedMessage;
+      const { type, deviceId, command, value, ber, att, stat, m3m, filename, path } = parsedMessage;
       const device = devices[deviceId] || 'connectChecker';
 
       if (!device) {
@@ -123,6 +123,22 @@ export function setupWebSocketServer(server: any) {
 
             break;
 
+          
+          case "att-test":
+            const responseatt: any = { type: 'is-connected' };
+            while (true) {
+              
+              const result = await tcpClient.checkConnect();
+              if (typeof result === 'boolean') {
+                responseatt.pingAtt = result;
+              }
+              ws.send(JSON.stringify(responseatt));
+              await delay(3500);
+            }
+            
+            break;
+
+
           case 'queue-test':
             const testtestq1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
             const testtestq3 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
@@ -184,7 +200,7 @@ export function setupWebSocketServer(server: any) {
                   response.pingStat1 = pingStat1;
               }
             }
-            if (M3M){
+            if (m3m){
               const device = devices['m3m'];
               const result = await device.checkConnect();
               if (typeof result === 'boolean') {

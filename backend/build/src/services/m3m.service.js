@@ -30,8 +30,11 @@ class COMClient {
     connect() {
         return __awaiter(this, void 0, void 0, function* () {
             const portPath = yield this.findPort();
+            if (this.isConnected && this.port) {
+                return true;
+            }
             if (!portPath) {
-                throw new Error(`No device with path containing 'ttyUSB' found.`);
+                return false;
             }
             return new Promise((resolve, reject) => {
                 this.port = new serialport_1.SerialPort({
@@ -64,7 +67,7 @@ class COMClient {
         return new Promise((resolve, reject) => {
             var _a;
             if (!this.port) {
-                return resolve();
+                resolve();
             }
             (_a = this.port) === null || _a === void 0 ? void 0 : _a.close((err) => {
                 if (err) {
@@ -83,7 +86,7 @@ class COMClient {
             return new Promise((resolve, reject) => {
                 if (!this.isConnected || !this.port) {
                     console.log('Not connected to COM.');
-                    return resolve(false);
+                    resolve(false);
                 }
                 try {
                     if (portPath && this.port && this.portPath) {
@@ -92,6 +95,7 @@ class COMClient {
                     }
                     else {
                         this.isConnected = false;
+                        this.disconnect();
                         resolve(false);
                     }
                 }
