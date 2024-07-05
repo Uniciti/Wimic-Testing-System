@@ -113,7 +113,11 @@ class ExpressTest {
                 (0, main_logic_1.setBertDuration)(this.duration * 7 + 1000);
                 yield (0, main_logic_1.delay)(1000);
                 const dataArray = [];
-                for (let i = 6; i >= 6; i--) {
+                for (let i = 6; i >= 0; i--) {
+                    const valid = yield (0, main_logic_1.validator)();
+                    if (!valid) {
+                        break;
+                    }
                     dataArray.push({ "Модуляция": consts_logic_1.modName[i],
                         "Аттен, ДБ": "none",
                         "С/Ш": "none",
@@ -216,7 +220,13 @@ class ExpressTest {
                 }
                 console.log(dataArray);
                 (0, main_logic_1.writeDataToExcel)(dataArray, "express test");
-                const message = { testid: "expresstest", message: "completed" };
+                let message = null;
+                if (valid) {
+                    message = { testid: "expresstest", message: "completed" };
+                }
+                else {
+                    message = { testid: "expresstest", message: "error exec" };
+                }
                 (0, ws_server_1.broadcaster)(JSON.stringify(message));
                 resolve();
             }));

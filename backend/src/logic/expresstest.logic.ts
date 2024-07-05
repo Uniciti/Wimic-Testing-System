@@ -121,14 +121,18 @@ export class ExpressTest {
 			return;
 		}
 
-
 		return new Promise(async (resolve) => {
 			comClient.sendCommand(this.offset);
 			await delay(1000);
 			setBertDuration(this.duration * 7 + 1000);
 			await delay(1000);
 			const dataArray: any[] = [];
-			for(let i = 6; i >= 6; i--) {
+			for(let i = 6; i >= 0; i--) {
+
+				const valid = await validator();
+				if (!valid) {
+					break;
+				}
 
 				dataArray.push({"Модуляция": modName[i],
 									"Аттен, ДБ": "none",
@@ -251,7 +255,13 @@ export class ExpressTest {
 			}
 			console.log(dataArray);
 			writeDataToExcel(dataArray, "express test");
-			const message  = {testid: "expresstest", message: "completed"}
+			let message: any = null;
+			if (valid) {
+				message  = {testid: "expresstest", message: "completed"};
+			} else {
+				message  = {testid: "expresstest", message: "error exec"};
+			}
+			
 			broadcaster(JSON.stringify(message));
 			resolve();
 		});
