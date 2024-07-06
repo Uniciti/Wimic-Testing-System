@@ -1,8 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { SharedWebSocketService } from '../SharedWebSocket.service';
-import { ConnectionStatusService } from '../core/services/ConnectionStatus.service';
 import { NgClass } from "@angular/common";
 import { Subscription } from 'rxjs';
+
+import { SharedWebSocketService } from '../SharedWebSocket.service';
+import { ConnectionStatusService } from '../core/services/ConnectionStatus.service';
 
 @Component({
   selector: 'app-ConnectionStatus',

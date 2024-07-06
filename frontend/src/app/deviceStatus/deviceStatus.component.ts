@@ -1,20 +1,25 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { NgClass } from "@angular/common";
 import { FormsModule } from '@angular/forms';
 import { NgIf } from "@angular/common";
-import { Subscription, timer, interval } from 'rxjs';
+import { Subscription, timer } from 'rxjs';
+
 import { ButtonModule } from 'primeng/button';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { ToastModule } from 'primeng/toast';
+
 import { SharedWebSocketService } from '../SharedWebSocket.service';
 import { ConnectionStatusService } from '../core/services/ConnectionStatus.service';
 import { NotificationService } from '../Notification.service';
-import { ToastModule } from 'primeng/toast';
+
 
 @Component({
   selector: 'app-deviceStatus',
   standalone: true,
   imports: [
+    NgClass,
     FormsModule,
     NgIf,
     ButtonModule,
@@ -25,6 +30,7 @@ import { ToastModule } from 'primeng/toast';
   ],
   templateUrl: './deviceStatus.component.html',
   styleUrls: ['./deviceStatus.component.css'],
+  styles: [`.tab_content{height: 70.5rem; overflow-y: scroll;}`],
   providers: [ NotificationService ]
 })
 

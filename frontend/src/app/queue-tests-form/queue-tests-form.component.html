@@ -1,0 +1,88 @@
+<div class="forma max-w-xxl mx-auto p-5">
+  <h2 class="text-2xl font-bold mb-5">Добавить тест</h2>
+  <form (ngSubmit)="addTest()" class="space-y-4">
+    <div>
+      <label for="testType" class="block text-sm font-medium text-gray-700">Тип теста:</label>
+      <select id="testType" [(ngModel)]="selectedTestType" name="testType" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <option *ngFor="let option of testOptions" [value]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+    <div>
+      <label for="bandwidth" class="block text-sm font-medium text-gray-700">Ширина полосы, МГц:</label>
+      <select id="bandwidth" [(ngModel)]="selectedBandwidth" name="bandwidth" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+        <option *ngFor="let option of bandwidthOptions" [value]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+    <div>
+      <label for="frequency" class="block text-sm font-medium text-gray-700">Частота, МГц:</label>
+      <p-inputNumber
+        name="frequency"
+        inputId="frequency"
+        [(ngModel)]="inputedFrequncy"
+        [placeholder]="'Введите частоту'"
+        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        required>
+      </p-inputNumber>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700">Модуляция:</label>
+      <div class="mt-2 space-y-2">
+        <div *ngFor="let option of modulationOptions" class="flex items-center">
+          <p-checkbox
+            [(ngModel)]="selectedModulation"
+            [label]="option.label"
+            name="modulationTypes"
+            [value]="option"
+            class="form-check-input mr-2">
+          </p-checkbox>
+          <!-- <label class="text-sm text-gray-700">{{ option.label }}</label> -->
+        </div>
+      </div>
+    </div>
+    <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Добавить</button>
+  </form>
+  
+  <h3 class="text-xl font-semibold mt-8 mb-4">Список тестов</h3>
+  <table class="min-w-full text-center bg-white border border-gray-200 rounded-md">
+    <thead>
+      <tr>
+        <th class="px-4 py-2 border-b border-gray-200">Тип теста</th>
+        <th class="px-4 py-2 border-b border-gray-200">Ширина полосы (МГц)</th>
+        <th class="px-4 py-2 border-b border-gray-200">Частота (МГц)</th>
+        <th class="px-4 py-2 border-b border-gray-200">Модуляция</th>
+        <th class="px-4 py-2 border-b border-gray-200">Длительность (с)/th>
+        <th class="px-4 py-2 border-b border-gray-200">Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let test of massiveTests; let i = index" class="hover:bg-gray-100">
+        <td class="px-4 py-2 border-b border-gray-200">
+          @switch (test.type) {
+            @case ("expresstest") {
+              {{'Экспресс'}}
+            }
+            @case ("fulltest") {
+              {{'Полный'}}
+            }
+          } 
+           </td>
+        <td class="px-4 py-2 border-b border-gray-200">{{ test.bandwidth }}</td>
+        <td class="px-4 py-2 border-b border-gray-200">{{ test.frequency == 'none' ? 'Текущая частота' : test.frequency }}</td>
+        <td class="px-4 py-2 border-b border-gray-200">
+          <ul class="list-disc list-inside">
+            <li *ngFor="let x of test.modulation">{{x.label}}</li>
+          </ul>
+        </td>
+        <td class="px-4 py-2 border-b border-gray-200">{{ test.time }}</td>
+        <td class="px-4 py-2 border-b border-gray-200">
+          <button (click)="removeTest(i)" class="bg-red-600 text-white py-1 px-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">&#x2718; Удалить</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="mt-6 flex justify-between">
+    <button (click)="acceptTests()" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">&#x2713; Принять</button>
+    <button (click)="closeDialog()" class="bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Отмена</button>
+  </div>
+</div>

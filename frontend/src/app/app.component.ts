@@ -1,37 +1,60 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { RouterOutlet} from "@angular/router";
+import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
+import { RouterOutlet, NavigationEnd, Router } from "@angular/router";
+import { NgClass } from "@angular/common";
+
 import { HeaderComponent } from './header/header.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { DeviceStatusComponent } from './deviceStatus/deviceStatus.component';
 import { mainTestsComponent } from './mainTests/mainTests.component';
-//import { NotificationComponent } from './Notifications/Notification.component';
 import { ConnectionStatusComponent } from './ConnectionStatus/ConnectionStatus.component';
-import { NotificationService } from './Notification.service';
+import { QueueTestsFormComponent } from './queue-tests-form/queue-tests-form.component'
+
 import { MessageService } from 'primeng/api';
+// import { DynamicDialogModule, DialogService,
+//   DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
+
 import { SharedWebSocketService } from './SharedWebSocket.service';
 import { ConnectionStatusService } from './core/services/ConnectionStatus.service';
-// import { Observable, Subscriber } from 'rxjs';
-// import { subscribe } from 'diagnostics_channel';
+import { NotificationService } from './Notification.service';
+// import { QueueTestsFormService } from './queue-tests-form/queue-tests-form.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [HeaderComponent,
+  imports: [
+    HeaderComponent,
+    NgClass,
     SidebarComponent, 
     DeviceStatusComponent, 
     mainTestsComponent,
     ConnectionStatusComponent, 
     RouterOutlet, 
+    QueueTestsFormComponent,
+    //DynamicDialogModule
     ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css' ],
-  providers: [ NotificationService, MessageService, ConnectionStatusService ]
+  styles: [`
+  .tab_content{height: screen;
+    overflow-y: scroll;
+    -ms-overflow-style: none; 
+    scrollbar-width: none}
+  .tab-content::-webkit-scrollbar{display: none}`
+  ],
+  providers: [ NotificationService,
+    MessageService,
+    ConnectionStatusService,
+    // DynamicDialogRef,
+    // DialogService,
+    // DynamicDialogConfig
+  ]
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private sharedWebSocketService: SharedWebSocketService,
     private connectionStatusService: ConnectionStatusService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private router: Router,
   ) {}
 
   // private observableWebSocket: Observable<> = new Observable();
@@ -55,10 +78,24 @@ export class AppComponent implements OnInit, OnDestroy {
         this.connectionStatusService.updateStatus("M3M", false);
         this.notificationService.showError("М3М отключился...");
       }
-    }
-  })
-
+    }})
   }
+
+  ngAfterViewInit() {
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.resetScrollPosition();
+      }
+    });
+  }
+
+  resetScrollPosition() {
+    const tabContent = document.querySelector('.tab_content');
+    if (tabContent) {
+      tabContent.scrollTop = 0;
+    }
+  }
+
   ngOnDestroy() {
     this.sharedWebSocketService.disconnect();
   } 

@@ -1,38 +1,55 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy, NgZone } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy,
+   NgZone } from '@angular/core';
+import { NgClass, NgFor, CommonModule } from "@angular/common";
 import { FormsModule } from '@angular/forms';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Subscription, timer } from 'rxjs';
+
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
 import { SelectButtonModule } from 'primeng/selectbutton';
-import { SharedWebSocketService } from '../SharedWebSocket.service';
-import { Subscription, timer } from 'rxjs';
-import { NotificationService } from '../Notification.service';
-import { ProgressBarModule } from 'primeng/progressbar';
 import { ToastModule } from 'primeng/toast';
+import { ProgressBarModule } from 'primeng/progressbar'
+
+import { SharedWebSocketService } from '../SharedWebSocket.service';
+import { NotificationService } from '../Notification.service';
+import { FileSaveService } from './fileSaver.service';
+
+import { QueueTestsFormComponent } from "../queue-tests-form/queue-tests-form.component"
+//import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { PullTestsInterface } from '../core/interfaces/pull_tests'
 
 @Component({
   selector: 'app-mainTests',
   standalone: true,
   imports: [
+    NgClass,
+    NgFor,
+    CommonModule,
     FormsModule,
+    MatDialogModule,
     InputNumberModule,
     ButtonModule,
     ProgressBarModule,
+    SelectButtonModule,
     ToastModule,
-    SelectButtonModule
+    QueueTestsFormComponent
   ],
   templateUrl: './mainTests.component.html',
   styleUrls: ['./mainTests.component.css'],
+  styles: [`.tab_content{height: 38rem; overflow-y: scroll;}`],
   providers: [ NotificationService ]
 })
 
 export class mainTestsComponent implements OnInit, OnDestroy {
+
   loadingTest: boolean = false;
   TestProcessing: boolean = false;
   interval: any;
   modulation: number = 0;
 
-  selectionTestType: string = "express"
-  selectionBandwidth: number =  3;
+  // selectionTestType: string = "express_test"
+  // selectionBandwidth: number =  3;
 
   pa1: number | null = null;
   pa2: number | null = null;
@@ -43,6 +60,23 @@ export class mainTestsComponent implements OnInit, OnDestroy {
   cable3: number | null = null;
   duration: number | null = null;
 
+  pullman_tests: PullTestsInterface = {
+    "modulation": "",
+    "bandwidth": "",
+    "frequncy": "none",
+    "type": "",
+    "time": ""
+  }
+
+  massiveTests = [this.pullman_tests]
+  //ref: DynamicDialogRef | null = null;
+
+  /*
+    modulation: all, bpsk1/2, qpsk3/4...
+    bandwidth: 3, 5
+    frequency: 1124, ...
+    type: full, express
+  */
   testOptions: any[] = [{ label: 'Экспресс тест', value: "express_test" },{ label: 'Полный тест', value: "full_test" }];
   stationOptions: any[] = [{ label: '10 МГц', value: 3 },{ label: '20 МГц', value: 5 }];
   
@@ -53,7 +87,29 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private notificationService: NotificationService,
     private ngZone: NgZone,
+    private dialog: MatDialog,
+    private fileSaveService: FileSaveService
   ) {}
+
+  openDialog() {
+    const dialogRef = this.dialog.open(QueueTestsFormComponent, {
+      width: '750px',
+      height: '800px',
+      panelClass: 'FormStyle'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.massiveTests = result;
+      }
+    });
+  }
+
+  downloadJSONWithSettings() {
+    const jsonDataSettings = { name: "Blob" }
+    const blob = new Blob([JSON.stringify(jsonDataSettings, null, 2)], {type: 'application/json' });
+    this.fileSaveService.saveFile(blob);
+  }
 
   ngOnInit(): void { }
 
@@ -75,7 +131,7 @@ export class mainTestsComponent implements OnInit, OnDestroy {
           let subscription = this.sharedWebSocketService.getMessages().subscribe({
             next: (message) => {
               if (message.status === "modulation") {
-                this.modulation = message.modulation *  16.6;
+                this.modulation = ((message.currentMod / message.stage) * 100) - 1;
                 if (message.status === "completed") {
                   this.modulation = 0;
                   this.notificationService.showSuccess("Тестирование успешно завершено, проверьте папку tests...");
@@ -96,7 +152,7 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     });
   }
 
-  Test(Test_type: string) {
+  startTest(Queue_tests: any[]) {
     this.loadingTest = true;
     const InputedParams = 
     {
@@ -107,11 +163,11 @@ export class mainTestsComponent implements OnInit, OnDestroy {
       c1: this.cable1,
       c2: this.cable2,
       c3: this.cable3,
-      duration: this.duration,
-      bandwidth: this.selectionBandwidth
+      //duration: this.duration,
+      //bandwidth: this.selectionBandwidth
     };
 
-    const message = {"type": `${Test_type}`, "deviceId": "stat", "command": InputedParams};
+    const message = {"type": "test", "params": Queue_tests, "command": InputedParams};
     this.sharedWebSocketService.sendMessage(message);
 
     const connectionTimeout = timer(5000).subscribe(() => {
@@ -121,7 +177,7 @@ export class mainTestsComponent implements OnInit, OnDestroy {
 
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
-        if (message.type === "sended" && message.deviceId === "stat") {
+        if (message.type === "sended" && message.type === "test") {
           this.pullman();
           connectionTimeout.unsubscribe();
           this.TestProcessing = true;
@@ -140,3 +196,4 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     this.subscription.add(subscription);
   }
 }
+

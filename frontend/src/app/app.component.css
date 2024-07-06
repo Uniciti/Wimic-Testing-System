@@ -1,8 +1,10 @@
 .content {
   margin-left: 13%;
-  margin-right: 28%;
+  margin-right: 33%;
+ 
   margin-top: 62px;
   height: calc(100vh - 62px);
-  overflow-y: auto;
 }
+
+
 
