@@ -122,7 +122,7 @@ export class FullTest {
 			setBertDuration(this.duration * 7 + 1000);
 			await delay(1000);
 			const dataArray: any[] = [];
-			for(let i = 5; i >= 0; i--) {
+			for(let i = 6; i >= 0; i--) {
 
 				const valid = await validator();
 				if (!valid) {

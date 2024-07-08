@@ -7,14 +7,14 @@ import { comClient, COMClient } from './services/m3m.service';
 import { ExpressTest } from './logic/expresstest.logic';
 import { FullTest } from './logic/fulltest.logic';
 import { queue, Queue } from './logic/queue.logic';
-import { setPathName, pathToFile, fileName, delay } from './logic/main.logic';
+import { pathToFile, fileName, delay } from './logic/main.logic';
 import 'dotenv/config';
 
 const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} = {
-  'attenuator': tcpClient,
-  'bercut': sshClient,
-  'stat': snmpClient,
-  'm3m': comClient,
+  'Att': tcpClient,
+  'Ber': sshClient,
+  'Stat': snmpClient,
+  'M3M': comClient,
   
 };
 
@@ -43,10 +43,10 @@ export function setupWebSocketServer(server: any) {
 
           // case 'stat-ip-switch':
 
-          case 'set-path':
-            setPathName(path, filename);
-            ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
-            break;
+          // case 'set-path':
+          //   setPathName(path, filename);
+          //   ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
+          //   break;
           
           case 'connect':
             const conStatus = await device.connect();
@@ -104,8 +104,8 @@ export function setupWebSocketServer(server: any) {
 
           case 'express-test':
             const testtest1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-            // const eresult = await testtest1.setBandwidth();
-            const eresult = true;
+            const eresult = await testtest1.setBandwidth();
+            // const eresult = true;
             console.log(eresult);
             if (eresult) {
               await testtest1.test();              
@@ -114,9 +114,9 @@ export function setupWebSocketServer(server: any) {
             break;
 
           case 'full-test':
-            const testtest2 = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-            // const eresultq = await testtest2.setBandwidth();
-            const eresultq = true;
+            const testtest2 = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 20);
+            const eresultq = await testtest2.setBandwidth();
+            // const eresultq = true;
             console.log(eresultq);
             if (eresultq) {
               await testtest2.test();              
@@ -179,21 +179,21 @@ export function setupWebSocketServer(server: any) {
 
 
             if (ber){
-              const device = devices['bercut'];
+              const device = devices['Ber'];
               const result = await device.checkConnect();
               if (typeof result === 'boolean') {
                 response.pingBert = result;
               }
             }
             if (att){
-              const device = devices['attenuator'];
+              const device = devices['Att'];
               const result = await device.checkConnect();
               if (typeof result === 'boolean') {
                 response.pingAtt = result;
               }
             }
             if (stat){
-              const device = devices['stat'];
+              const device = devices['Stat'];
               const result = await device.checkConnect();
               if (Array.isArray(result)) {
                   const [pingStat0, pingStat1] = result;
@@ -202,7 +202,7 @@ export function setupWebSocketServer(server: any) {
               }
             }
             if (m3m){
-              const device = devices['m3m'];
+              const device = devices['M3M'];
               const result = await device.checkConnect();
               if (typeof result === 'boolean') {
                 response.pingM3M = result;

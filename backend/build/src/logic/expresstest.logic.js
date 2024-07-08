@@ -113,7 +113,7 @@ class ExpressTest {
                 (0, main_logic_1.setBertDuration)(this.duration * 7 + 1000);
                 yield (0, main_logic_1.delay)(1000);
                 const dataArray = [];
-                for (let i = 6; i >= 0; i--) {
+                for (let i = 6; i >= 6; i--) {
                     const valid = yield (0, main_logic_1.validator)();
                     if (!valid) {
                         break;

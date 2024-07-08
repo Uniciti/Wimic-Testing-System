@@ -25,10 +25,10 @@ const queue_logic_1 = require("./logic/queue.logic");
 const main_logic_1 = require("./logic/main.logic");
 require("dotenv/config");
 const devices = {
-    'attenuator': att_service_1.tcpClient,
-    'bercut': bert_service_1.sshClient,
-    'stat': stantion_service_1.snmpClient,
-    'm3m': m3m_service_1.comClient,
+    'Att': att_service_1.tcpClient,
+    'Ber': bert_service_1.sshClient,
+    'Stat': stantion_service_1.snmpClient,
+    'M3M': m3m_service_1.comClient,
 };
 let wss;
 function setupWebSocketServer(server) {
@@ -47,10 +47,10 @@ function setupWebSocketServer(server) {
                 // большая часть команд является отладочными и не будет использоваться в конечном продукте
                 switch (type) {
                     // case 'stat-ip-switch':
-                    case 'set-path':
-                        (0, main_logic_1.setPathName)(path, filename);
-                        ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
-                        break;
+                    // case 'set-path':
+                    //   setPathName(path, filename);
+                    //   ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
+                    //   break;
                     case 'connect':
                         const conStatus = yield device.connect();
                         ws.send(JSON.stringify({ type: 'connect', deviceId, conStatus }));
@@ -102,17 +102,17 @@ function setupWebSocketServer(server) {
                         }
                     case 'express-test':
                         const testtest1 = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-                        // const eresult = await testtest1.setBandwidth();
-                        const eresult = true;
+                        const eresult = yield testtest1.setBandwidth();
+                        // const eresult = true;
                         console.log(eresult);
                         if (eresult) {
                             yield testtest1.test();
                         }
                         break;
                     case 'full-test':
-                        const testtest2 = new fulltest_logic_1.FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-                        // const eresultq = await testtest2.setBandwidth();
-                        const eresultq = true;
+                        const testtest2 = new fulltest_logic_1.FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 20);
+                        const eresultq = yield testtest2.setBandwidth();
+                        // const eresultq = true;
                         console.log(eresultq);
                         if (eresultq) {
                             yield testtest2.test();
@@ -160,21 +160,21 @@ function setupWebSocketServer(server) {
                     case 'is-connected':
                         const response = { type: 'is-connected' };
                         if (ber) {
-                            const device = devices['bercut'];
+                            const device = devices['Ber'];
                             const result = yield device.checkConnect();
                             if (typeof result === 'boolean') {
                                 response.pingBert = result;
                             }
                         }
                         if (att) {
-                            const device = devices['attenuator'];
+                            const device = devices['Att'];
                             const result = yield device.checkConnect();
                             if (typeof result === 'boolean') {
                                 response.pingAtt = result;
                             }
                         }
                         if (stat) {
-                            const device = devices['stat'];
+                            const device = devices['Stat'];
                             const result = yield device.checkConnect();
                             if (Array.isArray(result)) {
                                 const [pingStat0, pingStat1] = result;
@@ -183,7 +183,7 @@ function setupWebSocketServer(server) {
                             }
                         }
                         if (m3m) {
-                            const device = devices['m3m'];
+                            const device = devices['M3M'];
                             const result = yield device.checkConnect();
                             if (typeof result === 'boolean') {
                                 response.pingM3M = result;

@@ -5,9 +5,11 @@ import { comClient, COMClient } from '../services/m3m.service';
 import { broadcaster } from '../ws.server';
 // import { speed, sens, modName } from './consts.logic';
 import * as XLSX from 'xlsx';
-import path from 'path';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as os from 'os';
 
-export let pathToFile: string = "/home/vlad/";
+export let pathToFile: string = path.join(os.homedir(), '/');;
 export let fileName: string = "test.xlsx";
 
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -132,11 +134,19 @@ export function writeDataToExcel(newData: any[],  testName: string): void {
 	const worksheet = XLSX.utils.json_to_sheet(newData);
 	const workbook = XLSX.utils.book_new();
   	XLSX.utils.book_append_sheet(workbook, worksheet, testName);
-  	XLSX.writeFile(workbook, pathToFile + fileName);
+
+    const date = new Date();
+    const dateString = date.toISOString().split('T')[0];
+    const timeString = date.toTimeString().split(' ')[0].replace(/:/g, '-');
+    const uniqueFileName = `${testName} ${dateString} ${timeString}.xlsx`;
+    const filePath = path.join(pathToFile, uniqueFileName);
+
+  	XLSX.writeFile(workbook, filePath);
+    console.log(`File saved as: ${filePath}`);
 
 }
 
-export function setPathName(path: string, name: string) { 
-    pathToFile = (path + "/") || "/home/vlad/";
-    fileName = (name + ".xlsx") || "test.xlsx";
-}
+// export function setPathName(path: string, name: string) { 
+//     pathToFile = (path || os.homedir()) || "/home/vlad/";
+//     fileName = (name + ".xlsx") || "test.xlsx";
+// }
