@@ -108,7 +108,7 @@ class SSHClient {
             var _a, _b;
             if (!this.isConnected) {
                 console.error('SSH connection is not established');
-                return reject('SSH connection is not established');
+                reject('SSH connection is not established');
             }
             this.commandResolve = resolve;
             this.commandReject = reject;
@@ -149,7 +149,7 @@ class SSHClient {
             var _a, _b;
             if (!this.isConnected) {
                 console.log('Not connected to SSH server');
-                return resolve(false);
+                resolve(false);
             }
             this.output = '';
             (_b = (_a = this.sshProcess) === null || _a === void 0 ? void 0 : _a.stdin) === null || _b === void 0 ? void 0 : _b.write('show time\n');

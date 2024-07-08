@@ -143,6 +143,7 @@ export class ExpressTest {
 									"Процент ошибок, %": "none",
 									"Статус": "Ошибка поиска модуляции",
 									"Полоса": this.bandwidth,
+									"Аварийное завершение": !valid,
 									
 								});
 
@@ -172,7 +173,7 @@ export class ExpressTest {
 					let intervalChecker: NodeJS.Timeout;
 
 					let valid: boolean = true;
-					const startTest =  async () => {
+					const startTest = async () => {
 						intervalChecker = setInterval(async () => {
 							// try {
 							// 	const data = await sshClient.sendCommand('statistics show');
@@ -248,6 +249,7 @@ export class ExpressTest {
 									"Процент ошибок, %": errorRate,
 									"Статус": verdict,
 									"Полоса": this.bandwidth,
+									"Аварийное завершение": !valid,
 
 								};
 

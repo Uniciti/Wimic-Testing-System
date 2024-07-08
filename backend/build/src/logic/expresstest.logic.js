@@ -127,6 +127,7 @@ class ExpressTest {
                         "Процент ошибок, %": "none",
                         "Статус": "Ошибка поиска модуляции",
                         "Полоса": this.bandwidth,
+                        "Аварийное завершение": !valid,
                     });
                     const message = { testid: "expresstest", message: (6 - i).toString() };
                     (0, ws_server_1.broadcaster)(JSON.stringify(message));
@@ -215,6 +216,7 @@ class ExpressTest {
                             "Процент ошибок, %": errorRate,
                             "Статус": verdict,
                             "Полоса": this.bandwidth,
+                            "Аварийное завершение": !valid,
                         };
                     }
                 }

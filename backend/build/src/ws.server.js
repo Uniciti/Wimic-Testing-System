@@ -36,14 +36,14 @@ function setupWebSocketServer(server) {
     wss.on('connection', (ws) => {
         console.log('Client connected');
         ws.on('message', (message) => __awaiter(this, void 0, void 0, function* () {
-            const parsedMessage = JSON.parse(message);
-            const { type, deviceId, command, value, ber, att, stat, m3m, filename, path } = parsedMessage;
-            const device = devices[deviceId] || 'connectChecker';
-            if (!device) {
-                ws.send(JSON.stringify({ type: 'error', message: `Device ${deviceId} not found` }));
-                return;
-            }
             try {
+                const parsedMessage = JSON.parse(message);
+                const { type, deviceId, command, value, ber, att, stat, m3m, filename, path } = parsedMessage;
+                const device = devices[deviceId] || 'connectChecker';
+                if (!device) {
+                    ws.send(JSON.stringify({ type: 'error', message: `Device ${deviceId} not found` }));
+                    return;
+                }
                 // большая часть команд является отладочными и не будет использоваться в конечном продукте
                 switch (type) {
                     // case 'stat-ip-switch':

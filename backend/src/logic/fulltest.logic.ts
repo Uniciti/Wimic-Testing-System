@@ -122,7 +122,7 @@ export class FullTest {
 			setBertDuration(this.duration * 7 + 1000);
 			await delay(1000);
 			const dataArray: any[] = [];
-			for(let i = 6; i >= 6; i--) {
+			for(let i = 5; i >= 0; i--) {
 
 				const valid = await validator();
 				if (!valid) {
@@ -141,7 +141,6 @@ export class FullTest {
 				// 				"Статус": "Ошибка поиска модуляции",
 				// 				"Статус чуствительности":"Ошибка поиска модуляции",
 				// 				"Полоса": this.bandwidth,
-								
 				// 			});
 				const message  = {testid: "fulltest", message: (6 - i).toString()}
 				broadcaster(JSON.stringify(message));
@@ -236,7 +235,7 @@ export class FullTest {
 						let intervalChecker: NodeJS.Timeout;
 
 						let valid: boolean = true;
-						const startTest =  async () => {
+						const startTest = async () => {
 							intervalChecker = setInterval(async () => {
 
 								valid = await validator();
@@ -468,6 +467,7 @@ export class FullTest {
 						"Статус": verdict,
 						"Статус чувствительности":pinVerdict,
 						"Полоса": this.bandwidth,
+						"Аварийное завершение": !valid
 
 					});
 			
@@ -479,7 +479,7 @@ export class FullTest {
 			if (valid) {
 				message  = {testid: "fulltest", message: "completed"};
 			} else {
-				message  = {testid: "fulltest", message: "completed"};
+				message  = {testid: "fulltest", message: "error exec"};
 			}
 			broadcaster(JSON.stringify(message));
 			resolve();

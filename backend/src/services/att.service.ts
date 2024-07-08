@@ -102,13 +102,13 @@ export class TcpClient {
 
     return new Promise((resolve, reject) => {
       if (!this.isConnected) {
-        return reject(new Error('Not connected to TCP server.'));
+        reject('Not connected to TCP server');
       }
 
       console.log(`Sending command: ${command}`);
       this.client.write(command, (error) => {
         if (error) {
-          return reject(error);
+          reject(error);
         }
 
         // Wait for 1500 milliseconds before resolving
@@ -124,7 +124,7 @@ export class TcpClient {
 
     return new Promise((resolve, reject) => {
       if (!this.isConnected) {
-        return reject('Not connected to TCP server');
+        reject('Not connected to TCP server');
       }
 
       this.commandResolve = resolve;
@@ -183,7 +183,7 @@ export class TcpClient {
     return new Promise((resolve, reject) => {
       if (!this.isConnected) {
         console.log('Not connected to TCP server.');
-        return resolve(false);
+        resolve(false);
       }
 
       this.output = '';

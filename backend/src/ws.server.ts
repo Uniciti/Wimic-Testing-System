@@ -26,21 +26,22 @@ export function setupWebSocketServer(server: any) {
     console.log('Client connected');
 
     ws.on('message', async (message: string) => {
-      const parsedMessage = JSON.parse(message);
-      const { type, deviceId, command, value, ber, att, stat, m3m, filename, path } = parsedMessage;
-      const device = devices[deviceId] || 'connectChecker';
-
-      if (!device) {
-        ws.send(JSON.stringify({ type: 'error', message: `Device ${deviceId} not found` }));
-        return;
-      }
 
       try {
+
+        const parsedMessage = JSON.parse(message);
+        const { type, deviceId, command, value, ber, att, stat, m3m, filename, path} = parsedMessage;
+        const device = devices[deviceId] || 'connectChecker';
+  
+        if (!device) {
+          ws.send(JSON.stringify({ type: 'error', message: `Device ${deviceId} not found` }));
+  
+          return;
+        }
         // большая часть команд является отладочными и не будет использоваться в конечном продукте
         switch (type) {
 
           // case 'stat-ip-switch':
-
 
           case 'set-path':
             setPathName(path, filename);
