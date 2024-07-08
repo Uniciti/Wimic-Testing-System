@@ -72,8 +72,12 @@ export class Queue {
     
         const nextTest = this.queue.shift();
         if (nextTest) {
-            await nextTest.test();
-            this.runNext();
+
+            const result = await nextTest.setBandwidth();
+            if (result) {
+                await nextTest.test();
+                this.runNext();
+            }
         }
     }
 

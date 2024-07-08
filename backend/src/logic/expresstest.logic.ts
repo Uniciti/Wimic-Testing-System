@@ -26,6 +26,8 @@ export class ExpressTest {
 	private speed: number[] = speed10;
 	private sens: number[] = sens10;
 
+	private modList: number[];
+
 	constructor(
 		pa1: number,
 		pa2: number, 
@@ -35,7 +37,8 @@ export class ExpressTest {
 		splitToAtt: number,
 		attToPa2: number,
 		duration: number,
-		bandwidth: number
+		bandwidth: number,
+		modList: number[]
 		) {
 
 		this.pa1 = pa1;
@@ -47,9 +50,7 @@ export class ExpressTest {
 		this.attToPa2 = attToPa2;
 		this.duration = duration * 1000;
 		this.bandwidth = bandwidth;
-
-
-
+		this.modList = modList;
 
 		this.offset = Math.round(pa1 + splitterM3M + pa1ToSplit) + 3;
 		this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt;
@@ -127,7 +128,11 @@ export class ExpressTest {
 			setBertDuration(this.duration * 7 + 1000);
 			await delay(1000);
 			const dataArray: any[] = [];
-			for(let i = 6; i >= 6; i--) {
+
+			
+
+			// for(let i = 6; i >= 0; i--) {
+			for (const i of this.modList) {
 
 				const valid = await validator();
 				if (!valid) {

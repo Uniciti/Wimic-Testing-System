@@ -70,8 +70,11 @@ class Queue {
             }
             const nextTest = this.queue.shift();
             if (nextTest) {
-                yield nextTest.test();
-                this.runNext();
+                const result = yield nextTest.setBandwidth();
+                if (result) {
+                    yield nextTest.test();
+                    this.runNext();
+                }
             }
         });
     }

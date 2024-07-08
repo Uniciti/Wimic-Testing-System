@@ -19,7 +19,7 @@ const stantion_service_1 = require("../services/stantion.service");
 const ws_server_1 = require("../ws.server");
 require("dotenv/config");
 class ExpressTest {
-    constructor(pa1, pa2, splitterAtt, splitterM3M, pa1ToSplit, splitToAtt, attToPa2, duration, bandwidth) {
+    constructor(pa1, pa2, splitterAtt, splitterM3M, pa1ToSplit, splitToAtt, attToPa2, duration, bandwidth, modList) {
         // private m3mPow: number = 0;
         this.offset = 0;
         this.baseAtt = 0;
@@ -43,6 +43,7 @@ class ExpressTest {
         this.attToPa2 = attToPa2;
         this.duration = duration * 1000;
         this.bandwidth = bandwidth;
+        this.modList = modList;
         this.offset = Math.round(pa1 + splitterM3M + pa1ToSplit) + 3;
         this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt;
     }
@@ -113,7 +114,8 @@ class ExpressTest {
                 (0, main_logic_1.setBertDuration)(this.duration * 7 + 1000);
                 yield (0, main_logic_1.delay)(1000);
                 const dataArray = [];
-                for (let i = 6; i >= 6; i--) {
+                // for(let i = 6; i >= 0; i--) {
+                for (const i of this.modList) {
                     const valid = yield (0, main_logic_1.validator)();
                     if (!valid) {
                         break;
