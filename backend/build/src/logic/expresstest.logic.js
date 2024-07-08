@@ -102,13 +102,22 @@ class ExpressTest {
     }
     test() {
         return __awaiter(this, void 0, void 0, function* () {
+            const valid = yield (0, main_logic_1.validator)();
+            console.log(valid);
+            if (!valid) {
+                return;
+            }
             return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
                 m3m_service_1.comClient.sendCommand(this.offset);
                 yield (0, main_logic_1.delay)(1000);
                 (0, main_logic_1.setBertDuration)(this.duration * 7 + 1000);
                 yield (0, main_logic_1.delay)(1000);
                 const dataArray = [];
-                for (let i = 6; i >= 6; i--) {
+                for (let i = 6; i >= 0; i--) {
+                    const valid = yield (0, main_logic_1.validator)();
+                    if (!valid) {
+                        break;
+                    }
                     dataArray.push({ "Модуляция": consts_logic_1.modName[i],
                         "Аттен, ДБ": "none",
                         "С/Ш": "none",
@@ -118,8 +127,10 @@ class ExpressTest {
                         "Процент ошибок, %": "none",
                         "Статус": "Ошибка поиска модуляции",
                         "Полоса": this.bandwidth,
+                        "Аварийное завершение": !valid,
                     });
-                    (0, ws_server_1.testBroadcast)("expresstest", (6 - i).toString());
+                    const message = { testid: "expresstest", message: (6 - i).toString() };
+                    (0, ws_server_1.broadcaster)(JSON.stringify(message));
                     const m3mPow = yield (0, main_logic_1.getPower)(this.speed[i]);
                     console.log(m3mPow);
                     const attValue = Math.round(this.calculateAtt(this.sens[i], m3mPow));
@@ -140,22 +151,33 @@ class ExpressTest {
                         let txBytes = 0;
                         let rxBytes = 0;
                         let intervalChecker;
+                        let valid = true;
                         const startTest = () => __awaiter(this, void 0, void 0, function* () {
                             intervalChecker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                                try {
-                                    const data = yield bert_service_1.sshClient.sendCommand('statistics show');
-                                    (0, main_logic_1.delay)(500);
-                                    const [tx, rx] = yield (0, main_logic_1.parseData)(data);
-                                    (0, main_logic_1.delay)(500);
-                                    txBytes = tx;
-                                    rxBytes = rx;
-                                    console.log('TX/RX: ', txBytes, rxBytes);
-                                }
-                                catch (error) {
-                                    console.log(`SSH server error ${error.message}`);
+                                // try {
+                                // 	const data = await sshClient.sendCommand('statistics show');
+                                // 	delay(500);
+                                // 	const [tx, rx] = await parseData(data);
+                                // 	delay(500);
+                                // 	txBytes = tx;
+                                // 	rxBytes = rx;
+                                // 	console.log('TX/RX: ', txBytes, rxBytes);
+                                // } catch (error: any) {
+                                // 	console.log(`SSH server error ${error.message}`);
+                                // }
+                                valid = yield (0, main_logic_1.validator)();
+                                if (!valid) {
+                                    clearInterval(intervalChecker);
                                 }
                             }), 5000);
-                            yield (0, main_logic_1.delay)(this.duration);
+                            // await delay(this.duration);
+                            const start = Date.now();
+                            while (Date.now() - start < this.duration) {
+                                if (!valid) {
+                                    break;
+                                }
+                                yield (0, main_logic_1.delay)(100);
+                            }
                             clearInterval(intervalChecker);
                         });
                         yield startTest();
@@ -194,12 +216,20 @@ class ExpressTest {
                             "Процент ошибок, %": errorRate,
                             "Статус": verdict,
                             "Полоса": this.bandwidth,
+                            "Аварийное завершение": !valid,
                         };
                     }
                 }
                 console.log(dataArray);
                 (0, main_logic_1.writeDataToExcel)(dataArray, "express test");
-                (0, ws_server_1.testBroadcast)("expresstest", "completed");
+                let message = null;
+                if (valid) {
+                    message = { testid: "expresstest", message: "completed" };
+                }
+                else {
+                    message = { testid: "expresstest", message: "error exec" };
+                }
+                (0, ws_server_1.broadcaster)(JSON.stringify(message));
                 resolve();
             }));
         });

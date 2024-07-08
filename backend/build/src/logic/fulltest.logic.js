@@ -102,13 +102,22 @@ class FullTest {
     }
     test() {
         return __awaiter(this, void 0, void 0, function* () {
+            const valid = yield (0, main_logic_1.validator)();
+            console.log(valid);
+            if (!valid) {
+                return;
+            }
             return new Promise((resolve) => __awaiter(this, void 0, void 0, function* () {
                 m3m_service_1.comClient.sendCommand(this.offset);
                 yield (0, main_logic_1.delay)(1000);
                 (0, main_logic_1.setBertDuration)(this.duration * 7 + 1000);
                 yield (0, main_logic_1.delay)(1000);
                 const dataArray = [];
-                for (let i = 6; i >= 6; i--) {
+                for (let i = 5; i >= 0; i--) {
+                    const valid = yield (0, main_logic_1.validator)();
+                    if (!valid) {
+                        break;
+                    }
                     // dataArray.push({"Модуляция": modName[i],
                     // 				"Аттен, ДБ": "none",
                     // 				"С/Ш": "none",
@@ -123,7 +132,8 @@ class FullTest {
                     // 				"Статус чуствительности":"Ошибка поиска модуляции",
                     // 				"Полоса": this.bandwidth,
                     // 			});
-                    (0, ws_server_1.testBroadcast)("fulltest", (6 - i).toString());
+                    const message = { testid: "fulltest", message: (6 - i).toString() };
+                    (0, ws_server_1.broadcaster)(JSON.stringify(message));
                     const m3mPow = yield (0, main_logic_1.getPower)(this.speed[i]);
                     console.log(m3mPow);
                     let attValue = Math.round(this.calculateAtt(this.sens[i], m3mPow));
@@ -140,6 +150,10 @@ class FullTest {
                     let pinV = "";
                     if (i != 0) {
                         while (x != i.toString()) {
+                            const valid = yield (0, main_logic_1.validator)();
+                            if (!valid) {
+                                break;
+                            }
                             console.log(consts_logic_1.modName[i], i);
                             console.log(consts_logic_1.modName[parseInt(x)], parseInt(x));
                             if (parseInt(x) < i) {
@@ -156,6 +170,10 @@ class FullTest {
                             }
                         }
                         while (x == i.toString()) {
+                            const valid = yield (0, main_logic_1.validator)();
+                            if (!valid) {
+                                break;
+                            }
                             attValue += 1;
                             yield att_service_1.tcpClient.sendCommand(attValue);
                             yield (0, main_logic_1.delay)(2000);
@@ -183,26 +201,26 @@ class FullTest {
                             yield (0, main_logic_1.delay)(1000);
                             yield bert_service_1.sshClient.sendCommand('bert start');
                             yield (0, main_logic_1.delay)(1000);
-                            // let intervalChecker: NodeJS.Timeout;
-                            // const startTest =  async () => {
-                            //     intervalChecker = setInterval(async () => {
-                            //         try {
-                            //             const data = await sshClient.sendCommand('statistics show');
-                            //             delay(500);
-                            //             const [tx, rx] = await parseData(data);
-                            //             delay(500);
-                            //             txBytes = tx;
-                            //             rxBytes = rx;
-                            //             console.log('TX/RX: ', txBytes, rxBytes);
-                            //         } catch (error: any) {
-                            //             console.log(`SSH server error ${error.message}`);
-                            //         }
-                            //     }, 5000);
-                            //     await delay(this.duration);
-                            //     clearInterval(intervalChecker);
-                            // };
-                            // await startTest();
-                            yield (0, main_logic_1.delay)(this.duration);
+                            let intervalChecker;
+                            let valid = true;
+                            const startTest = () => __awaiter(this, void 0, void 0, function* () {
+                                intervalChecker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
+                                    valid = yield (0, main_logic_1.validator)();
+                                    if (!valid) {
+                                        clearInterval(intervalChecker);
+                                    }
+                                }), 5000);
+                                const start = Date.now();
+                                while (Date.now() - start < this.duration) {
+                                    if (!valid) {
+                                        break;
+                                    }
+                                    yield (0, main_logic_1.delay)(100);
+                                }
+                                clearInterval(intervalChecker);
+                            });
+                            yield startTest();
+                            // await delay(this.duration);
                             yield bert_service_1.sshClient.sendCommand('bert stop');
                             yield (0, main_logic_1.delay)(2000);
                             const data = yield bert_service_1.sshClient.sendCommand('statistics show');
@@ -223,6 +241,10 @@ class FullTest {
                     }
                     else {
                         while (x != i.toString()) {
+                            const valid = yield (0, main_logic_1.validator)();
+                            if (!valid) {
+                                break;
+                            }
                             attValue += 1;
                             yield att_service_1.tcpClient.sendCommand(attValue);
                             yield (0, main_logic_1.delay)(2000);
@@ -238,7 +260,26 @@ class FullTest {
                             yield (0, main_logic_1.delay)(1000);
                             yield bert_service_1.sshClient.sendCommand('bert start');
                             yield (0, main_logic_1.delay)(1000);
-                            yield (0, main_logic_1.delay)(10000);
+                            let intervalChecker;
+                            let valid = true;
+                            const startTest = () => __awaiter(this, void 0, void 0, function* () {
+                                intervalChecker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
+                                    valid = yield (0, main_logic_1.validator)();
+                                    if (!valid) {
+                                        clearInterval(intervalChecker);
+                                    }
+                                }), 5000);
+                                const start = Date.now();
+                                while (Date.now() - start < 10000) {
+                                    if (!valid) {
+                                        break;
+                                    }
+                                    yield (0, main_logic_1.delay)(100);
+                                }
+                                clearInterval(intervalChecker);
+                            });
+                            yield startTest();
+                            // await delay(10000);
                             yield bert_service_1.sshClient.sendCommand('bert stop');
                             yield (0, main_logic_1.delay)(2000);
                             const data = yield bert_service_1.sshClient.sendCommand('statistics show');
@@ -278,7 +319,26 @@ class FullTest {
                             yield (0, main_logic_1.delay)(1000);
                             yield bert_service_1.sshClient.sendCommand('bert start');
                             yield (0, main_logic_1.delay)(1000);
-                            yield (0, main_logic_1.delay)(this.duration);
+                            let intervalChecker;
+                            let valid = true;
+                            const startTest = () => __awaiter(this, void 0, void 0, function* () {
+                                intervalChecker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
+                                    valid = yield (0, main_logic_1.validator)();
+                                    if (!valid) {
+                                        clearInterval(intervalChecker);
+                                    }
+                                }), 5000);
+                                const start = Date.now();
+                                while (Date.now() - start < this.duration) {
+                                    if (!valid) {
+                                        break;
+                                    }
+                                    yield (0, main_logic_1.delay)(100);
+                                }
+                                clearInterval(intervalChecker);
+                            });
+                            yield startTest();
+                            // await delay(this.duration);
                             yield bert_service_1.sshClient.sendCommand('bert stop');
                             yield (0, main_logic_1.delay)(2000);
                             const data = yield bert_service_1.sshClient.sendCommand('statistics show');
@@ -316,11 +376,19 @@ class FullTest {
                         "Статус": verdict,
                         "Статус чувствительности": pinVerdict,
                         "Полоса": this.bandwidth,
+                        "Аварийное завершение": !valid
                     });
                 }
                 console.log(dataArray);
                 (0, main_logic_1.writeDataToExcel)(dataArray, "full test");
-                (0, ws_server_1.testBroadcast)("fulltest", "completed");
+                let message = null;
+                if (valid) {
+                    message = { testid: "fulltest", message: "completed" };
+                }
+                else {
+                    message = { testid: "fulltest", message: "error exec" };
+                }
+                (0, ws_server_1.broadcaster)(JSON.stringify(message));
                 resolve();
             }));
         });

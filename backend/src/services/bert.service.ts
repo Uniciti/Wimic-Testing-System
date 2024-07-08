@@ -1,4 +1,4 @@
-import { spawn, ChildProcess } from 'child_process';
+import { spawn, ChildProcess, execSync } from 'child_process';
 import 'dotenv/config';
 
 const BERT_PROXY = process.env.BERT_PROXY || 'admin@172.16.17.32';
@@ -119,7 +119,7 @@ export class SSHClient {
 	    return new Promise((resolve, reject) => {
 	        if (!this.isConnected) {
 	            console.error('SSH connection is not established');
-	            return reject('SSH connection is not established');
+	            reject('SSH connection is not established');
 	        }
 
 	        this.commandResolve = resolve;
@@ -164,7 +164,7 @@ export class SSHClient {
 		return new Promise((resolve, reject) => {
 			if (!this.isConnected) {
 				console.log('Not connected to SSH server');
-				return resolve(false);
+				resolve(false);
 			}
 
 	        this.output = '';

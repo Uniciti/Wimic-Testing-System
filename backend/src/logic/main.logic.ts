@@ -2,6 +2,7 @@ import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
 import { comClient, COMClient } from '../services/m3m.service';
+import { broadcaster } from '../ws.server';
 // import { speed, sens, modName } from './consts.logic';
 import * as XLSX from 'xlsx';
 import path from 'path';
@@ -81,6 +82,22 @@ export async function getPower(speed: number): Promise<number> {
     }
 
     return m3mPow;
+}
+
+export async function validator(): Promise<boolean> {
+    const response: any = { type: 'is-connected' };
+    const result0 = await sshClient.checkConnect();
+    response.pingBert = result0;
+    const result1 = await tcpClient.checkConnect();
+    response.pingAtt = result1;
+    const result2 = await snmpClient.checkConnect();
+    const [pingStat0, pingStat1] = result2;
+    response.pingStat0 = pingStat0;
+    response.pingStat1 = pingStat1;
+    const result3 = await comClient.checkConnect();
+    response.pingM3M = result3;
+    broadcaster(JSON.stringify(response));
+    return result0 && result1 && pingStat0 && pingStat1 && result3;    
 }
 
 

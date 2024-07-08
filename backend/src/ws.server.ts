@@ -7,7 +7,7 @@ import { comClient, COMClient } from './services/m3m.service';
 import { ExpressTest } from './logic/expresstest.logic';
 import { FullTest } from './logic/fulltest.logic';
 import { queue, Queue } from './logic/queue.logic';
-import { setPathName, pathToFile, fileName } from './logic/main.logic';
+import { setPathName, pathToFile, fileName, delay } from './logic/main.logic';
 import 'dotenv/config';
 
 const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} = {
@@ -26,21 +26,22 @@ export function setupWebSocketServer(server: any) {
     console.log('Client connected');
 
     ws.on('message', async (message: string) => {
-      const parsedMessage = JSON.parse(message);
-      const { type, deviceId, command, value, ber, att, stat, M3M, filename, path } = parsedMessage;
-      const device = devices[deviceId] || 'connectChecker';
-
-      if (!device) {
-        ws.send(JSON.stringify({ type: 'error', message: `Device ${deviceId} not found` }));
-        return;
-      }
 
       try {
+
+        const parsedMessage = JSON.parse(message);
+        const { type, deviceId, command, value, ber, att, stat, m3m, filename, path} = parsedMessage;
+        const device = devices[deviceId] || 'connectChecker';
+  
+        if (!device) {
+          ws.send(JSON.stringify({ type: 'error', message: `Device ${deviceId} not found` }));
+  
+          return;
+        }
         // большая часть команд является отладочными и не будет использоваться в конечном продукте
         switch (type) {
 
           // case 'stat-ip-switch':
-
 
           case 'set-path':
             setPathName(path, filename);
@@ -103,7 +104,8 @@ export function setupWebSocketServer(server: any) {
 
           case 'express-test':
             const testtest1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-            const eresult = await testtest1.setBandwidth()
+            // const eresult = await testtest1.setBandwidth();
+            const eresult = true;
             console.log(eresult);
             if (eresult) {
               await testtest1.test();              
@@ -113,13 +115,30 @@ export function setupWebSocketServer(server: any) {
 
           case 'full-test':
             const testtest2 = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-            const eresultq = await testtest2.setBandwidth()
+            // const eresultq = await testtest2.setBandwidth();
+            const eresultq = true;
             console.log(eresultq);
             if (eresultq) {
               await testtest2.test();              
             }
 
             break;
+
+          
+          case "att-test":
+            const responseatt: any = { type: 'is-connected' };
+            while (true) {
+              
+              const result = await tcpClient.checkConnect();
+              if (typeof result === 'boolean') {
+                responseatt.pingAtt = result;
+              }
+              ws.send(JSON.stringify(responseatt));
+              await delay(3500);
+            }
+            
+            break;
+
 
           case 'queue-test':
             const testtestq1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
@@ -182,7 +201,7 @@ export function setupWebSocketServer(server: any) {
                   response.pingStat1 = pingStat1;
               }
             }
-            if (M3M){
+            if (m3m){
               const device = devices['m3m'];
               const result = await device.checkConnect();
               if (typeof result === 'boolean') {
@@ -210,18 +229,6 @@ export function setupWebSocketServer(server: any) {
 
 }
 
-export function testBroadcast(testId: string, data: string) {
-  if (!wss) {
-    console.error("WebSocket server is not set up");
-    return;
-  }
-
-  wss.clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({ testId, "message": data }));
-    }
-  });
-}
 
 export function queueBroadcast(queue: string, data: any) {
   if (!wss) {
@@ -232,6 +239,19 @@ export function queueBroadcast(queue: string, data: any) {
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify({ queue, "message": data }));
+    }
+  });
+}
+
+export function broadcaster(data: any) {
+  if (!wss) {
+    console.error("WebSocket server is not set up");
+    return;
+  }
+
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(data);
     }
   });
 }

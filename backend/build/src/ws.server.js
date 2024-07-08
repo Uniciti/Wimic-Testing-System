@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.queueBroadcast = exports.testBroadcast = exports.setupWebSocketServer = void 0;
+exports.broadcaster = exports.queueBroadcast = exports.setupWebSocketServer = void 0;
 const ws_1 = __importDefault(require("ws"));
 // import { Device } from './interfaces/device.interface';
 const att_service_1 = require("./services/att.service");
@@ -36,14 +36,14 @@ function setupWebSocketServer(server) {
     wss.on('connection', (ws) => {
         console.log('Client connected');
         ws.on('message', (message) => __awaiter(this, void 0, void 0, function* () {
-            const parsedMessage = JSON.parse(message);
-            const { type, deviceId, command, value, ber, att, stat, M3M, filename, path } = parsedMessage;
-            const device = devices[deviceId] || 'connectChecker';
-            if (!device) {
-                ws.send(JSON.stringify({ type: 'error', message: `Device ${deviceId} not found` }));
-                return;
-            }
             try {
+                const parsedMessage = JSON.parse(message);
+                const { type, deviceId, command, value, ber, att, stat, m3m, filename, path } = parsedMessage;
+                const device = devices[deviceId] || 'connectChecker';
+                if (!device) {
+                    ws.send(JSON.stringify({ type: 'error', message: `Device ${deviceId} not found` }));
+                    return;
+                }
                 // большая часть команд является отладочными и не будет использоваться в конечном продукте
                 switch (type) {
                     // case 'stat-ip-switch':
@@ -102,7 +102,8 @@ function setupWebSocketServer(server) {
                         }
                     case 'express-test':
                         const testtest1 = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-                        const eresult = yield testtest1.setBandwidth();
+                        // const eresult = await testtest1.setBandwidth();
+                        const eresult = true;
                         console.log(eresult);
                         if (eresult) {
                             yield testtest1.test();
@@ -110,10 +111,22 @@ function setupWebSocketServer(server) {
                         break;
                     case 'full-test':
                         const testtest2 = new fulltest_logic_1.FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-                        const eresultq = yield testtest2.setBandwidth();
+                        // const eresultq = await testtest2.setBandwidth();
+                        const eresultq = true;
                         console.log(eresultq);
                         if (eresultq) {
                             yield testtest2.test();
+                        }
+                        break;
+                    case "att-test":
+                        const responseatt = { type: 'is-connected' };
+                        while (true) {
+                            const result = yield att_service_1.tcpClient.checkConnect();
+                            if (typeof result === 'boolean') {
+                                responseatt.pingAtt = result;
+                            }
+                            ws.send(JSON.stringify(responseatt));
+                            yield (0, main_logic_1.delay)(3500);
                         }
                         break;
                     case 'queue-test':
@@ -169,7 +182,7 @@ function setupWebSocketServer(server) {
                                 response.pingStat1 = pingStat1;
                             }
                         }
-                        if (M3M) {
+                        if (m3m) {
                             const device = devices['m3m'];
                             const result = yield device.checkConnect();
                             if (typeof result === 'boolean') {
@@ -193,18 +206,6 @@ function setupWebSocketServer(server) {
     console.log(`WebSocket server is set up and running.`);
 }
 exports.setupWebSocketServer = setupWebSocketServer;
-function testBroadcast(testId, data) {
-    if (!wss) {
-        console.error("WebSocket server is not set up");
-        return;
-    }
-    wss.clients.forEach(client => {
-        if (client.readyState === ws_1.default.OPEN) {
-            client.send(JSON.stringify({ testId, "message": data }));
-        }
-    });
-}
-exports.testBroadcast = testBroadcast;
 function queueBroadcast(queue, data) {
     if (!wss) {
         console.error("WebSocket server is not set up");
@@ -217,3 +218,15 @@ function queueBroadcast(queue, data) {
     });
 }
 exports.queueBroadcast = queueBroadcast;
+function broadcaster(data) {
+    if (!wss) {
+        console.error("WebSocket server is not set up");
+        return;
+    }
+    wss.clients.forEach(client => {
+        if (client.readyState === ws_1.default.OPEN) {
+            client.send(data);
+        }
+    });
+}
+exports.broadcaster = broadcaster;

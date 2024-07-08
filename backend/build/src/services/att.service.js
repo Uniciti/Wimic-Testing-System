@@ -18,10 +18,10 @@ class TcpClient {
         this.output = '';
         this.client = new net_1.default.Socket();
         this.isConnected = false;
-    }
-    setupListeners() {
-        if (!this.client)
-            return;
+        this.client.on('close', () => {
+            this.isConnected = false;
+            console.log('TCP connection closed.');
+        });
         this.client.on('data', (data) => {
             this.output += data.toString();
             if (this.commandResolve) {
@@ -38,21 +38,20 @@ class TcpClient {
                 this.commandReject = null;
             }
         });
-        this.client.on('close', () => {
-            this.isConnected = false;
-            console.log('TCP connection closed.');
-        });
     }
+    // private setupListeners(): void {
+    //   if (!this.client) return;
+    // }
     connect() {
         return new Promise((resolve, reject) => {
             if (this.isConnected)
                 return;
             console.log(`Attempting to connect to TCP server at ${this.host}:${this.port}...`);
-            this.setupListeners();
+            // this.setupListeners()
             const connectionTimeout = setTimeout(() => {
                 console.error('Connection timed out.');
                 this.isConnected = false;
-                this.client.destroy(); // Завершаем попытку подключения
+                this.client.destroy();
                 resolve(false);
             }, 5000);
             this.client.connect(this.port, this.host, () => {
@@ -81,12 +80,12 @@ class TcpClient {
         const command = `:INP:ATT ${attValue.toString()}\n`;
         return new Promise((resolve, reject) => {
             if (!this.isConnected) {
-                return reject(new Error('Not connected to TCP server.'));
+                reject('Not connected to TCP server');
             }
             console.log(`Sending command: ${command}`);
             this.client.write(command, (error) => {
                 if (error) {
-                    return reject(error);
+                    reject(error);
                 }
                 // Wait for 1500 milliseconds before resolving
                 setTimeout(() => {
@@ -99,7 +98,7 @@ class TcpClient {
         const command = ':INP:ATT?\n';
         return new Promise((resolve, reject) => {
             if (!this.isConnected) {
-                return reject('Not connected to TCP server');
+                reject('Not connected to TCP server');
             }
             this.commandResolve = resolve;
             this.commandReject = reject;
@@ -145,7 +144,7 @@ class TcpClient {
         return new Promise((resolve, reject) => {
             if (!this.isConnected) {
                 console.log('Not connected to TCP server.');
-                return resolve(false);
+                resolve(false);
             }
             this.output = '';
             try {

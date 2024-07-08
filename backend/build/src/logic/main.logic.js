@@ -32,9 +32,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setPathName = exports.writeDataToExcel = exports.parseData = exports.getPower = exports.setBertDuration = exports.setBertSpeed = exports.delay = exports.fileName = exports.pathToFile = void 0;
+exports.setPathName = exports.writeDataToExcel = exports.parseData = exports.validator = exports.getPower = exports.setBertDuration = exports.setBertSpeed = exports.delay = exports.fileName = exports.pathToFile = void 0;
+const att_service_1 = require("../services/att.service");
 const bert_service_1 = require("../services/bert.service");
+const stantion_service_1 = require("../services/stantion.service");
 const m3m_service_1 = require("../services/m3m.service");
+const ws_server_1 = require("../ws.server");
 // import { speed, sens, modName } from './consts.logic';
 const XLSX = __importStar(require("xlsx"));
 exports.pathToFile = "/home/vlad/";
@@ -113,6 +116,24 @@ function getPower(speed) {
     });
 }
 exports.getPower = getPower;
+function validator() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const response = { type: 'is-connected' };
+        const result0 = yield bert_service_1.sshClient.checkConnect();
+        response.pingBert = result0;
+        const result1 = yield att_service_1.tcpClient.checkConnect();
+        response.pingAtt = result1;
+        const result2 = yield stantion_service_1.snmpClient.checkConnect();
+        const [pingStat0, pingStat1] = result2;
+        response.pingStat0 = pingStat0;
+        response.pingStat1 = pingStat1;
+        const result3 = yield m3m_service_1.comClient.checkConnect();
+        response.pingM3M = result3;
+        (0, ws_server_1.broadcaster)(JSON.stringify(response));
+        return result0 && result1 && pingStat0 && pingStat1 && result3;
+    });
+}
+exports.validator = validator;
 function parseData(data) {
     return new Promise((resolve, reject) => {
         const lines = data.split('\n');

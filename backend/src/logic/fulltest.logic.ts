@@ -1,10 +1,10 @@
 import { speed10, sens10, speed20, sens20, modName } from './consts.logic';
-import { getPower, parseData, writeDataToExcel, delay, setBertSpeed, setBertDuration} from './main.logic';
+import { getPower, parseData, writeDataToExcel, delay, setBertSpeed, setBertDuration, validator} from './main.logic';
 import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { comClient, COMClient } from '../services/m3m.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
-import { testBroadcast } from '../ws.server';
+import { broadcaster } from '../ws.server';
 import 'dotenv/config';
 import { resolve } from 'path';
 
@@ -108,20 +108,26 @@ export class FullTest {
 		});
 	}
 		
-		
-
-
-	
-
 	public async test(): Promise<void> {
+
+		const valid = await validator();
+		console.log(valid);
+		if (!valid) {
+			return;
+		}
+
 		return new Promise(async (resolve) => {
 			comClient.sendCommand(this.offset);
 			await delay(1000);
 			setBertDuration(this.duration * 7 + 1000);
 			await delay(1000);
 			const dataArray: any[] = [];
-			for(let i = 6; i >= 6; i--) {
+			for(let i = 5; i >= 0; i--) {
 
+				const valid = await validator();
+				if (!valid) {
+					break;
+				}
 				// dataArray.push({"Модуляция": modName[i],
 				// 				"Аттен, ДБ": "none",
 				// 				"С/Ш": "none",
@@ -135,10 +141,9 @@ export class FullTest {
 				// 				"Статус": "Ошибка поиска модуляции",
 				// 				"Статус чуствительности":"Ошибка поиска модуляции",
 				// 				"Полоса": this.bandwidth,
-								
 				// 			});
-
-				testBroadcast("fulltest", (6 - i).toString());
+				const message  = {testid: "fulltest", message: (6 - i).toString()}
+				broadcaster(JSON.stringify(message));
 
 				const m3mPow = await getPower(this.speed[i]);
 				console.log(m3mPow);
@@ -161,6 +166,12 @@ export class FullTest {
 
 				if (i != 0){
 					while (x != i.toString()) {
+
+						const valid = await validator();
+						if (!valid) {
+							break;
+						}
+
 						console.log(modName[i], i);
 						console.log(modName[parseInt(x)], parseInt(x));
 						if (parseInt(x) < i) {
@@ -178,6 +189,12 @@ export class FullTest {
 					}
 
 					while (x == i.toString()) {
+
+						const valid = await validator();
+						if (!valid) {
+							break;
+						}
+
 						attValue += 1;
 						await tcpClient.sendCommand(attValue);
 						await delay(2000);
@@ -186,6 +203,7 @@ export class FullTest {
 
 
 					do {
+
 						await tcpClient.sendCommand(attValue-2);
 						await delay(1000);
 						await tcpClient.sendCommand(attValue-1);
@@ -213,32 +231,38 @@ export class FullTest {
 						await sshClient.sendCommand('bert start');
 						await delay(1000);
 
-						// let intervalChecker: NodeJS.Timeout;
 
-						// const startTest =  async () => {
-						//     intervalChecker = setInterval(async () => {
-						//         try {
-						//             const data = await sshClient.sendCommand('statistics show');
-						//             delay(500);
-						//             const [tx, rx] = await parseData(data);
-						//             delay(500);
-						//             txBytes = tx;
-						//             rxBytes = rx;
-						//             console.log('TX/RX: ', txBytes, rxBytes);
-						//         } catch (error: any) {
-						//             console.log(`SSH server error ${error.message}`);
-						//         }
-						//     }, 5000);
+						let intervalChecker: NodeJS.Timeout;
 
-						//     await delay(this.duration);
-						//     clearInterval(intervalChecker);
+						let valid: boolean = true;
+						const startTest = async () => {
+							intervalChecker = setInterval(async () => {
+
+								valid = await validator();
+	
+								if (!valid) {
+									clearInterval(intervalChecker);
+								}
+	
+							}, 5000);
+
+	
+							const start = Date.now();
+							while (Date.now() - start < this.duration) {
+								if (!valid) {
+									break;
+								}
+								await delay(100);
+							}
+	
+							clearInterval(intervalChecker);
+					
 							
-						// };
+						};
+	
+						await startTest();
 
-						// await startTest();
-
-
-						await delay(this.duration);
+						// await delay(this.duration);
 
 						await sshClient.sendCommand('bert stop');
 						await delay(2000);
@@ -263,6 +287,12 @@ export class FullTest {
 				} else {
 
 					while (x != i.toString()) {
+
+						const valid = await validator();
+						if (!valid) {
+							break;
+						}
+
 						attValue += 1;
 						await tcpClient.sendCommand(attValue);
 						await delay(2000);
@@ -281,7 +311,37 @@ export class FullTest {
 						await sshClient.sendCommand('bert start');
 						await delay(1000);
 
-						await delay(10000);
+
+						let intervalChecker: NodeJS.Timeout;
+
+						let valid: boolean = true;
+						const startTest =  async () => {
+							intervalChecker = setInterval(async () => {
+
+								valid = await validator();
+	
+								if (!valid) {
+									clearInterval(intervalChecker);
+								}
+	
+							}, 5000);
+
+	
+							const start = Date.now();
+							while (Date.now() - start < 10000) {
+								if (!valid) {
+									break;
+								}
+								await delay(100);
+							}
+	
+							clearInterval(intervalChecker);
+							
+						};
+	
+						await startTest();
+
+						// await delay(10000);
 
 						await sshClient.sendCommand('bert stop');
 						await delay(2000);
@@ -330,7 +390,38 @@ export class FullTest {
 						await delay(1000);
 						await sshClient.sendCommand('bert start');
 						await delay(1000);
-						await delay(this.duration);
+
+						let intervalChecker: NodeJS.Timeout;
+
+						let valid: boolean = true;
+						const startTest =  async () => {
+							intervalChecker = setInterval(async () => {
+
+								valid = await validator();
+	
+								if (!valid) {
+									clearInterval(intervalChecker);
+								}
+	
+							}, 5000);
+
+	
+							const start = Date.now();
+							while (Date.now() - start < this.duration) {
+								if (!valid) {
+									break;
+								}
+								await delay(100);
+							}
+	
+							clearInterval(intervalChecker);
+							
+						};
+	
+						await startTest();
+
+						// await delay(this.duration);
+						
 						await sshClient.sendCommand('bert stop');
 						await delay(2000);
 						const data = await sshClient.sendCommand('statistics show');
@@ -376,6 +467,7 @@ export class FullTest {
 						"Статус": verdict,
 						"Статус чувствительности":pinVerdict,
 						"Полоса": this.bandwidth,
+						"Аварийное завершение": !valid
 
 					});
 			
@@ -383,7 +475,13 @@ export class FullTest {
 
 			console.log(dataArray);
 			writeDataToExcel(dataArray, "full test");
-			testBroadcast("fulltest", "completed");
+			let message: any = null;
+			if (valid) {
+				message  = {testid: "fulltest", message: "completed"};
+			} else {
+				message  = {testid: "fulltest", message: "error exec"};
+			}
+			broadcaster(JSON.stringify(message));
 			resolve();
 		});
 		
