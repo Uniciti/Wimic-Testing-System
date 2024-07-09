@@ -13,6 +13,7 @@ import { ToastModule } from 'primeng/toast';
 import { SharedWebSocketService } from '../SharedWebSocket.service';
 import { ConnectionStatusService } from '../core/services/ConnectionStatus.service';
 import { NotificationService } from '../Notification.service';
+//import { TabStateService } from '../app.component.service';
 
 
 @Component({
@@ -35,16 +36,18 @@ import { NotificationService } from '../Notification.service';
 })
 
 export class DeviceStatusComponent implements OnInit, OnDestroy {
-  deviceConnected: boolean =  false;
+  //deviceConnected: boolean =  false;
+  deviceStatusData: any = {};
 
   inputIP_BASE: string = '';
   inputIP_ABONENT: string = '';
-  inputFrequency: string = '5600000';
+  inputFrequency: string = '5600';
   inputOffset: string = '';
 
   loadingButtons: {[key: string] : boolean} = {
     "Att": false,
     "Ber": false,
+    "TC602": false,
     "Stat": false,
     "M3M": false,
     "StatIP": false,
@@ -55,6 +58,7 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
   connectionsButtons: {[key: string] : boolean} = {
     "Att": false,
     "Ber": false,
+    "TC602": false,
     "Stat": false,
     "M3M": false
   }
@@ -65,18 +69,38 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
     private sharedWebSocketService: SharedWebSocketService, 
     private connectionStatusService: ConnectionStatusService,
     private notificationService: NotificationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    //private tabStateService: TabStateService
   ) {}
  
-  ngOnInit() { };
+  ngOnInit() {
+    this.subscription.add(this.connectionStatusService.currentBercutStatus.subscribe(_bercutStatus => {
+      this.connectionsButtons['Ber'] = _bercutStatus ? true : false;
+    }));
+
+    this.subscription.add(this.connectionStatusService.currentAttenuatorStatus.subscribe(_attStatus => {
+      this.connectionsButtons['Att'] = _attStatus ? true : false;
+    }));
+
+    this.subscription.add(this.connectionStatusService.currentStationStatus.subscribe(_StationStatus => {
+      this.connectionsButtons['Stat'] = _StationStatus ? true : false;
+    }));
+
+    this.subscription.add(this.connectionStatusService.currentM3MStatus.subscribe(_M3MStatus => {
+      this.connectionsButtons['M3M'] = _M3MStatus ? true : false;
+    }));
+    //this.deviceStatusData = this.tabStateService.getState('deviceStatus') || {};
+    //console.log(this.deviceStatusData)
+  };
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    //this.tabStateService.setState('deviceStatus', this.deviceStatusData);
   }
 
-  buttonControlDevice(device: string ,_connected: boolean, sub: Subscription) {
+  buttonControlDevice(device: string, _status: boolean, sub: Subscription) {
     this.loadingButtons[device] = false;
-    this.deviceConnected = _connected;
+    this.connectionsButtons[device] = _status;
+    //this.deviceConnected = _connected;
     this.cdr.detectChanges();
     sub.unsubscribe();
   }
@@ -94,18 +118,19 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
         if (message.type === "connect" && message.deviceId === device && message.conStatus == true) {
-          this.connectionStatusService.updateStatus(device, this.deviceConnected);
-          this.buttonControlDevice(device, true, subscription);
+          console.log(message);
+          this.connectionStatusService.updateStatus(device, true);
+          this.buttonControlDevice(device,true, subscription);
           timeout.unsubscribe();
         } else {
           this.notificationService.showError('Ошибка подключения к устройству');
-          this.buttonControlDevice(device, false, subscription);
+          this.buttonControlDevice(device,false, subscription);
           timeout.unsubscribe();
         }
       },
       error: (error) => {
         this.notificationService.showError('Ошибка подключения к устройству');
-        this.buttonControlDevice(device, false, subscription);
+        this.buttonControlDevice(device,false, subscription);
         timeout.unsubscribe();
       }
     });
@@ -125,18 +150,18 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
       if (message.type === "disconnect" && message.deviceId === device) {
-        this.connectionStatusService.updateStatus(device, this.deviceConnected);
-        this.buttonControlDevice(device, false, subscription);
+        this.connectionStatusService.updateStatus(device, false);
+        this.buttonControlDevice(device,false, subscription);
         timeout.unsubscribe();
       }
       else {
         this.notificationService.showError('Ошибка отключения от устройства');
-        this.buttonControlDevice(device, true, subscription);
+        this.buttonControlDevice(device,true, subscription);
         timeout.unsubscribe();
       }
     }, error: (error) => {
       this.notificationService.showError('Ошибка отключения от устройства');
-      this.buttonControlDevice(device, true, subscription);
+      this.buttonControlDevice(device,true , subscription);
       timeout.unsubscribe();
     }
     });

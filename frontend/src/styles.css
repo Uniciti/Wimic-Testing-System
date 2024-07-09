@@ -5,7 +5,7 @@
 
 .p-button {
     font-size: 0.8rem;
-    line-height: 1.25rem;
+    line-height: 0.825rem;
     padding: 0.25rem 0.5rem;
 }
 
@@ -42,16 +42,32 @@ body {
 }
   
 ::-webkit-scrollbar-track {
-background: #f1f1f1;
-border-radius: 6px;
+    background: #f1f1f1;
+    border-radius: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-background-color: #58d2ff; /* Tailwind CSS color for blue */
-border-radius: 6px;
-border: 3px solid #f1f1f1;
+    background-color: #58d2ff; /* Tailwind CSS color for blue */
+    border-radius: 6px;
+    border: 3px solid #f1f1f1;
 }
 
 ::-webkit-scrollbar-thumb:hover {
 background-color: #58d2ff; /* Tailwind CSS darker blue for hover */
 }
+
+/* Убираем рамку вокруг кнопок */
+
+.p-fileupload-buttonbar {
+    display: flex;
+    border: none !important;
+    box-shadow: none !important;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.p-toast-message {
+    text-align: left; /* Пример стиля для выравнивания текста по центру */
+}
+

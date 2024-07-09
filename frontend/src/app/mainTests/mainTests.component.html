@@ -1,4 +1,5 @@
 <div class="container p-6 max-w-lg bg-white shadow-md rounded-lg">
+
   <h2 class="text-xl font-semibold mb-4">Введите данные для тестирования</h2>
   <form (ngSubmit)="startTest(massiveTests)">
     <div class="card flex flex-wrap gap-3 p-fluid">
@@ -36,7 +37,7 @@
               name="pa1"
               inputId="pa1" 
               [(ngModel)]="pa1"
-              [placeholder]="'Введите частоту'"
+              [placeholder]="'Введите затухание, дБ'"
               class="w-full"
               required /> 
         </div>
@@ -56,7 +57,9 @@
           <label for="splitterM3M" class="block text-sm font-medium text-gray-700">Разветвитель на М3М</label>
           <p-inputNumber
               name="splitterM3M"
-              inputId="splitterM3M" 
+              inputId="splitterM3M"
+              mode="decimal"
+              [minFractionDigits]="2" 
               [(ngModel)]="splitterM3M"
               [placeholder]="'Введите затухание, дБ'"
               class="w-full"
@@ -66,7 +69,9 @@
           <label for="splitterST" class="block text-sm font-medium text-gray-700">Разветвитель прямо</label>
           <p-inputNumber
               name="splitterST"
-              inputId="splitterST" 
+              inputId="splitterST"
+              mode="decimal"
+              [minFractionDigits]="2" 
               [(ngModel)]="splitterST"
               [placeholder]="'Введите затухание, дБ'"
               class="w-full"
@@ -78,7 +83,9 @@
           <label for="cable1" class="block text-sm font-medium text-gray-700">Кабель 1</label>
           <p-inputNumber
               name="cable1"
-              inputId="cable1" 
+              inputId="cable1"
+              mode="decimal"
+              [minFractionDigits]="2"
               [(ngModel)]="cable1"
               [placeholder]="'Введите затухание, дБ'"
               class="w-full"
@@ -88,7 +95,9 @@
           <label for="cable2" class="block text-sm font-medium text-gray-700">Кабель 2</label>
           <p-inputNumber
               name="cable2"
-              inputId="cable2" 
+              inputId="cable2"
+              mode="decimal"
+              [minFractionDigits]="2"
               [(ngModel)]="cable2"
               [placeholder]="'Введите затухание, дБ'"
               class="w-full"
@@ -100,13 +109,15 @@
           <label for="cable3" class="block text-sm font-medium text-gray-700">Кабель 3</label>
           <p-inputNumber
               name="cable3"
-              inputId="cable3" 
+              inputId="cable3"
+              mode="decimal"
+              [minFractionDigits]="2"
               [(ngModel)]="cable3"
               [placeholder]="'Введите затухание, дБ'"
               class="w-full"
               required /> 
         </div>
-        <div class="w-1/2 pl-2">
+        <!-- <div class="w-1/2 pl-2">
           <label for="duration" class="block text-sm font-medium text-gray-700">Время на одну модуляции</label>
           <p-inputNumber
               name="duration"
@@ -115,15 +126,17 @@
               [placeholder]="'Введите время, с'"
               class="w-full"
               required />   
-        </div>
+        </div> -->
       </div>
       <div class="mt-2 text-center w-full">
-        <div class="card mt-5 mb-5">
-          <p-toast position="top-center" key="my-toast" [style]="{ 'z-index': '2000' }" />
-          <p-progressBar [value]="modulation" />
+        <div *ngIf="TestProcessing" class="card mt-4 mb-2">
+          <p>Оставшееся время: {{ timeRemaining }} сек</p>
+          <div class="mt-1">
+            <p-progressBar [value]="modulation"></p-progressBar>
+          </div>
         </div>
       </div>
-      <div class="gap-x-2 flex w-full mt-3">
+      <div class="gap-x-2 items-left flex mt-1 w-full">
         <p-button 
           label="Начать тестирование"
           type="submit" 
@@ -132,34 +145,40 @@
           [loading]="loadingTest" 
           severity="success"
           position="center"
-          class="mx-auto" />
+          class="" />
         <p-button 
           label="Очередь тестов"
           type="button"
           (click)="openDialog()"
           severity="info"
           position="center"
-          class="mx-auto" />
+          class="" />
       </div>
-      <div class="gap-x-2 flex w-full mt-2">
+      <div class="mt-2 w-full flex">
         <p-button 
           label="Скачать настройки"
           type="button"
           (click)="downloadJSONWithSettings()"
           severity="warning"
           position="center"
-          class="mx-auto" />
-        <p-button 
-          label="Скачать настройки"
-          type="button"
-          (click)="downloadJSONWithSettings()"
-          severity="warning"
-          position="center"
-          class="mx-auto" />
+          class="" />
+        </div>
+        <div class="items-left">
+          <p-fileUpload name="jsonFile"
+          accept=".json"
+          chooseLabel="Выбрать файл"
+          uploadLabel="Загрузить настройки"
+          cancelLabel="Отмена загрузки"
+          customUpload="true"
+          (uploadHandler)="uploadJSONWithSettings($event)">
+          </p-fileUpload>
       </div>
-      <ul>
+      <div *ngIf="parsedData">
+        <p>Data: {{ parsedData | json }}</p>
+      </div>
+      <!-- <ul>
         <li *ngFor="let test of massiveTests">{{ test.type  }} - {{ test.bandwidth }}</li>
-      </ul>
+      </ul> -->
     </div>
   </form>
 </div>

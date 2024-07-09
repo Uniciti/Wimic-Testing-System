@@ -1,5 +1,5 @@
 <div>
-  <p-toast position="top-center" key="my-toast" [style]="{ 'z-index': '2000' }" />
+  <!-- <p-toast position="top-right" key="my-toast" [style]="{ 'z-index': '2000' }" /> -->
   <div class="container mt-2 max-w-lg mx-0 p-4 border rounded-lg shadow-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Беркут-ЕТ</h2>
     <div class="buttons-wrap flex space-x-2 mb-4">
@@ -63,7 +63,7 @@
         label="Подключиться" 
         icon="pi pi-times" 
         [loading]="loadingButtons['Stat']" 
-        *ngIf="connectionsButtons['Stat']"
+        *ngIf="!connectionsButtons['Stat']"
         (click)="connectToDevice('Stat')"  />
       <p-button 
         label="Отключиться" 

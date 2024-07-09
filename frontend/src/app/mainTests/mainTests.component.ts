@@ -1,23 +1,25 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy,
-   NgZone } from '@angular/core';
+   NgZone, HostListener } from '@angular/core';
 import { NgClass, NgFor, CommonModule } from "@angular/common";
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { Router, NavigationStart } from '@angular/router';
 import { Subscription, timer } from 'rxjs';
+
 
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ToastModule } from 'primeng/toast';
 import { ProgressBarModule } from 'primeng/progressbar'
+import { FileUploadModule } from 'primeng/fileupload';
 
 import { SharedWebSocketService } from '../SharedWebSocket.service';
 import { NotificationService } from '../Notification.service';
 import { FileSaveService } from './fileSaver.service';
+import { StorageService } from '../localStorage.service';
 
 import { QueueTestsFormComponent } from "../queue-tests-form/queue-tests-form.component"
-//import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { PullTestsInterface } from '../core/interfaces/pull_tests'
 
 @Component({
   selector: 'app-mainTests',
@@ -33,7 +35,8 @@ import { PullTestsInterface } from '../core/interfaces/pull_tests'
     ProgressBarModule,
     SelectButtonModule,
     ToastModule,
-    QueueTestsFormComponent
+    QueueTestsFormComponent,
+    FileUploadModule
   ],
   templateUrl: './mainTests.component.html',
   styleUrls: ['./mainTests.component.css'],
@@ -43,14 +46,17 @@ import { PullTestsInterface } from '../core/interfaces/pull_tests'
 
 export class mainTestsComponent implements OnInit, OnDestroy {
 
+  mainTestsData: any = {};
+
   loadingTest: boolean = false;
   TestProcessing: boolean = false;
   interval: any;
   modulation: number = 0;
+  timeRemaining: number = 0;
 
+  routerSubscription: Subscription = new Subscription();
   // selectionTestType: string = "express_test"
   // selectionBandwidth: number =  3;
-
   pa1: number | null = null;
   pa2: number | null = null;
   splitterM3M: number | null = null;
@@ -58,25 +64,23 @@ export class mainTestsComponent implements OnInit, OnDestroy {
   cable1: number | null = null;
   cable2: number | null = null;
   cable3: number | null = null;
-  duration: number | null = null;
 
-  pullman_tests: PullTestsInterface = {
-    "modulation": "",
-    "bandwidth": "",
-    "frequncy": "none",
-    "type": "",
-    "time": ""
+  get settingsData() {
+    return {
+    Attenuator_PA1: this.pa1,
+    Attenuator_PA2: this.pa2,
+    splitter_to_M3M: this.splitterM3M,
+    splitter_straight: this.splitterST,
+    cable1: this.cable1,
+    cable2: this.cable2,
+    cable3: this.cable3
+    };
   }
 
-  massiveTests = [this.pullman_tests]
-  //ref: DynamicDialogRef | null = null;
+  parsedData: any;
 
-  /*
-    modulation: all, bpsk1/2, qpsk3/4...
-    bandwidth: 3, 5
-    frequency: 1124, ...
-    type: full, express
-  */
+  massiveTests = []
+
   testOptions: any[] = [{ label: 'Экспресс тест', value: "express_test" },{ label: 'Полный тест', value: "full_test" }];
   stationOptions: any[] = [{ label: '10 МГц', value: 3 },{ label: '20 МГц', value: 5 }];
   
@@ -88,33 +92,123 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private ngZone: NgZone,
     private dialog: MatDialog,
-    private fileSaveService: FileSaveService
-  ) {}
+    private fileSaveService: FileSaveService,
+    private localStorage: StorageService,
+    private router: Router
+  ) { 
+    const savedTests = this.localStorage.getItem('massiveTests');
+    if (savedTests) {
+      this.massiveTests = savedTests;
+    }
+    // const savedValue1 = this.localStorage.getItem('settingsData');
+    // if (savedValue1) {
+    //   this.settingsData = savedValue1;
+    //   this.pa1 = savedValue1.Attenuator_PA1;
+    //   this.pa2 = savedValue1.Attenuator_PA2;
+
+    //   this.splitterM3M = savedValue1.splitter_to_M3M;
+    //   this.splitterST = savedValue1.splitter_straight;
+    //   this.cable1 = savedValue1.cable1;
+    //   this.cable2 = savedValue1.cable2
+    //   this.cable3 = savedValue1.cable3
+    // }
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadHandler(event: Event): void {
+    this.localStorage.setItem('settingsData', this.settingsData);
+  }
+  
+  ngOnInit(): void {
+    const savedValue = this.localStorage.getItem('settingsData');
+    if (savedValue) {
+      this.pa1 = savedValue.Attenuator_PA1;
+      this.pa2 = savedValue.Attenuator_PA2;
+      console.log("Ну типо должно сохраняться вот" ,savedValue.Attenuator_PA2)
+      console.log(savedValue);
+      this.splitterM3M = savedValue.splitter_to_M3M;
+      this.splitterST = savedValue.splitter_straight;
+      this.cable1 = savedValue.cable1;
+      this.cable2 = savedValue.cable2
+      this.cable3 = savedValue.cable3
+    }
+
+    this.routerSubscription = this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.localStorage.setItem('settingsData', this.settingsData);
+        this.localStorage.setItem('massiveTests', this.massiveTests);
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    this.localStorage.setItem('settingsData', this.settingsData);
+    this.localStorage.setItem('massiveTests', this.massiveTests);
+
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
 
   openDialog() {
     const dialogRef = this.dialog.open(QueueTestsFormComponent, {
       width: '750px',
       height: '800px',
-      panelClass: 'FormStyle'
+      panelClass: 'FormStyle',
+      data: this.massiveTests 
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.massiveTests = result;
+        this.localStorage.setItem('massiveTests', this.massiveTests);
       }
     });
   }
 
-  downloadJSONWithSettings() {
-    const jsonDataSettings = { name: "Blob" }
-    const blob = new Blob([JSON.stringify(jsonDataSettings, null, 2)], {type: 'application/json' });
-    this.fileSaveService.saveFile(blob);
+  uploadJSONWithSettings(event: any) {
+    const file = event.files[0];
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.ngZone.run(() => {
+        try {
+          this.parsedData = JSON.parse(e.target.result);
+          this.massiveTests = this.parsedData.slice(0, -1);
+  
+          let settingsElement = this.parsedData.length - 1;
+          this.pa1 = this.parsedData[settingsElement].Attenuator_PA1;
+          this.pa2 = this.parsedData[settingsElement].Attenuator_PA2;
+          this.splitterM3M = this.parsedData[settingsElement].splitter_to_M3M;
+          this.splitterST = this.parsedData[settingsElement].splitter_straight;
+          this.cable1 = this.parsedData[settingsElement].cable1;
+          this.cable2 = this.parsedData[settingsElement].cable2;
+          this.cable3 = this.parsedData[settingsElement].cable3;
+  
+          this.localStorage.setItem('massiveTests', this.massiveTests);
+  
+          this.cdr.detectChanges();
+        } catch (error) {
+          console.error('Ошибка при парсинге JSON:', error);
+        }
+      });
+    };
+    reader.readAsText(file);
   }
 
-  ngOnInit(): void { }
+  downloadJSONWithSettings() {
+    const settingsData : any = {
+      Attenuator_PA1: this.pa1,
+      Attenuator_PA2: this.pa2,
+      splitter_to_M3M: this.splitterM3M,
+      splitter_straight: this.splitterST,
+      cable1: this.cable1,
+      cable2: this.cable2,
+      cable3: this.cable3,
+    }
 
-  ngOnDestroy() {
-    this.subscription.unsubscribe();
+    const jsonDataSettings = this.massiveTests.concat(settingsData);
+    const blob = new Blob([JSON.stringify(jsonDataSettings, null, 2)], {type: 'application/json' });
+    this.fileSaveService.saveFile(blob);
   }
 
   buttonsControlTest(sub:  Subscription) {
@@ -124,47 +218,66 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     sub.unsubscribe();
   }
 
-  pullman() {
+  pullman(totalTime: number) {
     this.ngZone.runOutsideAngular(() => {
+      this.timeRemaining = totalTime;
+  
+      // Подписка на сообщения WebSocket
+      let subscription = this.sharedWebSocketService.getMessages().subscribe({
+        next: (message) => {
+          if (message.status === "modulation") {
+            console.log("Я в пульмане....")
+            this.ngZone.run(() => {
+              this.modulation = Math.round(((message.messageMod / message.stage) * 100) - 1);
+              console.log("modulation", this.modulation);
+            });
+          }
+          if (message.status === "completed") {
+            subscription.unsubscribe();
+            clearInterval(this.interval);
+          }
+        },
+        error: (error) => {
+          this.ngZone.run(() => {
+            this.TestProcessing = false;
+            this.loadingTest = false;
+          });
+          subscription.unsubscribe();
+          clearInterval(this.interval);
+        }
+      });
+  
+      this.subscription.add(subscription);
+  
+      // Интервал для отсчета времени
       this.interval = setInterval(() => {
         this.ngZone.run(() => {
-          let subscription = this.sharedWebSocketService.getMessages().subscribe({
-            next: (message) => {
-              if (message.status === "modulation") {
-                this.modulation = ((message.currentMod / message.stage) * 100) - 1;
-                if (message.status === "completed") {
-                  this.modulation = 0;
-                  this.notificationService.showSuccess("Тестирование успешно завершено, проверьте папку tests...");
-                  subscription.unsubscribe();
-                  clearInterval(this.interval);
-                }
-              }
-            },
-            error: (error) => {
-              this.TestProcessing = false;
-              this.loadingTest = false;
-              subscription.unsubscribe();
-              clearInterval(this.interval);
-          }});
-          this.subscription.add(subscription);
+          if (this.timeRemaining > 0) {
+            this.timeRemaining--;
+          } else {
+            clearInterval(this.interval);
+          }
         });
-      }, 2000);
+      }, 1000);
     });
   }
 
+
   startTest(Queue_tests: any[]) {
+    console.log("Вот saved_data", this.settingsData);
+    console.log("А вот само значение ПА1", this.pa1)
     this.loadingTest = true;
+
+    let i: number = 1;
     const InputedParams = 
     {
-      pa1: this.pa1,
-      pa2: this.pa2,
-      v1: this.splitterST,
-      v2: this.splitterM3M,
-      c1: this.cable1,
-      c2: this.cable2,
-      c3: this.cable3,
-      //duration: this.duration,
-      //bandwidth: this.selectionBandwidth
+      Attenuator_PA1: this.pa1,
+      Attenuator_PA2: this.pa2,
+      splitterM3M: this.splitterM3M,
+      splitter_straight: this.splitterST,
+      cable1: this.cable1,
+      cable2: this.cable2,
+      cable3: this.cable3
     };
 
     const message = {"type": "test", "params": Queue_tests, "command": InputedParams};
@@ -174,23 +287,51 @@ export class mainTestsComponent implements OnInit, OnDestroy {
       this.loadingTest = false;
       connectionTimeout.unsubscribe();
     });
-
+    
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
-        if (message.type === "sended" && message.type === "test") {
-          this.pullman();
+        this.loadingTest = true;
+        console.log(message);
+        if (message.type === "sended" && message.test === "queue") {
+          console.log("зашел в sended")
+          this.pullman(Queue_tests[Queue_tests.length - 1].totalTime);
           connectionTimeout.unsubscribe();
+          console.log("Отписался от интервала")
+          this.loadingTest = true;
           this.TestProcessing = true;
-          if (message.status !== "completed") {
-            this.notificationService.showError('Проверьте подключение к устройствам');
+          this.cdr.detectChanges();
+          console.log("Значение loadingTest", this.loadingTest)
+        }
+          else if (message.status === "error exec") {
+            this.notificationService.showError('Проверьте подключение к устройствам...');
+            this.loadingTest = false;
+            this.TestProcessing = false;
+            this.cdr.detectChanges();
           }
-        } 
-          this.buttonsControlTest(subscription);
+          else if (message.status === "processing") {
+            this.loadingTest = true;
+            this.TestProcessing = true;
+            this.modulation = 0;
+            this.notificationService.showWarning(`Тест пройден. Осталось ${(Queue_tests.length - i)} ...`);
+            console.log(message["params"].length - i);
+            console.log("Я ВЫВОЖУ СКОК ТЕСТОВ ОСТАЛОСЬ");
+            i++;
+            this.cdr.detectChanges();
+          }
+          else if (message.status === "completed") {
+            this.modulation = 0;
+            console.log("ПРОЙДЕНОООООО")
+            this.buttonsControlTest(subscription);
+            this.notificationService.showSuccess('Все тесты успешно завершены! Проверьте папку пользователя...');
+            this.buttonsControlTest(subscription);
+            this.cdr.detectChanges();
+          }
       },
       error: (error) => {
         connectionTimeout.unsubscribe();
         this.notificationService.showError('Проверьте подключение к устройствам');
         this.buttonsControlTest(subscription);
+        this.cdr.detectChanges();
       }
     });
     this.subscription.add(subscription);
