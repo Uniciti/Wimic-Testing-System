@@ -153,7 +153,7 @@ export class ExpressTest {
 									
 								});
 
-				const message  = {testid: "expresstest", message: (6 - i).toString()}
+				const message  = {status: "modulation", messageMod: this.modList.findIndex(element => element ===i) + 1, stage: this.modList.length}
 				broadcaster(JSON.stringify(message));
 
 				const m3mPow = await getPower(this.speed[i]);
@@ -265,9 +265,9 @@ export class ExpressTest {
 			writeDataToExcel(dataArray, "express test");
 			let message: any = null;
 			if (valid) {
-				message  = {testid: "expresstest", message: "completed"};
+				message  = {testid: "expresstest", status: "processing"};
 			} else {
-				message  = {testid: "expresstest", message: "error exec"};
+				message  = {testid: "expresstest", status: "error exec"};
 			}
 			
 			broadcaster(JSON.stringify(message));

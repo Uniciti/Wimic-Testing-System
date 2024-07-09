@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.broadcaster = exports.queueBroadcast = exports.setupWebSocketServer = void 0;
+exports.broadcaster = exports.setupWebSocketServer = void 0;
 const ws_1 = __importDefault(require("ws"));
 // import { Device } from './interfaces/device.interface';
 const att_service_1 = require("./services/att.service");
@@ -39,7 +39,7 @@ function setupWebSocketServer(server) {
             try {
                 const parsedMessage = JSON.parse(message);
                 const { type, deviceId, command, value, ber, att, stat, m3m, params } = parsedMessage;
-                // console.log(parsedMessage);
+                console.log(parsedMessage);
                 // console.log(parsedMessage.type);
                 // console.log(parsedMessage.params);
                 // console.log(parsedMessage.params[0].modulation);
@@ -69,16 +69,16 @@ function setupWebSocketServer(server) {
                                 modList.push(modul.value);
                             }
                             if (test.type == 'expresstest') {
-                                queue_logic_1.queue.addTest(new expresstest_logic_1.ExpressTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitterM3M, command.splitter_straight, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), modList));
+                                queue_logic_1.queue.addTest(new expresstest_logic_1.ExpressTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), modList));
                             }
                             else if (test.type == 'fulltest') {
-                                queue_logic_1.queue.addTest(new fulltest_logic_1.FullTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitterM3M, command.splitter_straight, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), modList));
+                                queue_logic_1.queue.addTest(new fulltest_logic_1.FullTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), modList));
                             }
                             else {
                                 console.log('Cant find this test pattern');
                             }
                         }
-                        queue_logic_1.queue.showContent();
+                        // queue.showContent();
                         yield (0, main_logic_1.delay)(300);
                         queue_logic_1.queue.start();
                         break;
@@ -130,14 +130,14 @@ function setupWebSocketServer(server) {
                     //     ws.send(JSON.stringify({ type: 'receive-value', message: `M3M answer ${data}` }));
                     //     break;
                     //   }
-                    // case 'express-test':
-                    //   const testtest1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-                    //   const eresult = await testtest1.setBandwidth();
-                    //   // const eresult = true;
-                    //   console.log(eresult);
-                    //   if (eresult) {
-                    //     await testtest1.test();              
-                    //   }
+                    case 'express-test':
+                        const testtest1 = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10, [1, 2, 3, 4, 5]);
+                        // const eresult = await testtest1.setBandwidth();
+                        const eresult = true;
+                        console.log(eresult);
+                        if (eresult) {
+                            yield testtest1.test();
+                        }
                     //   break;
                     // case 'full-test':
                     //   const testtest2 = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 20);
@@ -236,18 +236,6 @@ function setupWebSocketServer(server) {
     console.log(`WebSocket server is set up and running.`);
 }
 exports.setupWebSocketServer = setupWebSocketServer;
-function queueBroadcast(queue, data) {
-    if (!wss) {
-        console.error("WebSocket server is not set up");
-        return;
-    }
-    wss.clients.forEach(client => {
-        if (client.readyState === ws_1.default.OPEN) {
-            client.send(JSON.stringify({ queue, "message": data }));
-        }
-    });
-}
-exports.queueBroadcast = queueBroadcast;
 function broadcaster(data) {
     if (!wss) {
         console.error("WebSocket server is not set up");

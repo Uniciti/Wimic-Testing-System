@@ -20,53 +20,51 @@ class Queue {
     addTest(test) {
         if (!this.queue.includes(test)) {
             this.queue.push(test);
-            (0, ws_server_1.queueBroadcast)("complete", `now you have ${this.queue.length} tests in queue`);
-        }
-        else {
-            (0, ws_server_1.queueBroadcast)("warn", "test already in queue");
+            // queueBroadcast("complete", `now you have ${this.queue.length} tests in queue`);
         }
     }
-    showContent() {
-        const queueDescriptions = this.getQueueDescriptions();
-        console.log(queueDescriptions);
-        (0, ws_server_1.queueBroadcast)("content", queueDescriptions);
-    }
-    removeTest(index) {
-        if (index >= 0 && index < this.queue.length) {
-            const removedTest = this.queue.splice(index, 1)[0];
-            (0, ws_server_1.queueBroadcast)("removed", "test removed");
-        }
-        else {
-            (0, ws_server_1.queueBroadcast)("warn", "invalid index");
-        }
-    }
+    // public showContent() {
+    //     const queueDescriptions = this.getQueueDescriptions();
+    //     console.log(queueDescriptions);
+    //     queueBroadcast("content", queueDescriptions);
+    // }
+    // public removeTest(index: number): void {
+    //     if (index >= 0 && index < this.queue.length) {
+    //         const removedTest = this.queue.splice(index, 1)[0];
+    //         queueBroadcast("removed", "test removed");
+    //     } else {
+    //         queueBroadcast("warn", "invalid index");
+    //     }
+    // }
     getQueueDescriptions() {
         return this.queue.map(test => test.jsonParser());
     }
     start() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.running) {
-                (0, ws_server_1.queueBroadcast)("warn", "test already running");
+                (0, ws_server_1.broadcaster)(JSON.stringify({ type: "warn", message: "test already running" }));
                 return;
             }
+            (0, ws_server_1.broadcaster)(JSON.stringify({ type: "sended", test: "queue" }));
             this.stopRequested = false;
             this.running = true;
-            (0, ws_server_1.queueBroadcast)("start", "starting test queue");
             this.runNext();
         });
     }
     stop() {
         if (!this.running) {
-            (0, ws_server_1.queueBroadcast)("warn", "Test queue is not running.");
+            (0, ws_server_1.broadcaster)(JSON.stringify({ type: "warn", message: "Test queue is not running." }));
             return;
         }
         this.stopRequested = true;
         this.running = false;
-        (0, ws_server_1.queueBroadcast)("stop", "stoping test queue");
+        (0, ws_server_1.broadcaster)(JSON.stringify({ type: "stop", message: "stoping test queue" }));
     }
     runNext() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.queue.length == 0 || this.stopRequested) {
+                (0, ws_server_1.broadcaster)(JSON.stringify({ type: "stop", status: "completed" }));
+                this.running = false;
                 return;
             }
             const nextTest = this.queue.shift();

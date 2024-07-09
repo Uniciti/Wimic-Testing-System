@@ -145,7 +145,7 @@ export class FullTest {
 				// 				"Статус чуствительности":"Ошибка поиска модуляции",
 				// 				"Полоса": this.bandwidth,
 				// 			});
-				const message  = {testid: "fulltest", message: (6 - i).toString()}
+				const message  = {status: "modulation", messageMod: this.modList.findIndex(element => element === i), stage: this.modList.length}
 				broadcaster(JSON.stringify(message));
 
 				const m3mPow = await getPower(this.speed[i]);
@@ -480,9 +480,9 @@ export class FullTest {
 			writeDataToExcel(dataArray, "full test");
 			let message: any = null;
 			if (valid) {
-				message  = {testid: "fulltest", message: "completed"};
+				message  = {testid: "fulltest", status: "processing"};
 			} else {
-				message  = {testid: "fulltest", message: "error exec"};
+				message  = {testid: "fulltest", status: "error exec"};
 			}
 			broadcaster(JSON.stringify(message));
 			resolve();

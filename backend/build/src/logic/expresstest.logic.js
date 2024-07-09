@@ -132,7 +132,7 @@ class ExpressTest {
                         "Полоса": this.bandwidth,
                         "Аварийное завершение": !valid,
                     });
-                    const message = { testid: "expresstest", message: (6 - i).toString() };
+                    const message = { status: "modulation", messageMod: this.modList.findIndex(element => element === i) + 1, stage: this.modList.length };
                     (0, ws_server_1.broadcaster)(JSON.stringify(message));
                     const m3mPow = yield (0, main_logic_1.getPower)(this.speed[i]);
                     console.log(m3mPow);
@@ -227,10 +227,10 @@ class ExpressTest {
                 (0, main_logic_1.writeDataToExcel)(dataArray, "express test");
                 let message = null;
                 if (valid) {
-                    message = { testid: "expresstest", message: "completed" };
+                    message = { testid: "expresstest", status: "processing" };
                 }
                 else {
-                    message = { testid: "expresstest", message: "error exec" };
+                    message = { testid: "expresstest", status: "error exec" };
                 }
                 (0, ws_server_1.broadcaster)(JSON.stringify(message));
                 resolve();

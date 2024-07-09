@@ -32,7 +32,7 @@ export function setupWebSocketServer(server: any) {
 
         const parsedMessage = JSON.parse(message);
         const { type, deviceId, command, value, ber, att, stat, m3m, params} = parsedMessage;
-        // console.log(parsedMessage);
+        console.log(parsedMessage);
         // console.log(parsedMessage.type);
         // console.log(parsedMessage.params);
         // console.log(parsedMessage.params[0].modulation);
@@ -59,8 +59,6 @@ export function setupWebSocketServer(server: any) {
           //   ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
           //   break;
           
-
-
           case 'test':
             let modList: number[];
             for (const test of params) {
@@ -73,8 +71,8 @@ export function setupWebSocketServer(server: any) {
               if (test.type == 'expresstest') {
                 queue.addTest(new ExpressTest(command.Attenuator_PA1,
                                               command.Attenuator_PA2,
-                                              command.splitterM3M,
                                               command.splitter_straight,
+                                              command.splitterM3M,
                                               command.cable1,
                                               command.cable2,
                                               command.cable3,
@@ -84,8 +82,8 @@ export function setupWebSocketServer(server: any) {
               } else if (test.type == 'fulltest') {
                 queue.addTest(new FullTest(command.Attenuator_PA1,
                                               command.Attenuator_PA2,
-                                              command.splitterM3M,
                                               command.splitter_straight,
+                                              command.splitterM3M,
                                               command.cable1,
                                               command.cable2,
                                               command.cable3,
@@ -96,7 +94,7 @@ export function setupWebSocketServer(server: any) {
                 console.log('Cant find this test pattern');
               }
             }
-            queue.showContent();
+            // queue.showContent();
 
             await delay(300);
             queue.start();
@@ -157,14 +155,14 @@ export function setupWebSocketServer(server: any) {
           //   }
           
 
-          // case 'express-test':
-          //   const testtest1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-          //   const eresult = await testtest1.setBandwidth();
-          //   // const eresult = true;
-          //   console.log(eresult);
-          //   if (eresult) {
-          //     await testtest1.test();              
-          //   }
+          case 'express-test':
+            const testtest1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10, [1, 2, 3, 4, 5]);
+            // const eresult = await testtest1.setBandwidth();
+            const eresult = true;
+            console.log(eresult);
+            if (eresult) {
+              await testtest1.test();              
+            }
 
           //   break;
 
@@ -280,20 +278,6 @@ export function setupWebSocketServer(server: any) {
 
   console.log(`WebSocket server is set up and running.`);
 
-}
-
-
-export function queueBroadcast(queue: string, data: any) {
-  if (!wss) {
-    console.error("WebSocket server is not set up");
-    return;
-  }
-
-  wss.clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify({ queue, "message": data }));
-    }
-  });
 }
 
 export function broadcaster(data: any) {
