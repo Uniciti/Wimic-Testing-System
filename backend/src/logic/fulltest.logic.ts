@@ -89,6 +89,7 @@ export class FullTest {
 	                    [pingStat0, pingStat1] = result;
 	                }
 		            if (pingStat0 && pingStat1) {
+						await delay(1000);
 		                resolve(true);
 		            } else {
 		                setTimeout(checkOutput, 5000);
@@ -459,8 +460,8 @@ export class FullTest {
 						"Модуляция": modName[i],
 						"Аттен, ДБ": attValue,
 						"С/Ш": (parseFloat(snr.slice(0, 5))),
-						"Pin": pinN,
-						"Чувствительность":this.sens[i],
+						"Pin": -1 * pinN,
+						"Чувствительность": -1 * this.sens[i],
 						"Pin станция": parseFloat(pinV),
 						"Отправлено, байт": txBytes, 
 						"Принято, байт": rxBytes, 

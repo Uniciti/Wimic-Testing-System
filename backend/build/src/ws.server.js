@@ -39,7 +39,7 @@ function setupWebSocketServer(server) {
             try {
                 const parsedMessage = JSON.parse(message);
                 const { type, deviceId, command, value, ber, att, stat, m3m, params } = parsedMessage;
-                console.log(parsedMessage);
+                // console.log(parsedMessage);
                 // console.log(parsedMessage.type);
                 // console.log(parsedMessage.params);
                 // console.log(parsedMessage.params[0].modulation);
@@ -65,19 +65,20 @@ function setupWebSocketServer(server) {
                         let modList;
                         for (const test of params) {
                             modList = [];
-                            for (const modul of test) {
+                            for (const modul of test.modulation) {
                                 modList.push(modul.value);
                             }
                             if (test.type == 'expresstest') {
-                                queue_logic_1.queue.addTest(new expresstest_logic_1.ExpressTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), modList));
+                                queue_logic_1.queue.addTest(new expresstest_logic_1.ExpressTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitterM3M, command.splitter_straight, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), modList));
                             }
                             else if (test.type == 'fulltest') {
-                                queue_logic_1.queue.addTest(new fulltest_logic_1.FullTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), modList));
+                                queue_logic_1.queue.addTest(new fulltest_logic_1.FullTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitterM3M, command.splitter_straight, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), modList));
                             }
                             else {
                                 console.log('Cant find this test pattern');
                             }
                         }
+                        queue_logic_1.queue.showContent();
                         yield (0, main_logic_1.delay)(300);
                         queue_logic_1.queue.start();
                         break;

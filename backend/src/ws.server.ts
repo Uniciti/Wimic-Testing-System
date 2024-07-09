@@ -32,7 +32,7 @@ export function setupWebSocketServer(server: any) {
 
         const parsedMessage = JSON.parse(message);
         const { type, deviceId, command, value, ber, att, stat, m3m, params} = parsedMessage;
-        console.log(parsedMessage);
+        // console.log(parsedMessage);
         // console.log(parsedMessage.type);
         // console.log(parsedMessage.params);
         // console.log(parsedMessage.params[0].modulation);
@@ -65,14 +65,16 @@ export function setupWebSocketServer(server: any) {
             let modList: number[];
             for (const test of params) {
               modList = [];
-              for (const modul of test) {
+
+              for (const modul of test.modulation) {
                 modList.push(modul.value);
               }
+              
               if (test.type == 'expresstest') {
                 queue.addTest(new ExpressTest(command.Attenuator_PA1,
                                               command.Attenuator_PA2,
-                                              command.splitter_straight,
                                               command.splitterM3M,
+                                              command.splitter_straight,
                                               command.cable1,
                                               command.cable2,
                                               command.cable3,
@@ -82,8 +84,8 @@ export function setupWebSocketServer(server: any) {
               } else if (test.type == 'fulltest') {
                 queue.addTest(new FullTest(command.Attenuator_PA1,
                                               command.Attenuator_PA2,
-                                              command.splitter_straight,
                                               command.splitterM3M,
+                                              command.splitter_straight,
                                               command.cable1,
                                               command.cable2,
                                               command.cable3,
@@ -94,6 +96,7 @@ export function setupWebSocketServer(server: any) {
                 console.log('Cant find this test pattern');
               }
             }
+            queue.showContent();
 
             await delay(300);
             queue.start();

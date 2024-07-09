@@ -81,6 +81,7 @@ class FullTest {
                             [pingStat0, pingStat1] = result;
                         }
                         if (pingStat0 && pingStat1) {
+                            yield (0, main_logic_1.delay)(1000);
                             resolve(true);
                         }
                         else {
@@ -368,8 +369,8 @@ class FullTest {
                         "Модуляция": consts_logic_1.modName[i],
                         "Аттен, ДБ": attValue,
                         "С/Ш": (parseFloat(snr.slice(0, 5))),
-                        "Pin": pinN,
-                        "Чувствительность": this.sens[i],
+                        "Pin": -1 * pinN,
+                        "Чувствительность": -1 * this.sens[i],
                         "Pin станция": parseFloat(pinV),
                         "Отправлено, байт": txBytes,
                         "Принято, байт": rxBytes,

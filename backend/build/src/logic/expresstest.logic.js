@@ -81,6 +81,7 @@ class ExpressTest {
                             [pingStat0, pingStat1] = result;
                         }
                         if (pingStat0 && pingStat1) {
+                            yield (0, main_logic_1.delay)(1000);
                             resolve(true);
                         }
                         else {

@@ -28,6 +28,7 @@ class Queue {
     }
     showContent() {
         const queueDescriptions = this.getQueueDescriptions();
+        console.log(queueDescriptions);
         (0, ws_server_1.queueBroadcast)("content", queueDescriptions);
     }
     removeTest(index) {

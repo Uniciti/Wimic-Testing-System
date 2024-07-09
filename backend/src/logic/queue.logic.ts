@@ -21,6 +21,7 @@ export class Queue {
     
     public showContent() {
         const queueDescriptions = this.getQueueDescriptions();
+        console.log(queueDescriptions);
         queueBroadcast("content", queueDescriptions);
 
     }
@@ -72,7 +73,6 @@ export class Queue {
     
         const nextTest = this.queue.shift();
         if (nextTest) {
-
             const result = await nextTest.setBandwidth();
             if (result) {
                 await nextTest.test();

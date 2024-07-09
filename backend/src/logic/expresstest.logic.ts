@@ -89,6 +89,7 @@ export class ExpressTest {
 	                    [pingStat0, pingStat1] = result;
 	                }
 		            if (pingStat0 && pingStat1) {
+						await delay(1000);
 		                resolve(true);
 		            } else {
 		                setTimeout(checkOutput, 5000);
