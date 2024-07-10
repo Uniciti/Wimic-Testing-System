@@ -130,8 +130,13 @@
       </div>
       <div class="mt-2 text-center w-full">
         <div *ngIf="TestProcessing" class="card mt-4 mb-2">
-          <p>Оставшееся время: {{ timeRemaining }} сек</p>
           <div class="mt-1">
+            <p>Общий процент</p>
+            <p-progressBar [value]="currentStageQueue"></p-progressBar>
+          </div>
+          <!-- <p>Оставшееся время: {{ timeRemaining }} сек</p> -->
+          <div class="mt-1">
+            <p>Процент теста</p>
             <p-progressBar [value]="modulation"></p-progressBar>
           </div>
         </div>

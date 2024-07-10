@@ -9,7 +9,6 @@
         [loading]="loadingButtons['Ber']" 
         *ngIf="!connectionsButtons['Ber']"
         (click)="connectToDevice('Ber')" />
-      <!-- <button *ngIf="!bercutConnected" [disabled]="clickConBer" type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-sm py-1 px-2 rounded" (click)="connectBer()">Подключиться</button> -->
       <p-button 
         label="Отключиться" 
         icon="pi pi-times" 
@@ -17,17 +16,8 @@
         *ngIf="connectionsButtons['Ber']"
         (click)="disconnectToDevice('Ber')"
         severity="danger" />
-      <!-- <button *ngIf="bercutConnected" [disabled]="clickDisBer" type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold text-sm py-1 px-2 rounded" (click)="disconnectBer()">Отключиться</button> -->
     </div>
-     <!-- <div class="form-group">
-      <label for="inputCommandBer" class="block text-sm font-medium text-gray-700">Команда для устройства:</label>
-      <input type="text" [(ngModel)]="inputCommandBer" id="inputCommandBer" placeholder="Введите комманду" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-    </div> -->
-    <!-- <div class="mt-4">
-      <button (click)="sendCommandBer()" type="button" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить команду</button>
-    </div>  -->
   </div>
-
   <div class="container max-w-lg mx-0 p-4 border rounded-lg shadow-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Аттенюатор</h2>
     <div class="buttons-wrap flex space-x-2">
@@ -37,7 +27,6 @@
         [loading]="loadingButtons['Att']" 
         *ngIf="!connectionsButtons['Att']"
         (click)="connectToDevice('Att')" />
-      <!-- <button *ngIf="!attConnected" [disabled]="clickConAtt" type="button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold text-sm py-1 px-2 rounded" (click)="connectAtt()">Подключиться</button> -->
       <p-button 
         label="Отключиться" 
         icon="pi pi-times" 
@@ -45,17 +34,8 @@
         *ngIf="connectionsButtons['Att']"
         (click)="disconnectToDevice('Att')" 
         severity="danger" />
-      <!-- <button *ngIf="attConnected" [disabled]="clickDisAtt" type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold text-sm py-1 px-2 rounded" (click)="disconnectAtt()">Отключиться</button> -->
     </div>
-    <!-- <div class="form-group">
-      <label for="inputAttenuation" class="block text-sm font-medium text-gray-700">Ослабление, Дб:</label>
-      <input type="text" [(ngModel)]="inputAttenuation" id="inputAttenuation" placeholder="Введите ослабление" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-    </div> -->
-    <!-- <div class="mt-4">
-      <button (click)="sendCommandAtt()" type="button" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить команду</button>
-    </div> -->
   </div>
-
   <div class="container max-w-lg mx-0 p-4 border rounded-lg shadow-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Станции</h2>
     <div class="buttons-wrap flex space-x-2 mb-4">
@@ -78,7 +58,7 @@
       <div class="space-y-4">
         <div class="card flex flex-wrap gap-3 p-fluid">
           <div class="flex-auto">
-            <label for="inputFrequency" class="block text-sm font-medium text-gray-700">Частота станций, КГц:</label>
+            <label for="inputFrequency" class="block text-sm font-medium text-gray-700">Частота станций, МГц:</label>
             <p-inputNumber 
               inputId="inputFrequency" 
               [(ngModel)]="inputFrequency"
@@ -87,41 +67,18 @@
               [max]="6400" /> 
           </div>
         </div>
-          <!--<div class="form-group">
-          <label for="inputFrequency" class="block text-sm font-medium text-gray-700">Частота станций, КГц:</label>
-          <input type="number" name="inputFrequency" [(ngModel)]="inputFrequency" id="inputFrequency" placeholder="Введите частоту" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" autofocus> 
-        </div> -->
-        <!-- <div class="card justify-content-center">
-          <label for="selectionBandwidth" class="block text-sm font-medium text-gray-700">Ширина полосы, МГц:</label>
-          <p-selectButton 
-            [options]="stationOptions" 
-            [(ngModel)]="selectionBandwidth" 
-            optionLabel="label" 
-            optionValue="value"
-            id="selectionBandwidth" />
-        </div> -->
-        <!-- <div class="form-group">
-          <label for="selectionBandwidth" class="block text-sm font-medium text-gray-700">Ширина полосы:</label>
-          <select id="selectionBandwidth" name="selectionBandwidth" [(ngModel)]="selectionBandwidth" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option value="3">10 МГц</option>
-            <option value="5">20 МГц</option>
-          </select>
-        </div> -->
         <div class="buttons-wrap mt-4">
           <p-button 
             label="Отправить"
             type="submit" 
             icon="pi pi-times" 
-            [disabled]="!connectionsButtons['Stat']"
             [loading]="loadingButtons['StatOID']" 
             severity="success" />
-          <!-- <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить</button> -->
         </div>
       </div>
     </form>
-
     <h3 class="text-l font-semibold mt-4 mb-4">IP адреса станций</h3>
-    <form (ngSubmit)="sendParams('SendIP')">
+    <form (ngSubmit)="sendParams('StatIP')">
       <div class="form-group">
         <div class="card flex flex-wrap gap-3 p-fluid">
           <div class="flex-auto">
@@ -129,10 +86,6 @@
             <input id="inputIP_BASE" type="text" name="inputIP_BASE" pInputText [(ngModel)]="inputIP_BASE" class="mb-3 px-3 py-2" inputId="inputIP_BASE" placeholder="192.168.0.1"/>
           </div>
         </div>
-        <!-- <label for="inputIP_BASE" class="block text-sm font-medium text-gray-700">IP адрес <strong>Базы</strong>:</label>
-        <input type="text" [(ngModel)]="inputIP_BASE" name="inputIP_BASE" class="mb-3 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" id="inputIP_BASE" placeholder="192.168.0.1"> -->
-        <!-- <label for="inputIP_ABONENT" class="block text-sm font-medium text-gray-700">IP адрес <strong>Абонента</strong>:</label>
-        <input type="text" [(ngModel)]="inputIP_ABONENT" name="inputIP_ABONENT" class="mb-3 w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" id="inputIP_ABONENT" placeholder="192.168.0.2"> -->
         <div class="card flex flex-wrap gap-3 p-fluid">
           <div class="flex-auto">
             <label for="inputIP_ABONENT" class="block text-sm font-medium text-gray-700">IP адрес <strong>Абонента</strong>:</label>
@@ -145,19 +98,15 @@
           label="Отправить"
           type="submit" 
           icon="pi pi-times" 
-          [disabled]="!connectionsButtons['Stat']"
           [loading]="loadingButtons['StatIP']" 
           severity="success" />
-        <!-- <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить</button> -->
         <p-button 
           label="Сменить роли"
           severity="danger"
           (click)="swapMode()" />
-        <!-- <button type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold text-sm py-1 px-2 rounded" (click)="swapMode()">Сменить роли</button> -->
       </div>
     </form>
   </div>
-
   <div id="M3M" class="container max-w-lg mx-0 p-4 border rounded-lg shadow-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Измеритель мощности M3M</h2>
     <div class="buttons-wrap flex space-x-2 mb-4">
@@ -175,7 +124,7 @@
         (click)="disconnectToDevice('M3M')" 
         severity="danger" />
     </div>
-    <form (ngSubmit)="sendParams('M3Moffset')">
+    <!-- <form (ngSubmit)="sendParams('M3Moffset')">
       <div class="card flex flex-wrap gap-3 p-fluid">
         <div class="flex-auto">
           <label for="inputOffset" class="block text-sm font-medium text-gray-700">Компенсация ослабления, дБ:</label>
@@ -185,10 +134,6 @@
           placeholder="Введите компенсацию ослабления" /> 
         </div>
       </div>
-      <!-- <div class="form-group">
-        <label for="inputOffset" class="block text-sm font-medium text-gray-700">Компенсация ослабления, дБ:</label>
-        <input type="number" name="inputOffset" [(ngModel)]="inputOffset" id="inputOffset" placeholder="Введите компенсацию ослабления" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-      </div> -->
       <div class="buttons-wrap mt-4">
         <p-button 
         label="Отправить"
@@ -197,8 +142,7 @@
         [disabled]="!connectionsButtons['M3M']"
         [loading]="loadingButtons['M3Moffset']" 
         severity="success" />
-        <!-- <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold text-sm py-1 px-2 rounded">Отправить</button> -->
-      </div>
-    </form>
+      </div> 
+    </form>-->
   </div>
 </div>

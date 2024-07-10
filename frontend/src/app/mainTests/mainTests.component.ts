@@ -52,7 +52,7 @@ export class mainTestsComponent implements OnInit, OnDestroy {
   TestProcessing: boolean = false;
   interval: any;
   modulation: number = 0;
-  timeRemaining: number = 0;
+  currentStageQueue: number = 0;
 
   routerSubscription: Subscription = new Subscription();
   // selectionTestType: string = "express_test"
@@ -218,9 +218,9 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     sub.unsubscribe();
   }
 
-  pullman(totalTime: number) {
+  pullman(Queue_tests: any[]) {
     this.ngZone.runOutsideAngular(() => {
-      this.timeRemaining = totalTime;
+      //this.timeRemaining = totalTime;
   
       // Подписка на сообщения WebSocket
       let subscription = this.sharedWebSocketService.getMessages().subscribe({
@@ -229,13 +229,25 @@ export class mainTestsComponent implements OnInit, OnDestroy {
             console.log("Я в пульмане....")
             this.ngZone.run(() => {
               this.modulation = Math.round(((message.messageMod / message.stage) * 100) - 1);
-              console.log("modulation", this.modulation);
             });
           }
           if (message.status === "completed") {
             subscription.unsubscribe();
-            clearInterval(this.interval);
+            //clearInterval(this.interval);
           }
+
+        //   if (message.status === "testingMod") {
+        //   this.interval = setInterval(() => {
+        //     this.ngZone.run(() => {
+        //       if (this.timeRemaining > 0 && message.status !== "stopTestingMod") {
+        //         this.timeRemaining--;
+        //       } else  {
+        //         clearInterval(this.interval);
+        //       }
+        //     });
+        //   }, 1000);
+        // }
+          
         },
         error: (error) => {
           this.ngZone.run(() => {
@@ -243,24 +255,24 @@ export class mainTestsComponent implements OnInit, OnDestroy {
             this.loadingTest = false;
           });
           subscription.unsubscribe();
-          clearInterval(this.interval);
+          //clearInterval(this.interval);
         }
       });
   
       this.subscription.add(subscription);
   
-      // Интервал для отсчета времени
-      this.interval = setInterval(() => {
-        this.ngZone.run(() => {
-          if (this.timeRemaining > 0) {
-            this.timeRemaining--;
-          } else {
-            clearInterval(this.interval);
-          }
-        });
-      }, 1000);
+      //Интервал для отсчета времени
+      // this.interval = setInterval(() => {
+      //   this.ngZone.run(() => {
+      //     if (this.timeRemaining > 0) {
+      //       this.timeRemaining--;
+      //     } else {
+      //       clearInterval(this.interval);
+      //     }
+      //   });
+      // }, 1000);
     });
-  }
+  } 
 
 
   startTest(Queue_tests: any[]) {
@@ -287,6 +299,10 @@ export class mainTestsComponent implements OnInit, OnDestroy {
       this.loadingTest = false;
       connectionTimeout.unsubscribe();
     });
+
+    // for(let i = 0; i < Queue_tests.length; i++) {
+    //   totalTime += Queue_tests[i].totalTime;
+    // }
     
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
@@ -312,14 +328,16 @@ export class mainTestsComponent implements OnInit, OnDestroy {
             this.loadingTest = true;
             this.TestProcessing = true;
             this.modulation = 0;
+            this.currentStageQueue += (100 / Queue_tests.length);
             this.notificationService.showWarning(`Тест пройден. Осталось ${(Queue_tests.length - i)} ...`);
-            console.log(message["params"].length - i);
-            console.log("Я ВЫВОЖУ СКОК ТЕСТОВ ОСТАЛОСЬ");
+            // console.log(message["params"].length - i);
+            // console.log("Я ВЫВОЖУ СКОК ТЕСТОВ ОСТАЛОСЬ");
             i++;
             this.cdr.detectChanges();
           }
           else if (message.status === "completed") {
             this.modulation = 0;
+            this.currentStageQueue = 0;
             console.log("ПРОЙДЕНОООООО")
             this.buttonsControlTest(subscription);
             this.notificationService.showSuccess('Все тесты успешно завершены! Проверьте папку пользователя...');

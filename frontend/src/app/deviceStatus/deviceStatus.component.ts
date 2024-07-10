@@ -184,18 +184,20 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
   sendParams(device: string) {
     this.loadingButtons[device] = true;
     let InputedParams: {[key: string]: string} = { "" : ""};
+    let type: string = "";
     switch(device) {
       case "StatOID": 
         InputedParams = {
           "frequency": this.inputFrequency,
         };
+        type = "changeFrequency";
         break;
       case "StatIP":
         InputedParams = {
           "baseIP": this.inputIP_BASE,
           "abonentIP": this.inputIP_ABONENT
         };
-
+        type = "changeIP";
         if ((this.inputIP_ABONENT && this.inputIP_BASE) == '') {
           this.notificationService.showWarning('Введите IP адрес для станций ');
           return;
@@ -213,10 +215,11 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
         InputedParams = {
           "offset": this.inputOffset
         };
+        type = "changeOffset";
         break;
     };
 
-    const message = {"type": "send-command", "deviceId": device, "command": InputedParams};
+    const message = {"type": type, "command": InputedParams};
     this.sharedWebSocketService.sendMessage(message);
 
     const timeout = timer(5000).subscribe(() => {
@@ -226,7 +229,7 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
 
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
-      if (message.type === "sended" && message.deviceId === device) {
+      if (message.status === "sended") {
         this.loadingButtons[device] = false;
         switch(device) {
           case "StatOID":
@@ -246,10 +249,12 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
         this.notificationService.showError('Ошибка установки параметров');
         this.loadingButtons[device] = false;
         this.cdr.detectChanges();
+        subscription.unsubscribe();
+        timeout.unsubscribe();
       }
     }, error: (error) => {
-      this.loadingButtons[device] = false;
       this.notificationService.showError('Ошибка установки параметров');
+      this.loadingButtons[device] = false;
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();
