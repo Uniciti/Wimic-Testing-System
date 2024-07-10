@@ -44,7 +44,7 @@ export class SNMPClient {
     this.disconnect();
     this.baseHost = baseHost;
     this.subscriberHost = subscriberHost;
-    this.connect();
+    // this.connect();
   }
 
   public async checkConnect(): Promise<[boolean, boolean]> {
@@ -80,14 +80,14 @@ export class SNMPClient {
     return this.get(this.subscriberSession, oid);
   }
 
-  public setToBase(oid: string, value: any): Promise<void> {
+  public setToBase(oid: string, value: number): Promise<void> {
     if (!this.baseSession) {
       return Promise.reject('Base session is not established');
     }
     return this.set(this.baseSession, oid, value);
   }
 
-  public setToSubscriber(oid: string, value: any): Promise<void> {
+  public setToSubscriber(oid: string, value: number): Promise<void> {
     if (!this.subscriberSession) {
       return Promise.reject('Subscriber session is not established');
     }
@@ -98,6 +98,7 @@ export class SNMPClient {
     return new Promise((resolve, reject) => {
       session.get([oid], (error, varbinds) => {
         if (error) {
+          console.error(`SNMP SET error: ${error}`);
           return reject(error);
         }
 
@@ -135,7 +136,7 @@ export class SNMPClient {
 
       session.set([varbind], (error, varbinds) => {
         if (error) {
-          return reject(error);
+          reject(error);
         }
 
         resolve();

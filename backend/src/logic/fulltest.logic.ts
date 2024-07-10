@@ -23,6 +23,7 @@ export class FullTest {
 	private duration: number = 0;
 
 	private bandwidth: number = 10;
+	private frequency: number = 5600000;
 	private speed: number[] = speed10;
 	private sens: number[] = sens10;
 
@@ -38,6 +39,7 @@ export class FullTest {
 		attToPa2: number,
 		duration: number,
 		bandwidth: number,
+		frequency: number,
 		modList: number[]
 		) {
 
@@ -50,6 +52,7 @@ export class FullTest {
 		this.attToPa2 = attToPa2;
 		this.duration = duration * 1000;
 		this.bandwidth = bandwidth;
+		this.frequency = frequency;
 		this.modList = modList;
 
 		this.offset = Math.round(pa1 + splitterM3M + pa1ToSplit) + 3;
@@ -61,23 +64,31 @@ export class FullTest {
 		return mainAtt;
 	}
 
+	public async setFreq(): Promise<void>{
+		snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+		await delay(1000);
+		snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+		await delay(4000);
+	}
+
 	public async setBandwidth(): Promise<boolean> {
 		if (this.bandwidth == 20) {
 			this.speed = speed20;
 			this.sens = sens20;
 			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
 			await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
-			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-			await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
 		} else {
 			this.speed = speed10;
 			this.sens = sens10;
 			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
 			await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
-			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-			await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
 		}
+		// не реалистично для нововой прошивки
+		await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+		await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+
 		await delay(5000);
+
 		console.log("check");
 		return new Promise((resolve, reject) => {
 			let pingStat0: boolean;
@@ -131,20 +142,7 @@ export class FullTest {
 				if (!valid) {
 					break;
 				}
-				// dataArray.push({"Модуляция": modName[i],
-				// 				"Аттен, ДБ": "none",
-				// 				"С/Ш": "none",
-				// 				"Pin": "none",
-				// 				"Чуствительность":this.sens[i];
-				// 				"Pin станция": "none",
-				// 				"Отправлено, байт": "none", 
-				// 				"Принято, байт": "none", 
-				// 				"Потеряно, байт": "none", 
-				// 				"Процент ошибок, %": "none",
-				// 				"Статус": "Ошибка поиска модуляции",
-				// 				"Статус чуствительности":"Ошибка поиска модуляции",
-				// 				"Полоса": this.bandwidth,
-				// 			});
+
 				const message  = {status: "modulation", messageMod: this.modList.findIndex(element => element === i), stage: this.modList.length}
 				broadcaster(JSON.stringify(message));
 
@@ -234,10 +232,11 @@ export class FullTest {
 						await sshClient.sendCommand('bert start');
 						await delay(1000);
 
-
 						let intervalChecker: NodeJS.Timeout;
 
 						let valid: boolean = true;
+
+						
 						const startTest = async () => {
 							intervalChecker = setInterval(async () => {
 
@@ -262,11 +261,11 @@ export class FullTest {
 					
 							
 						};
-	
+						// broadcaster(JSON.stringify({status: "testingMod"}));
 						await startTest();
-
+						// broadcaster(JSON.stringify({status: "stopTestingMod"}));
 						// await delay(this.duration);
-
+						
 						await sshClient.sendCommand('bert stop');
 						await delay(2000);
 						const data = await sshClient.sendCommand('statistics show');
@@ -397,6 +396,8 @@ export class FullTest {
 						let intervalChecker: NodeJS.Timeout;
 
 						let valid: boolean = true;
+
+						
 						const startTest =  async () => {
 							intervalChecker = setInterval(async () => {
 
@@ -420,9 +421,9 @@ export class FullTest {
 							clearInterval(intervalChecker);
 							
 						};
-	
+						// broadcaster(JSON.stringify({status: "testingMod"}));
 						await startTest();
-
+						// broadcaster(JSON.stringify({status: "stopTestingMod"}));
 						// await delay(this.duration);
 						
 						await sshClient.sendCommand('bert stop');

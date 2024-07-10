@@ -69,6 +69,7 @@ class Queue {
             }
             const nextTest = this.queue.shift();
             if (nextTest) {
+                yield nextTest.setFreq();
                 const result = yield nextTest.setBandwidth();
                 if (result) {
                     yield nextTest.test();

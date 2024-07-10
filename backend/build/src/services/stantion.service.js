@@ -49,7 +49,7 @@ class SNMPClient {
         this.disconnect();
         this.baseHost = baseHost;
         this.subscriberHost = subscriberHost;
-        this.connect();
+        // this.connect();
     }
     checkConnect() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -98,6 +98,7 @@ class SNMPClient {
         return new Promise((resolve, reject) => {
             session.get([oid], (error, varbinds) => {
                 if (error) {
+                    console.error(`SNMP SET error: ${error}`);
                     return reject(error);
                 }
                 for (const varbind of varbinds) {
@@ -133,7 +134,7 @@ class SNMPClient {
             };
             session.set([varbind], (error, varbinds) => {
                 if (error) {
-                    return reject(error);
+                    reject(error);
                 }
                 resolve();
             });

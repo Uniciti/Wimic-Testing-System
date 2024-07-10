@@ -7,7 +7,7 @@ import { comClient, COMClient } from './services/m3m.service';
 import { ExpressTest } from './logic/expresstest.logic';
 import { FullTest } from './logic/fulltest.logic';
 import { queue, Queue } from './logic/queue.logic';
-import { delay, getPower } from './logic/main.logic';
+import { delay, getPower, setFreq } from './logic/main.logic';
 import 'dotenv/config';
 
 
@@ -18,6 +18,8 @@ const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} 
   'M3M': comClient,
   
 };
+
+// let frequency: number = 5600000;
 
 let wss: WebSocket.Server;
 
@@ -59,6 +61,20 @@ export function setupWebSocketServer(server: any) {
           //   ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
           //   break;
           
+          case 'changeFrequency':
+            await setFreq(command.frequency);
+            broadcaster(JSON.stringify({ status: 'sended' }));
+            // await validator();
+            break;
+
+          case 'changeIP':
+            snmpClient.changeIp(command.baseIP, command.abonentIP);
+            await delay(300);
+            // broadcaster(JSON.stringify({type: 'sended'}));
+            broadcaster(JSON.stringify({ status: 'sended', type: 'is-connected', pingStat0: false,  pingStat1: false }));
+            // await validator();
+            break;
+
           case 'test':
             let modList: number[];
             for (const test of params) {
@@ -78,6 +94,7 @@ export function setupWebSocketServer(server: any) {
                                               command.cable3,
                                               parseInt(test.time),
                                               parseInt(test.bandwidth),
+                                              test.frequency,
                                               modList));
               } else if (test.type == 'fulltest') {
                 queue.addTest(new FullTest(command.Attenuator_PA1,
@@ -89,6 +106,7 @@ export function setupWebSocketServer(server: any) {
                                               command.cable3,
                                               parseInt(test.time),
                                               parseInt(test.bandwidth),
+                                              test.frequency,
                                               modList));
               } else {
                 console.log('Cant find this test pattern');
@@ -162,14 +180,14 @@ export function setupWebSocketServer(server: any) {
           //   }
           
 
-          case 'express-test':
-            const testtest1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10, [1, 2, 3, 4, 5]);
-            // const eresult = await testtest1.setBandwidth();
-            const eresult = true;
-            console.log(eresult);
-            if (eresult) {
-              await testtest1.test();              
-            }
+          // case 'express-test':
+          //   const testtest1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10, frequency, [1, 2, 3, 4, 5]);
+          //   // const eresult = await testtest1.setBandwidth();
+          //   const eresult = true;
+          //   console.log(eresult);
+          //   if (eresult) {
+          //     await testtest1.test();              
+          //   }
 
           //   break;
 

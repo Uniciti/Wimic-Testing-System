@@ -19,7 +19,7 @@ const stantion_service_1 = require("../services/stantion.service");
 const ws_server_1 = require("../ws.server");
 require("dotenv/config");
 class ExpressTest {
-    constructor(pa1, pa2, splitterAtt, splitterM3M, pa1ToSplit, splitToAtt, attToPa2, duration, bandwidth, modList) {
+    constructor(pa1, pa2, splitterAtt, splitterM3M, pa1ToSplit, splitToAtt, attToPa2, duration, bandwidth, frequency, modList) {
         // private m3mPow: number = 0;
         this.offset = 0;
         this.baseAtt = 0;
@@ -32,6 +32,7 @@ class ExpressTest {
         this.attToPa2 = 0;
         this.duration = 0;
         this.bandwidth = 10;
+        this.frequency = 5600000;
         this.speed = consts_logic_1.speed10;
         this.sens = consts_logic_1.sens10;
         this.pa1 = pa1;
@@ -43,6 +44,7 @@ class ExpressTest {
         this.attToPa2 = attToPa2;
         this.duration = duration * 1000;
         this.bandwidth = bandwidth;
+        this.frequency = frequency;
         this.modList = modList;
         this.offset = Math.round(pa1 + splitterM3M + pa1ToSplit) + 3;
         this.baseAtt = pa1 + pa2 + pa1ToSplit + splitToAtt + attToPa2 + splitterAtt;
@@ -51,6 +53,14 @@ class ExpressTest {
         const mainAtt = Math.ceil(mod + m3mPow - this.baseAtt);
         return mainAtt;
     }
+    setFreq() {
+        return __awaiter(this, void 0, void 0, function* () {
+            stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+            yield (0, main_logic_1.delay)(1000);
+            stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+            yield (0, main_logic_1.delay)(4000);
+        });
+    }
     setBandwidth() {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.bandwidth == 20) {
@@ -58,17 +68,16 @@ class ExpressTest {
                 this.sens = consts_logic_1.sens20;
                 yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
                 yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
-                yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-                yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
             }
             else {
                 this.speed = consts_logic_1.speed10;
                 this.sens = consts_logic_1.sens10;
                 yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
                 yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
-                yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-                yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
             }
+            // не реалистично для нововой прошивки
+            yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+            yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
             yield (0, main_logic_1.delay)(5000);
             console.log("check");
             return new Promise((resolve, reject) => {
@@ -183,7 +192,9 @@ class ExpressTest {
                             }
                             clearInterval(intervalChecker);
                         });
+                        // broadcaster(JSON.stringify({status: "testingMod"}));
                         yield startTest();
+                        // broadcaster(JSON.stringify({status: "stopTestingMod"}));
                         // for (let j = 0; j < 5; j++) {
                         // 	const data = await sshClient.sendCommand('statistics show');
                         // 	await delay(1000);

@@ -30,6 +30,7 @@ const devices = {
     'Stat': stantion_service_1.snmpClient,
     'M3M': m3m_service_1.comClient,
 };
+// let frequency: number = 5600000;
 let wss;
 function setupWebSocketServer(server) {
     wss = new ws_1.default.Server({ server });
@@ -61,6 +62,18 @@ function setupWebSocketServer(server) {
                     //   setPathName(path, filename);
                     //   ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
                     //   break;
+                    case 'changeFrequency':
+                        yield (0, main_logic_1.setFreq)(command.frequency);
+                        broadcaster(JSON.stringify({ status: 'sended' }));
+                        // await validator();
+                        break;
+                    case 'changeIP':
+                        stantion_service_1.snmpClient.changeIp(command.baseIP, command.abonentIP);
+                        yield (0, main_logic_1.delay)(300);
+                        // broadcaster(JSON.stringify({type: 'sended'}));
+                        broadcaster(JSON.stringify({ status: 'sended', type: 'is-connected', pingStat0: false, pingStat1: false }));
+                        // await validator();
+                        break;
                     case 'test':
                         let modList;
                         for (const test of params) {
@@ -69,10 +82,10 @@ function setupWebSocketServer(server) {
                                 modList.push(modul.value);
                             }
                             if (test.type == 'expresstest') {
-                                queue_logic_1.queue.addTest(new expresstest_logic_1.ExpressTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), modList));
+                                queue_logic_1.queue.addTest(new expresstest_logic_1.ExpressTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), test.frequency, modList));
                             }
                             else if (test.type == 'fulltest') {
-                                queue_logic_1.queue.addTest(new fulltest_logic_1.FullTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), modList));
+                                queue_logic_1.queue.addTest(new fulltest_logic_1.FullTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), test.frequency, modList));
                             }
                             else {
                                 console.log('Cant find this test pattern');
@@ -136,14 +149,14 @@ function setupWebSocketServer(server) {
                     //     ws.send(JSON.stringify({ type: 'receive-value', message: `M3M answer ${data}` }));
                     //     break;
                     //   }
-                    case 'express-test':
-                        const testtest1 = new expresstest_logic_1.ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10, [1, 2, 3, 4, 5]);
-                        // const eresult = await testtest1.setBandwidth();
-                        const eresult = true;
-                        console.log(eresult);
-                        if (eresult) {
-                            yield testtest1.test();
-                        }
+                    // case 'express-test':
+                    //   const testtest1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10, frequency, [1, 2, 3, 4, 5]);
+                    //   // const eresult = await testtest1.setBandwidth();
+                    //   const eresult = true;
+                    //   console.log(eresult);
+                    //   if (eresult) {
+                    //     await testtest1.test();              
+                    //   }
                     //   break;
                     // case 'full-test':
                     //   const testtest2 = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 20);

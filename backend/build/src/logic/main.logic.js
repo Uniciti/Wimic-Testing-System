@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeDataToExcel = exports.parseData = exports.validator = exports.getPower = exports.setBertDuration = exports.setBertSpeed = exports.delay = exports.fileName = exports.pathToFile = void 0;
+exports.setFreq = exports.writeDataToExcel = exports.parseData = exports.validator = exports.getPower = exports.setBertDuration = exports.setBertSpeed = exports.delay = exports.fileName = exports.pathToFile = void 0;
 const att_service_1 = require("../services/att.service");
 const bert_service_1 = require("../services/bert.service");
 const stantion_service_1 = require("../services/stantion.service");
@@ -178,3 +178,12 @@ exports.writeDataToExcel = writeDataToExcel;
 //     pathToFile = (path || os.homedir()) || "/home/vlad/";
 //     fileName = (name + ".xlsx") || "test.xlsx";
 // }
+function setFreq(frequency) {
+    return __awaiter(this, void 0, void 0, function* () {
+        stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", frequency * 1000);
+        yield (0, exports.delay)(1000);
+        stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", frequency * 1000);
+        yield (0, exports.delay)(4000);
+    });
+}
+exports.setFreq = setFreq;

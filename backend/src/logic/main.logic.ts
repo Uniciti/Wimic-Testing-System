@@ -150,3 +150,10 @@ export function writeDataToExcel(newData: any[],  testName: string): void {
 //     pathToFile = (path || os.homedir()) || "/home/vlad/";
 //     fileName = (name + ".xlsx") || "test.xlsx";
 // }
+
+export async function setFreq(frequency: number): Promise<void>{
+    snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", frequency * 1000);
+    await delay(1000);
+    snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", frequency * 1000);
+    await delay(4000);
+}
