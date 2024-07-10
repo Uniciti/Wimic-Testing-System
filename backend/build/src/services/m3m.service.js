@@ -202,7 +202,9 @@ class COMClient {
                 const checkOutput = () => {
                     if (this.output) {
                         console.log('Current output:', this.output);
-                        resolve(this.output);
+                        const buffer = this.output;
+                        this.output = 0;
+                        resolve(buffer);
                     }
                     else {
                         setTimeout(checkOutput, 100);

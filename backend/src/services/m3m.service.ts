@@ -117,6 +117,7 @@ export class COMClient {
         resolve();
       });
     });
+    
   }
 
   public async checkConnect(): Promise<boolean> {
@@ -142,11 +143,6 @@ export class COMClient {
       	reject(err)
       }
   	});
-
-
-
-
-
   }
 
   public sendCommand(offset: number): Promise<void> {
@@ -217,7 +213,9 @@ export class COMClient {
           const checkOutput = () => {
             if (this.output) {
                 console.log('Current output:', this.output);
-                resolve(this.output);
+                const buffer = this.output;
+                this.output = 0
+                resolve(buffer);
             } else {
                 setTimeout(checkOutput, 100);
             }

@@ -7,9 +7,9 @@ import { comClient, COMClient } from './services/m3m.service';
 import { ExpressTest } from './logic/expresstest.logic';
 import { FullTest } from './logic/fulltest.logic';
 import { queue, Queue } from './logic/queue.logic';
-import { pathToFile, fileName, delay } from './logic/main.logic';
+import { delay, getPower } from './logic/main.logic';
 import 'dotenv/config';
-import { PassThrough } from 'stream';
+
 
 const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} = {
   'Att': tcpClient,
@@ -106,6 +106,13 @@ export function setupWebSocketServer(server: any) {
             ws.send(JSON.stringify({ type: 'connect', deviceId, conStatus }));
             break;
           
+          case 'test-m3m':
+            const pullman = await comClient.receiveData();
+            const pullman2 = await getPower(16500);  
+            console.log(pullman);
+            console.log(pullman2);
+            break;
+            
           // case 'send-command':
           //   if (value === undefined && command === undefined) {
           //     ws.send(JSON.stringify({ type: 'error', message: 'Command or attValue is required' }));

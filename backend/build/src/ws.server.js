@@ -86,6 +86,12 @@ function setupWebSocketServer(server) {
                         const conStatus = yield device.connect();
                         ws.send(JSON.stringify({ type: 'connect', deviceId, conStatus }));
                         break;
+                    case 'test-m3m':
+                        const pullman = yield m3m_service_1.comClient.receiveData();
+                        const pullman2 = yield (0, main_logic_1.getPower)(16500);
+                        console.log(pullman);
+                        console.log(pullman2);
+                        break;
                     // case 'send-command':
                     //   if (value === undefined && command === undefined) {
                     //     ws.send(JSON.stringify({ type: 'error', message: 'Command or attValue is required' }));
