@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { RouterOutlet, NavigationEnd, Router } from "@angular/router";
-import { NgClass } from "@angular/common";
+import { NgClass, NgIf } from "@angular/common";
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 import { HeaderComponent } from './header/header.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
@@ -32,6 +33,7 @@ import { CustomRouteReuseStrategy } from './app.component.service';
     FormsModule,
     HeaderComponent,
     NgClass,
+    NgIf,
     SidebarComponent, 
     DeviceStatusComponent, 
     mainTestsComponent,
@@ -40,9 +42,7 @@ import { CustomRouteReuseStrategy } from './app.component.service';
     QueueTestsFormComponent,
     FileUploadModule,
     ToastModule,
-    HttpClientModule,
-    
-    //DynamicDialogModule
+    HttpClientModule
     ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css' ],
@@ -57,34 +57,43 @@ import { CustomRouteReuseStrategy } from './app.component.service';
     MessageService,
     ConnectionStatusService,
     CustomRouteReuseStrategy
-    // DynamicDialogRef,
-    // DialogService,
-    // DynamicDialogConfig
   ]
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
-  // tabName: string;
-  // tabData: any = {};
+  @ViewChild(ConnectionStatusComponent) connectionStatus!: ConnectionStatusComponent;
 
   constructor(
     private sharedWebSocketService: SharedWebSocketService,
     private connectionStatusService: ConnectionStatusService,
     private notificationService: NotificationService,
     private router: Router,
-    //private tabStateService: TabStateService,
+    private breakpointObserver: BreakpointObserver
   ) { }
 
-  // setTabName(tabName: string): void {
-  //   this.tabName = tabName;
-  // }
+  isSmallScreen = false;
+  isComponentVisible = true;
 
-  // private observableWebSocket: Observable<> = new Observable();
+  isVerySmallScreen = false;
+  isComponentSidebarVisible = true;
+
   ngOnInit(): void {
-    // if (this.tabName) {
-    //   this.tabData = this.tabStateService.getState(this.tabName) || {};
-    // }
     this.sharedWebSocketService.connect();
+
+    this.breakpointObserver.observe(['(max-width: 1102px)']).subscribe(result => {
+      this.isSmallScreen = result.matches;
+      if (this.isSmallScreen) {
+        this.isComponentVisible = false;
+      }
+    });
+
+    // this.breakpointObserver.observe(['(max-width: 963px)']).subscribe(result => {
+    //   this.isVerySmallScreen = result.matches;
+    //   if (this.isVerySmallScreen) {
+    //     this.isComponentSidebarVisible = false;
+    //   }
+    // });
+
     this.sharedWebSocketService.getMessages().subscribe(message_ => {
     if (message_.type === "is-connected") {
       if (message_.pingBert == false) {
@@ -127,4 +136,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     // }
     //this.sharedWebSocketService.disconnect();
   } 
+
+  showTableStatus(): void {
+    this.isComponentVisible = !this.isComponentVisible;
+  }
 }

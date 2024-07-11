@@ -1,5 +1,4 @@
-<div class="container p-6 max-w-lg bg-white shadow-md rounded-lg">
-
+<div class="container CARDS p-6 max-w-lg bg-white shadow-md rounded-lg">
   <h2 class="text-xl font-semibold mb-4">Введите данные для тестирования</h2>
   <form (ngSubmit)="startTest(massiveTests)">
     <div class="card flex flex-wrap gap-3 p-fluid">
@@ -168,7 +167,7 @@
           position="center"
           class="" />
         </div>
-        <div class="items-left">
+        <div class="flex items-left">
           <p-fileUpload name="jsonFile"
           accept=".json"
           chooseLabel="Выбрать файл"

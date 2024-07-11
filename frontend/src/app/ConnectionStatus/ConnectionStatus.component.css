@@ -1,4 +1,5 @@
-/* @media screen and (max-width: 800px)  {
-    
+.table_with_status_always {
+    backdrop-filter: none;
+    z-index: 12;
+    height: 91%;
 }
- */

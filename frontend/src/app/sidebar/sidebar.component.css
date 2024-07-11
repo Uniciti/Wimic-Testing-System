@@ -6,7 +6,10 @@
 }
 */
 
- .sidebar {
+ /* Общие стили для боковой панели */
+/* Общие стили для боковой панели */
+/* CSS reset для обнуления стилей PrimeNG */
+.sidebar {
   position: fixed;
   top: 62px;
   left: 0;
@@ -14,8 +17,23 @@
   width: 13%;
   background-color: #1a202c;
   color: #cbd5e0;
-    }
+}
+
+.sidebar .svg {
+  width: 24px; /* Фиксированная ширина для иконок */
+  height: 24px; /* Фиксированная высота для иконок */
+  flex-shrink: 0; /* Предотвращает сжатие иконок */
+}
+.sidebar .WIDTH {
+  width: 24px; /* Fixed width for icons */
+}
+
+.sidebar .HEIGHT {
+  height: 24px; /* Fixed height for icons */
+}
+
 .active-link {
   background-color: #4A5568;
-  color: #fff; 
+  color: #fff;
 }
+

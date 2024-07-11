@@ -1,14 +1,23 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NgClass } from "@angular/common";
+import { NgClass, NgFor } from "@angular/common";
 import { Subscription } from 'rxjs';
 
-import { SharedWebSocketService } from '../SharedWebSocket.service';
+import { TableModule } from 'primeng/table';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+
 import { ConnectionStatusService } from '../core/services/ConnectionStatus.service';
 
 @Component({
   selector: 'app-ConnectionStatus',
-  standalone: true,
-  imports: [NgClass],
+  standalone: true, 
+  imports: [
+    NgClass,
+    NgFor,
+    TableModule,
+    CardModule,
+    ButtonModule
+  ],
   templateUrl: './ConnectionStatus.component.html',
   styleUrls: ['./ConnectionStatus.component.css']
 })
@@ -25,29 +34,31 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
   _Bandwidth: string = '';
   _Attenuation: string = '';
   _Offset: string | null = null;
+
+  tableOpacity = false;
+
+  //displayedColumns: string[] = ['device', 'status'];
+  devices = [
+    { device: 'Беркут-ЕТ', status: 'Отключено' },
+    { device: 'Аттенюатор', status: 'Отключено' },
+    { device: 'Станции', status: 'Отключено' },
+    { device: 'M3M', status: 'Отключено' }
+  ];
+
+  //displayedParamColumns: string[] = ['parameter', 'value'];
+  parameters = [
+    { parameter: 'IP адрес базы', value: '' },
+    { parameter: 'IP адрес абонента', value: '' },
+    { parameter: 'Частота, КГц', value: '' }
+  ];
   
   private subscription: Subscription = new Subscription();
 
-  //public messages: any[] = [];
-  //public isConnected: boolean = false;
-
-  constructor(private sharedWebSocketService: SharedWebSocketService, private connectionStatusService: ConnectionStatusService) { }
+  constructor(
+    private connectionStatusService: ConnectionStatusService
+   ) { }
 
   ngOnInit() {
-    //this.sharedWebSocketService.connect();
-
-    // this.subscription.add(this.sharedWebSocketService.getMessages().subscribe(message => {
-    //   //this.updateStatus(message);
-    // }));
-
-    //  this.subscription_interval_attenuator = interval(5000).subscribe(() => {
-    //   const message = {
-    //     "type": "is-connected",
-    //     "deviceId": "attenuator"
-    //   };
-    //   this.sharedWebSocketService.sendMessage(message);
-    // });
-
     this.subscription.add(this.connectionStatusService.currentIP_BaseStatus.subscribe(_IP_Base => {
       this._IP_Base = _IP_Base;
     }));
@@ -95,21 +106,16 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
     }
   }
 
-  // private updateStatus(message: any): void {
-  //    if (message.deviceId === "bercut" && message.type === "is-connected") {
-  //      this.bercutStatus = message.isConnected == true ? 'Подключено' : 'Отключено';
-  //    } else if (message.deviceId === "attenuator" && message.type === "is-connected") {
-  //      this.attStatus = message.isConnected == true ? 'Подключено' : 'Отключено';
-  //    } else if (message.deviceId === "M3M" && message.type === "is-connected") {
-  //      this.M3MStatus = message.isConnected == true ? 'Подключено' : 'Отключено';
-  //    }
-  //     if (message.deviceId === "bercut" && (message.type === "disconnect" || message.type === "connect")) {
-  //      this.bercutStatus = message.type === "connect" ? 'Подключено' : 'Отключено';
-  //    } else if (message.deviceId === "attenuator" && (message.type === "disconnect" || message.type === "connect")) {
-  //      this.attStatus = message.type === "connect" ? 'Подключено' : 'Отключено';
-  //    } else if (message.deviceId === "M3M" && (message.type === "disconnect" || message.type === "connect")) {
-  //      this.M3MStatus = message.type === "connect" ? 'Подключено' : 'Отключено';
-  //    }
+  // showTableStatus() {
+  //   const table = this.childDiv.nativeElement;
+  //   if (this.tableOpacity) {
+  //     this.renderer.addClass(table, 'table_with_status');
+  //   }
+  //   else {
+  //     this.renderer.removeClass(table, 'table_with_status');
+  //   }
+
+  //   this.tableOpacity != this.tableOpacity;
   // }
 }
 

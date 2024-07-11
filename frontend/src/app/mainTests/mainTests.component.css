@@ -6,3 +6,13 @@
 	background-color: #fff;
 	box-shadow: 0 2px 4px rgb(0, 0, 0);
 }
+
+.CARDS {
+	max-width: 512px;
+}
+
+@media screen and (max-width: 1102px) {
+	.CARDS {
+		width: 70%
+	}
+}
