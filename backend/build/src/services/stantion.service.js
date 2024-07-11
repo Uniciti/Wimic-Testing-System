@@ -136,8 +136,8 @@ class SNMPClient {
                 if (error) {
                     reject(error);
                 }
-                resolve();
             });
+            resolve();
         });
     }
     disconnect() {

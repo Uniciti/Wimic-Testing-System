@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.queue = exports.Queue = void 0;
 const ws_server_1 = require("../ws.server");
+const main_logic_1 = require("./main.logic");
 class Queue {
     constructor() {
         this.queue = [];
@@ -69,8 +70,9 @@ class Queue {
             }
             const nextTest = this.queue.shift();
             if (nextTest) {
-                yield nextTest.setFreq();
                 const result = yield nextTest.setBandwidth();
+                yield nextTest.setFreq();
+                yield (0, main_logic_1.delay)(500);
                 if (result) {
                     yield nextTest.test();
                     this.runNext();

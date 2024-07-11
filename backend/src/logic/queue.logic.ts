@@ -1,6 +1,8 @@
 import { ExpressTest } from './expresstest.logic';
 import { FullTest } from './fulltest.logic';
 import { broadcaster } from '../ws.server';
+import { snmpClient, SNMPClient } from '../services/stantion.service';
+import { delay } from './main.logic';
 
 export class Queue {
     private queue: (FullTest | ExpressTest)[] = [];
@@ -74,8 +76,10 @@ export class Queue {
     
         const nextTest = this.queue.shift();
         if (nextTest) {
-            await nextTest.setFreq();
+
             const result = await nextTest.setBandwidth();
+            await nextTest.setFreq();
+            await delay(500);
 
             if (result) {
                 await nextTest.test();

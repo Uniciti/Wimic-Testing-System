@@ -65,9 +65,15 @@ export class FullTest {
 	}
 
 	public async setFreq(): Promise<void>{
-		snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+
+		if ( !this.frequency ) {
+			return;
+		}
+
+		console.log(this.frequency * 1000);
+		await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
 		await delay(1000);
-		snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+		await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
 		await delay(4000);
 	}
 
@@ -76,20 +82,26 @@ export class FullTest {
 			this.speed = speed20;
 			this.sens = sens20;
 			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
-			await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+            await delay(1000);
+            await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+            await delay(5000);
 		} else {
 			this.speed = speed10;
 			this.sens = sens10;
 			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
-			await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+            await delay(1000);
+            await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+            await delay(5000);
 		}
-		// не реалистично для нововой прошивки
-		await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-		await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+		const freq = await snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0");
+		const ver = await snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.3.99.0");
+		if (ver <= '2.7.5'){
+			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+			await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+			await delay(5000);
+		}
 
-		await delay(5000);
-
-		console.log("check");
+		let firstTime: boolean = true;
 		return new Promise((resolve, reject) => {
 			let pingStat0: boolean;
 			let pingStat1: boolean;
@@ -99,6 +111,12 @@ export class FullTest {
 	                if (Array.isArray(result)) {
 	                    [pingStat0, pingStat1] = result;
 	                }
+
+					if (pingStat1 && !pingStat0 && firstTime){
+						await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", parseInt(freq));
+						firstTime = false;
+					}
+
 		            if (pingStat0 && pingStat1) {
 						await delay(1000);
 		                resolve(true);
@@ -124,7 +142,7 @@ export class FullTest {
 	public async test(): Promise<void> {
 
 		const valid = await validator();
-		console.log(valid);
+		// console.log(valid);
 		if (!valid) {
 			return;
 		}

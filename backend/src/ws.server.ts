@@ -83,7 +83,12 @@ export function setupWebSocketServer(server: any) {
               for (const modul of test.modulation) {
                 modList.push(modul.value);
               }
-              
+
+              let frequency: number = 0;
+              if ( test.frequency != 'none' ) {
+                frequency = test.frequency;
+              }
+
               if (test.type == 'expresstest') {
                 queue.addTest(new ExpressTest(command.Attenuator_PA1,
                                               command.Attenuator_PA2,
@@ -94,7 +99,7 @@ export function setupWebSocketServer(server: any) {
                                               command.cable3,
                                               parseInt(test.time),
                                               parseInt(test.bandwidth),
-                                              test.frequency,
+                                              frequency,
                                               modList));
               } else if (test.type == 'fulltest') {
                 queue.addTest(new FullTest(command.Attenuator_PA1,
@@ -106,7 +111,7 @@ export function setupWebSocketServer(server: any) {
                                               command.cable3,
                                               parseInt(test.time),
                                               parseInt(test.bandwidth),
-                                              test.frequency,
+                                              frequency,
                                               modList));
               } else {
                 console.log('Cant find this test pattern');
@@ -124,6 +129,44 @@ export function setupWebSocketServer(server: any) {
             ws.send(JSON.stringify({ type: 'connect', deviceId, conStatus }));
             break;
           
+          case "stat-test":
+            const ver = await snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.3.99.0");
+            console.log(ver);
+            console.log(ver > "2.7.6");
+            console.log(ver > "2.7.4");
+            console.log(ver < "2.8.6");
+            console.log(ver < "2.8.4");
+            console.log(typeof ver);
+            break;
+          
+          case "stat-ban1":
+            snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+            console.log("t11");
+            await delay(1000);
+            snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+            console.log("t12");
+            await delay(4000);
+
+            snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+            snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+            await delay(4000);
+          
+            break;
+
+          case "stat-ban2":
+            snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+            console.log("t21");
+            await delay(1000);
+            snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+            console.log("t22");
+            await delay(4000);
+
+            snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+            snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+            await delay(4000);
+
+            break;
+
           case 'test-m3m':
             const pullman = await comClient.receiveData();
             const pullman2 = await getPower(16500);  

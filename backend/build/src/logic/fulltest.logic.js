@@ -55,9 +55,15 @@ class FullTest {
     }
     setFreq() {
         return __awaiter(this, void 0, void 0, function* () {
-            stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+            if (!this.frequency) {
+                return;
+            }
+            console.log(this.frequency * 1000);
+            yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+            console.log("pachimu");
             yield (0, main_logic_1.delay)(1000);
-            stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+            yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+            console.log("blyad pachimu");
             yield (0, main_logic_1.delay)(4000);
         });
     }
@@ -67,19 +73,27 @@ class FullTest {
                 this.speed = consts_logic_1.speed20;
                 this.sens = consts_logic_1.sens20;
                 yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+                yield (0, main_logic_1.delay)(1000);
                 yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+                yield (0, main_logic_1.delay)(5000);
             }
             else {
                 this.speed = consts_logic_1.speed10;
                 this.sens = consts_logic_1.sens10;
                 yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+                yield (0, main_logic_1.delay)(1000);
                 yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+                yield (0, main_logic_1.delay)(5000);
             }
-            // не реалистично для нововой прошивки
-            yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-            yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-            yield (0, main_logic_1.delay)(5000);
-            console.log("check");
+            const freq = yield stantion_service_1.snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0");
+            console.log(freq);
+            const ver = yield stantion_service_1.snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.3.99.0");
+            if (ver <= '2.7.5') {
+                yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+                yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+                yield (0, main_logic_1.delay)(5000);
+            }
+            let firstTime = true;
             return new Promise((resolve, reject) => {
                 let pingStat0;
                 let pingStat1;
@@ -88,6 +102,10 @@ class FullTest {
                         const result = yield stantion_service_1.snmpClient.checkConnect();
                         if (Array.isArray(result)) {
                             [pingStat0, pingStat1] = result;
+                        }
+                        if (pingStat1 && !pingStat0 && firstTime) {
+                            yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", parseInt(freq));
+                            firstTime = false;
                         }
                         if (pingStat0 && pingStat1) {
                             yield (0, main_logic_1.delay)(1000);
@@ -114,7 +132,7 @@ class FullTest {
     test() {
         return __awaiter(this, void 0, void 0, function* () {
             const valid = yield (0, main_logic_1.validator)();
-            console.log(valid);
+            // console.log(valid);
             if (!valid) {
                 return;
             }

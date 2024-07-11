@@ -138,8 +138,9 @@ export class SNMPClient {
         if (error) {
           reject(error);
         } 
-        resolve();
       });
+
+      resolve();
     });
   }
 
