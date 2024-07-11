@@ -130,111 +130,6 @@ export function setupWebSocketServer(server: any) {
             console.log(pullman);
             console.log(pullman2);
             break;
-            
-          // case 'send-command':
-          //   if (value === undefined && command === undefined) {
-          //     ws.send(JSON.stringify({ type: 'error', message: 'Command or attValue is required' }));
-          //     return;
-          //   }
-          //   if (device instanceof TcpClient){
-          //     await device.sendCommand(value);
-          //     ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
-          //     break;
-          //   }
-          //   if (device instanceof SSHClient){
-          //     const data = await device.sendCommand(command);
-          //     ws.send(JSON.stringify({ type: 'sended', message: `Bercut answer ${data}` }));
-          //     break;
-          //   }
-          //   if (device instanceof SNMPClient){
-          //     let args = command.split(" ");
-          //     await device.setToBase(args[0], parseInt(args[1], 10));
-          //     await device.setToSubscriber(args[0], parseInt(args[1], 10));
-          //     ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
-          //     break;
-          //   }
-          //   if (device instanceof COMClient){
-          //     await device.sendCommand(value);
-          //     ws.send(JSON.stringify({ type: 'sended', message: `Command sent to ${deviceId}` }));
-          //     break;
-          //   }
-            
-          
-          // case 'receive-value':
-          //   if (device instanceof TcpClient){
-          //     const data = await device.receiveData();
-          //     ws.send(JSON.stringify({ type: 'receive-value', deviceId, data }));
-          //     break;
-          //   };
-          //   if (device instanceof SNMPClient){
-          //     const data0 = await device.getFromBase(command);
-          //     const data1 = await device.getFromSubscriber(command);
-              
-          //     ws.send(JSON.stringify({ type: 'receive-value', base: `Base answer ${data0}`, Sub: `Sub answer ${data1}`}));
-          //     break;
-          //   }
-          //   if (device instanceof COMClient){
-          //     const data = await device.receiveData();
-          //     ws.send(JSON.stringify({ type: 'receive-value', message: `M3M answer ${data}` }));
-          //     break;
-          //   }
-          
-
-          // case 'express-test':
-          //   const testtest1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10, frequency, [1, 2, 3, 4, 5]);
-          //   // const eresult = await testtest1.setBandwidth();
-          //   const eresult = true;
-          //   console.log(eresult);
-          //   if (eresult) {
-          //     await testtest1.test();              
-          //   }
-
-          //   break;
-
-          // case 'full-test':
-          //   const testtest2 = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 20);
-          //   const eresultq = await testtest2.setBandwidth();
-          //   // const eresultq = true;
-          //   console.log(eresultq);
-          //   if (eresultq) {
-          //     await testtest2.test();              
-          //   }
-
-          //   break;
-
-          
-          // case "att-test":
-          //   const responseatt: any = { type: 'is-connected' };
-          //   while (true) {
-              
-          //     const result = await tcpClient.checkConnect();
-          //     if (typeof result === 'boolean') {
-          //       responseatt.pingAtt = result;
-          //     }
-          //     ws.send(JSON.stringify(responseatt));
-          //     await delay(3500);
-          //   }
-          //   break;
-
-
-          // case 'queue-test':
-          //   const testtestq1 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-          //   const testtestq3 = new ExpressTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-          //   const testtestq2 = new FullTest(30, 30, 0.7, 8.7, 1.32, 1.65, 2.27, 60, 10);
-          //   queue.addTest(testtestq1);
-          //   queue.addTest(testtestq1);
-          //   queue.addTest(testtestq3);
-          //   queue.addTest(testtestq2);
-          //   queue.showContent();
-          //   queue.removeTest(1);
-          //   queue.showContent();
-          //   //const resultq = await testtestq1.setBandwidth()
-          //   const resultq = true;
-          //   console.log(resultq);
-          //   // if (resultq) {
-          //   //   queue.start();
-          //   // }
-          //   break;
 
           case 'fuck-go-back':
             queue.stop();
@@ -243,7 +138,6 @@ export function setupWebSocketServer(server: any) {
           case 'fuck-go-forward':
             queue.start();
             break;
-
 
           case 'disconnect':
             device.disconnect();

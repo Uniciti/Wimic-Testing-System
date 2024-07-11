@@ -71,7 +71,7 @@ export class ExpressTest {
 		snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
 		await delay(4000);
 	}
-
+	// должно быть переработано под реалии новой прошивки
 	public async setBandwidth(): Promise<boolean> {
 		if (this.bandwidth == 20) {
 			this.speed = speed20;
@@ -84,7 +84,7 @@ export class ExpressTest {
 			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
 			await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
 		}
-		// не реалистично для нововой прошивки
+
 		await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
 		await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
 
@@ -122,11 +122,6 @@ export class ExpressTest {
 		});
 	}
 		
-		
-
-
-	
-
 	public async test(): Promise<void> {
 
 		const valid = await validator();

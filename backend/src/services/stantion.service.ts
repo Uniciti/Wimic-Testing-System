@@ -137,8 +137,7 @@ export class SNMPClient {
       session.set([varbind], (error, varbinds) => {
         if (error) {
           reject(error);
-        }
-
+        } 
         resolve();
       });
     });
