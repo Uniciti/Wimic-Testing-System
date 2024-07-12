@@ -60,10 +60,8 @@ class ExpressTest {
             }
             console.log(this.frequency * 1000);
             yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
-            console.log("pachimu");
             yield (0, main_logic_1.delay)(1000);
             yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
-            console.log("blyad pachimu");
             yield (0, main_logic_1.delay)(4000);
         });
     }
@@ -86,7 +84,6 @@ class ExpressTest {
                 yield (0, main_logic_1.delay)(5000);
             }
             const freq = yield stantion_service_1.snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0");
-            console.log(freq);
             const ver = yield stantion_service_1.snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.3.99.0");
             if (ver <= '2.7.5') {
                 yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
@@ -184,17 +181,6 @@ class ExpressTest {
                         let valid = true;
                         const startTest = () => __awaiter(this, void 0, void 0, function* () {
                             intervalChecker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                                // try {
-                                // 	const data = await sshClient.sendCommand('statistics show');
-                                // 	delay(500);
-                                // 	const [tx, rx] = await parseData(data);
-                                // 	delay(500);
-                                // 	txBytes = tx;
-                                // 	rxBytes = rx;
-                                // 	console.log('TX/RX: ', txBytes, rxBytes);
-                                // } catch (error: any) {
-                                // 	console.log(`SSH server error ${error.message}`);
-                                // }
                                 valid = yield (0, main_logic_1.validator)();
                                 if (!valid) {
                                     clearInterval(intervalChecker);
@@ -213,12 +199,6 @@ class ExpressTest {
                         // broadcaster(JSON.stringify({status: "testingMod"}));
                         yield startTest();
                         // broadcaster(JSON.stringify({status: "stopTestingMod"}));
-                        // for (let j = 0; j < 5; j++) {
-                        // 	const data = await sshClient.sendCommand('statistics show');
-                        // 	await delay(1000);
-                        // 	[txBytes, rxBytes] = await parseData(data);
-                        // 	console.log('TX/RX: ', txBytes, rxBytes);
-                        // }
                         yield bert_service_1.sshClient.sendCommand('bert stop');
                         yield (0, main_logic_1.delay)(2000);
                         const data = yield bert_service_1.sshClient.sendCommand('statistics show');

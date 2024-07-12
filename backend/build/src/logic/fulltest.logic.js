@@ -60,10 +60,8 @@ class FullTest {
             }
             console.log(this.frequency * 1000);
             yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
-            console.log("pachimu");
             yield (0, main_logic_1.delay)(1000);
             yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
-            console.log("blyad pachimu");
             yield (0, main_logic_1.delay)(4000);
         });
     }
@@ -86,7 +84,6 @@ class FullTest {
                 yield (0, main_logic_1.delay)(5000);
             }
             const freq = yield stantion_service_1.snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0");
-            console.log(freq);
             const ver = yield stantion_service_1.snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.3.99.0");
             if (ver <= '2.7.5') {
                 yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
@@ -238,7 +235,6 @@ class FullTest {
                             // broadcaster(JSON.stringify({status: "testingMod"}));
                             yield startTest();
                             // broadcaster(JSON.stringify({status: "stopTestingMod"}));
-                            // await delay(this.duration);
                             yield bert_service_1.sshClient.sendCommand('bert stop');
                             yield (0, main_logic_1.delay)(2000);
                             const data = yield bert_service_1.sshClient.sendCommand('statistics show');
@@ -358,7 +354,6 @@ class FullTest {
                             // broadcaster(JSON.stringify({status: "testingMod"}));
                             yield startTest();
                             // broadcaster(JSON.stringify({status: "stopTestingMod"}));
-                            // await delay(this.duration);
                             yield bert_service_1.sshClient.sendCommand('bert stop');
                             yield (0, main_logic_1.delay)(2000);
                             const data = yield bert_service_1.sshClient.sendCommand('statistics show');

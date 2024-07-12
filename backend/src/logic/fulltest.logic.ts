@@ -282,7 +282,6 @@ export class FullTest {
 						// broadcaster(JSON.stringify({status: "testingMod"}));
 						await startTest();
 						// broadcaster(JSON.stringify({status: "stopTestingMod"}));
-						// await delay(this.duration);
 						
 						await sshClient.sendCommand('bert stop');
 						await delay(2000);
@@ -442,7 +441,6 @@ export class FullTest {
 						// broadcaster(JSON.stringify({status: "testingMod"}));
 						await startTest();
 						// broadcaster(JSON.stringify({status: "stopTestingMod"}));
-						// await delay(this.duration);
 						
 						await sshClient.sendCommand('bert stop');
 						await delay(2000);

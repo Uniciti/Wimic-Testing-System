@@ -207,17 +207,6 @@ export class ExpressTest {
 					
 					const startTest = async () => {
 						intervalChecker = setInterval(async () => {
-							// try {
-							// 	const data = await sshClient.sendCommand('statistics show');
-							// 	delay(500);
-							// 	const [tx, rx] = await parseData(data);
-							// 	delay(500);
-							// 	txBytes = tx;
-							// 	rxBytes = rx;
-							// 	console.log('TX/RX: ', txBytes, rxBytes);
-							// } catch (error: any) {
-							// 	console.log(`SSH server error ${error.message}`);
-							// }
 
 							valid = await validator();
 
@@ -246,13 +235,6 @@ export class ExpressTest {
 					// broadcaster(JSON.stringify({status: "testingMod"}));
 					await startTest();
 					// broadcaster(JSON.stringify({status: "stopTestingMod"}));
-					
-					// for (let j = 0; j < 5; j++) {
-					// 	const data = await sshClient.sendCommand('statistics show');
-					// 	await delay(1000);
-					// 	[txBytes, rxBytes] = await parseData(data);
-					// 	console.log('TX/RX: ', txBytes, rxBytes);
-					// }
 					
 					await sshClient.sendCommand('bert stop');
 					await delay(2000);
