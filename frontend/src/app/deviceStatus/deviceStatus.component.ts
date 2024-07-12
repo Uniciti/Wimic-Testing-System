@@ -89,8 +89,6 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
     this.subscription.add(this.connectionStatusService.currentM3MStatus.subscribe(_M3MStatus => {
       this.connectionsButtons['M3M'] = _M3MStatus ? true : false;
     }));
-    //this.deviceStatusData = this.tabStateService.getState('deviceStatus') || {};
-    //console.log(this.deviceStatusData)
   };
 
   ngOnDestroy() {
@@ -106,7 +104,7 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
   }
 
   connectToDevice(device: string) {
-    this.loadingButtons[device] = true;       //ХУЙ ЗНАЕТ , МБ НЕ РАБОТАЕТ , ТОЛЯН СКАЩАЛ, ЧТО НОРМАС ВРОДЕ
+    this.loadingButtons[device] = true;
     const message = { "type": "connect", "deviceId": device };
     this.sharedWebSocketService.sendMessage(message);
 
@@ -139,7 +137,7 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
 
   disconnectToDevice(device: string) {
     this.loadingButtons[device] = true;
-    const message = { "type": "disconnect", "deviceId": device };
+    const message = { "type": "disconnect", "deviceId": device }
     this.sharedWebSocketService.sendMessage(message);
 
     const timeout = timer(5000).subscribe(() => {

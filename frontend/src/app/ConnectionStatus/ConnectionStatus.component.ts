@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { NgClass, NgFor } from "@angular/common";
 import { Subscription } from 'rxjs';
 
@@ -31,11 +31,11 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
   _IP_Abonent: string | null = '';
   _IP_Base: string | null = '';
   _Frequency: string | null = null;  
-  _Bandwidth: string = '';
-  _Attenuation: string = '';
-  _Offset: string | null = null;
+  // _Bandwidth: string = '';
+  // _Attenuation: string = '';
+  // _Offset: string | null = null;
 
-  tableOpacity = false;
+  //tableOpacity = false;
 
   devices = [
     { device: 'Беркут-ЕТ', status: 'Отключено' },
@@ -47,54 +47,65 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
   parameters = [
     { parameter: 'IP адрес базы', value: '' },
     { parameter: 'IP адрес абонента', value: '' },
-    { parameter: 'Частота, КГц', value: '' }
+    { parameter: 'Частота, МГц', value: '' }
   ];
   
   private subscription: Subscription = new Subscription();
 
   constructor(
-    private connectionStatusService: ConnectionStatusService
+    private connectionStatusService: ConnectionStatusService,
+    private cdr: ChangeDetectorRef
    ) { }
 
   ngOnInit() {
     this.subscription.add(this.connectionStatusService.currentIP_BaseStatus.subscribe(_IP_Base => {
-      this._IP_Base = _IP_Base;
+      this.parameters[0].value = _IP_Base!;
+      this.cdr.detectChanges();
     }));
 
     this.subscription.add(this.connectionStatusService.currentIP_AbonentStatus.subscribe(_IP_Abonent => {
-      this._IP_Abonent = _IP_Abonent;
+      this.parameters[1].value = _IP_Abonent!;
+      this.cdr.detectChanges();
     }));
 
     this.subscription.add(this.connectionStatusService.currentFrequencyStatus.subscribe(_Frequency => {
-      this._Frequency = _Frequency;
+      this.parameters[2].value = _Frequency!;
+      this.cdr.detectChanges();
     }));
 
-    this.subscription.add(this.connectionStatusService.currentBandwidthStatus.subscribe(_Bandwidth => {
-      this._Bandwidth = _Bandwidth;
-    }));
+    // this.subscription.add(this.connectionStatusService.currentBandwidthStatus.subscribe(_Bandwidth => {
+    //   this._Bandwidth = _Bandwidth!;
+    //   this.cdr.detectChanges();
+    // }));
 
-    this.subscription.add(this.connectionStatusService.currentAttenuationStatus.subscribe(_Attenuation => {
-      this._Attenuation = _Attenuation;
-    }));
+    // this.subscription.add(this.connectionStatusService.currentAttenuationStatus.subscribe(_Attenuation => {
+    //   this._Attenuation = _Attenuation!;
+    //   this.cdr.detectChanges();
+    // }));
 
-    this.subscription.add(this.connectionStatusService.currentOffsetStatus.subscribe(_Offset => {
-      this._Offset = _Offset;
-    }));
+    // this.subscription.add(this.connectionStatusService.currentOffsetStatus.subscribe(_Offset => {
+    //   this._Offset = _Offset!;
+    //   this.cdr.detectChanges();
+    // }));
 
     this.subscription.add(this.connectionStatusService.currentBercutStatus.subscribe(_bercutStatus => {
-      this.bercutStatus = _bercutStatus ? "Подключено" : "Отключено";
+      this.devices[0].status = _bercutStatus ? "Подключено" : "Отключено";
+      this.cdr.detectChanges();
     }));
 
     this.subscription.add(this.connectionStatusService.currentAttenuatorStatus.subscribe(_attStatus => {
-      this.attStatus = _attStatus ? "Подключено" : "Отключено"
+      this.devices[1].status = _attStatus ? "Подключено" : "Отключено"
+      this.cdr.detectChanges();
     }));
 
     this.subscription.add(this.connectionStatusService.currentStationStatus.subscribe(_StationStatus => {
-      this.StationStatus = _StationStatus ? "Подключено" : "Отключено"
+      this.devices[2].status = _StationStatus ? "Подключено" : "Отключено"
+      this.cdr.detectChanges();
     }));
 
     this.subscription.add(this.connectionStatusService.currentM3MStatus.subscribe(_M3MStatus => {
-      this.M3MStatus = _M3MStatus ? "Подключено" : "Отключено"
+      this.devices[3].status = _M3MStatus ? "Подключено" : "Отключено"
+      this.cdr.detectChanges();
     }));
   }
 

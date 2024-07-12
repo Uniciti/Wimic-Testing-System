@@ -133,7 +133,6 @@
         <p-button 
           label="Начать тестирование"
           type="submit" 
-          icon="pi pi-times" 
           [disabled]="TestProcessing"
           [loading]="loadingTest" 
           severity="success"
@@ -167,9 +166,9 @@
           (uploadHandler)="uploadJSONWithSettings($event)">
           </p-fileUpload>
       </div>
-      <div *ngIf="parsedData">
+      <!-- <div *ngIf="parsedData">
         <p>Data: {{ parsedData | json }}</p>
-      </div>
+      </div> -->
       <!-- <ul>
         <li *ngFor="let test of massiveTests">{{ test.type  }} - {{ test.bandwidth }}</li>
       </ul> -->

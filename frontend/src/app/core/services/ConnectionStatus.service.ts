@@ -1,21 +1,10 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subscription, interval } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConnectionStatusService {
-
-  //private subscription_interval: Subscription = new Subscription();
-  // private berSubject = new BehaviorSubject<boolean>(false);
-  // private attSubject = new BehaviorSubject<boolean>(false);
-  // private statSubject = new BehaviorSubject<boolean>(false);
-  // private m3mSubject = new BehaviorSubject<boolean>(false);
-
-  // ber$ = this.berSubject.asObservable();
-  // att$ = this.berSubject.asObservable();
-  // stat$ = this.berSubject.asObservable();
-  // m3m$ = this.berSubject.asObservable();
 
   constructor() { }
 
@@ -86,36 +75,4 @@ export class ConnectionStatusService {
     }
     
   }
-
-//   updateStatus(message: any): void {
-//     if (message.deviceId === "bercut" && message.type === "is-connected") {
-//       this.bercutStatus = message.isConnected == true ? 'Подключено' : 'Отключено';
-//     } else if (message.deviceId === "attenuator" && message.type === "is-connected") {
-//       this.attStatus = message.isConnected == true ? 'Подключено' : 'Отключено';
-//     } else if (message.deviceId === "M3M" && message.type === "is-connected") {
-//       this.M3MStatus = message.isConnected == true ? 'Подключено' : 'Отключено';
-//     }
-//      if (message.deviceId === "bercut" && (message.type === "disconnect" || message.type === "connect")) {
-//       this.bercutStatus = message.type === "connect" ? 'Подключено' : 'Отключено';
-//     } else if (message.deviceId === "attenuator" && (message.type === "disconnect" || message.type === "connect")) {
-//       this.attStatus = message.type === "connect" ? 'Подключено' : 'Отключено';
-//     } else if (message.deviceId === "M3M" && (message.type === "disconnect" || message.type === "connect")) {
-//       this.M3MStatus = message.type === "connect" ? 'Подключено' : 'Отключено';
-//     }
-//  }
-
-  // setBer(value: boolean) {
-  //   this.berSubject.next(value);
-  // }
-
-  // setAtt(value: boolean) {
-  //   this.attSubject.next(value);
-  // }
-
-  // stopSendingMessagesBer() {
-  //   if (this.subscription_interval) {
-  //     this.subscription_interval.unsubscribe();
-  //     this.subscription_interval = new Subscription(); // reset the subscription
-  //   }
-  // }
 }

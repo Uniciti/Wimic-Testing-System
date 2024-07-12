@@ -111,8 +111,6 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     if (savedValue) {
       this.pa1 = savedValue.Attenuator_PA1;
       this.pa2 = savedValue.Attenuator_PA2;
-      console.log("Ну типо должно сохраняться вот" ,savedValue.Attenuator_PA2)
-      console.log(savedValue);
       this.splitterM3M = savedValue.splitter_to_M3M;
       this.splitterST = savedValue.splitter_straight;
       this.cable1 = savedValue.cable1;
@@ -205,20 +203,17 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     sub.unsubscribe();
   }
 
-  pullman(Queue_tests: any[]) {
+  pullman() {
     this.ngZone.runOutsideAngular(() => {  
-      // Подписка на сообщения WebSocket
       let subscription = this.sharedWebSocketService.getMessages().subscribe({
         next: (message) => {
           if (message.status === "modulation") {
-            console.log("Я в пульмане....")
             this.ngZone.run(() => {
               this.modulation = Math.round(((message.messageMod / message.stage) * 100) - 1);
             });
           }
           if (message.status === "completed") {
             subscription.unsubscribe();
-            //clearInterval(this.interval);
           }
         },
         error: (error) => {
@@ -227,7 +222,6 @@ export class mainTestsComponent implements OnInit, OnDestroy {
             this.loadingTest = false;
           });
           subscription.unsubscribe();
-          //clearInterval(this.interval);
         }
       });
   
@@ -237,8 +231,6 @@ export class mainTestsComponent implements OnInit, OnDestroy {
 
 
   startTest(Queue_tests: any[]) {
-    console.log("Вот saved_data", this.settingsData);
-    console.log("А вот само значение ПА1", this.pa1)
     this.loadingTest = true;
 
     let i: number = 1;
@@ -265,7 +257,7 @@ export class mainTestsComponent implements OnInit, OnDestroy {
       next: (message) => {
         this.loadingTest = true;
         if (message.type === "sended" && message.test === "queue") {
-          this.pullman(Queue_tests[Queue_tests.length - 1].totalTime);
+          this.pullman();
           connectionTimeout.unsubscribe();
           this.loadingTest = true;
           this.TestProcessing = true;

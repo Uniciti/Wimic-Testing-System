@@ -3,7 +3,7 @@ import { RouterOutlet, NavigationEnd, Router } from "@angular/router";
 import { NgClass, NgIf } from "@angular/common";
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { BreakpointObserver } from '@angular/cdk/layout';
 
 import { HeaderComponent } from './header/header.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
@@ -15,16 +15,11 @@ import { QueueTestsFormComponent } from './queue-tests-form/queue-tests-form.com
 import { MessageService } from 'primeng/api';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
-// import { DynamicDialogModule, DialogService,
-//   DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 
 import { SharedWebSocketService } from './SharedWebSocket.service';
 import { ConnectionStatusService } from './core/services/ConnectionStatus.service';
 import { NotificationService } from './Notification.service';
 import { CustomRouteReuseStrategy } from './app.component.service';
-// import { RouteReuseStrategy } from '@angular/router';
-//import { TabStateService } from './app.component.service'
-// import { QueueTestsFormService } from './queue-tests-form/queue-tests-form.service';
 
 @Component({
   selector: 'app-root',
