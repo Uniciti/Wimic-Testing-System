@@ -116,16 +116,6 @@
               class="w-full"
               required /> 
         </div>
-        <!-- <div class="w-1/2 pl-2">
-          <label for="duration" class="block text-sm font-medium text-gray-700">Время на одну модуляции</label>
-          <p-inputNumber
-              name="duration"
-              inputId="duration" 
-              [(ngModel)]="duration"
-              [placeholder]="'Введите время, с'"
-              class="w-full"
-              required />   
-        </div> -->
       </div>
       <div class="mt-2 text-center w-full">
         <div *ngIf="TestProcessing" class="card mt-4 mb-2">
@@ -133,7 +123,6 @@
             <p>Общий процент</p>
             <p-progressBar [value]="currentStageQueue"></p-progressBar>
           </div>
-          <!-- <p>Оставшееся время: {{ timeRemaining }} сек</p> -->
           <div class="mt-1">
             <p>Процент теста</p>
             <p-progressBar [value]="modulation"></p-progressBar>
@@ -170,6 +159,7 @@
         <div class="flex items-left">
           <p-fileUpload name="jsonFile"
           accept=".json"
+          styleClass="FILEUPLOAD"
           chooseLabel="Выбрать файл"
           uploadLabel="Загрузить настройки"
           cancelLabel="Отмена загрузки"

@@ -1,14 +1,7 @@
-/*.sidebar {
-  position: fixed;
-  left: 0;
-  top: 62px;
-  bottom: 0;
+.sidebar_always {
+  backdrop-filter: none;
 }
-*/
 
- /* Общие стили для боковой панели */
-/* Общие стили для боковой панели */
-/* CSS reset для обнуления стилей PrimeNG */
 .sidebar {
   position: fixed;
   top: 62px;
@@ -37,3 +30,14 @@
   color: #fff;
 }
 
+@media screen and (max-width: 963px)  {
+  .sidebar {
+    width: 25%;
+  }
+}
+
+@media screen and (max-width: 501px)  {
+  .sidebar {
+    width: 34%;
+  }
+}

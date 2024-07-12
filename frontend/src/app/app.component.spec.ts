@@ -14,11 +14,10 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'angular_system_for_testing' title`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    //expect(app.title).toEqual('angular_system_for_testing');
-  });
+  // it(`should have the 'angular_system_for_testing' title`, () => {
+  //   const fixture = TestBed.createComponent(AppComponent);
+  //   const app = fixture.componentInstance;
+  // });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);

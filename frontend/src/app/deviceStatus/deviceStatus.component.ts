@@ -199,6 +199,7 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
         };
         type = "changeIP";
         if ((this.inputIP_ABONENT && this.inputIP_BASE) == '') {
+          this.loadingButtons[device] = false;
           this.notificationService.showWarning('Введите IP адрес для станций ');
           return;
         } 
@@ -208,6 +209,7 @@ export class DeviceStatusComponent implements OnInit, OnDestroy {
     
         if (!isBaseValid || !isAbonentValid) {
           this.notificationService.showWarning('Некорректный ввод IP адресов для станций ');
+          this.loadingButtons[device] = false;
           return;
         }
         break;

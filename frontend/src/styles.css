@@ -1,21 +1,19 @@
  
-@tailwind base;
+/* @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;  */
 
-::ng-deep .p-button.SHOW_TABLE {
+:host ::ng-deep .p-button.SHOW_TABLE {
     font-size: 0.9rem !important;
-    line-height: 0.9rem !important;
+
     padding: 0.3rem 0.6rem !important;
 } 
 
 .p-button {
     font-size: 0.8rem;
-    line-height: 0.825rem;
     padding: 0.25rem 0.5rem;
   }
  
-  
 
 .p-inputnumber {
    height: 2.5rem;
@@ -26,6 +24,8 @@
 @layer tailwind-base {
     @tailwind base;
 }
+
+@layer primeng;
 
 @layer tailwind-utilities {
     @tailwind components;
@@ -65,9 +65,8 @@ background-color: #58d2ff;
 
 
 
-::ng-deep .p-fileupload-buttonbar {
+:host ::ng-deep .FILEUPLOAD {
     display: flex;
-    margin-top: 3px;
     border: none !important;
     box-shadow: none !important;
     flex-direction: column;

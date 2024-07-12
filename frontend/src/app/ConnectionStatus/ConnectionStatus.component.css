@@ -1,5 +1,5 @@
 .table_with_status_always {
     backdrop-filter: none;
-    z-index: 12;
     height: 91%;
+    box-shadow: 0 2px 4px rgb(0, 0, 0);
 }

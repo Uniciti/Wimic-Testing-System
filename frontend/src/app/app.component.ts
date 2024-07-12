@@ -62,6 +62,7 @@ import { CustomRouteReuseStrategy } from './app.component.service';
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @ViewChild(ConnectionStatusComponent) connectionStatus!: ConnectionStatusComponent;
+  @ViewChild(SidebarComponent) sidebar!: SidebarComponent;
 
   constructor(
     private sharedWebSocketService: SharedWebSocketService,
@@ -87,12 +88,12 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
 
-    // this.breakpointObserver.observe(['(max-width: 963px)']).subscribe(result => {
-    //   this.isVerySmallScreen = result.matches;
-    //   if (this.isVerySmallScreen) {
-    //     this.isComponentSidebarVisible = false;
-    //   }
-    // });
+    this.breakpointObserver.observe(['(max-width: 963px)']).subscribe(result => {
+      this.isVerySmallScreen = result.matches;
+      if (this.isVerySmallScreen) {
+        this.isComponentSidebarVisible = false;
+      }
+    });
 
     this.sharedWebSocketService.getMessages().subscribe(message_ => {
     if (message_.type === "is-connected") {
@@ -130,14 +131,13 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  ngOnDestroy(): void {
-    // if (this.tabName) {
-    //   this.tabStateService.setState(this.tabName, this.tabData);
-    // }
-    //this.sharedWebSocketService.disconnect();
-  } 
+  ngOnDestroy(): void {  } 
 
   showTableStatus(): void {
     this.isComponentVisible = !this.isComponentVisible;
+  }
+
+  showSidebar(): void {
+    this.isComponentSidebarVisible = !this.isComponentSidebarVisible;
   }
 }

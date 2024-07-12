@@ -55,8 +55,7 @@ export class mainTestsComponent implements OnInit, OnDestroy {
   currentStageQueue: number = 0;
 
   routerSubscription: Subscription = new Subscription();
-  // selectionTestType: string = "express_test"
-  // selectionBandwidth: number =  3;
+
   pa1: number | null = null;
   pa2: number | null = null;
   splitterM3M: number | null = null;
@@ -100,18 +99,6 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     if (savedTests) {
       this.massiveTests = savedTests;
     }
-    // const savedValue1 = this.localStorage.getItem('settingsData');
-    // if (savedValue1) {
-    //   this.settingsData = savedValue1;
-    //   this.pa1 = savedValue1.Attenuator_PA1;
-    //   this.pa2 = savedValue1.Attenuator_PA2;
-
-    //   this.splitterM3M = savedValue1.splitter_to_M3M;
-    //   this.splitterST = savedValue1.splitter_straight;
-    //   this.cable1 = savedValue1.cable1;
-    //   this.cable2 = savedValue1.cable2
-    //   this.cable3 = savedValue1.cable3
-    // }
   }
 
   @HostListener('window:beforeunload', ['$event'])
@@ -219,9 +206,7 @@ export class mainTestsComponent implements OnInit, OnDestroy {
   }
 
   pullman(Queue_tests: any[]) {
-    this.ngZone.runOutsideAngular(() => {
-      //this.timeRemaining = totalTime;
-  
+    this.ngZone.runOutsideAngular(() => {  
       // Подписка на сообщения WebSocket
       let subscription = this.sharedWebSocketService.getMessages().subscribe({
         next: (message) => {
@@ -235,19 +220,6 @@ export class mainTestsComponent implements OnInit, OnDestroy {
             subscription.unsubscribe();
             //clearInterval(this.interval);
           }
-
-        //   if (message.status === "testingMod") {
-        //   this.interval = setInterval(() => {
-        //     this.ngZone.run(() => {
-        //       if (this.timeRemaining > 0 && message.status !== "stopTestingMod") {
-        //         this.timeRemaining--;
-        //       } else  {
-        //         clearInterval(this.interval);
-        //       }
-        //     });
-        //   }, 1000);
-        // }
-          
         },
         error: (error) => {
           this.ngZone.run(() => {
@@ -260,17 +232,6 @@ export class mainTestsComponent implements OnInit, OnDestroy {
       });
   
       this.subscription.add(subscription);
-  
-      //Интервал для отсчета времени
-      // this.interval = setInterval(() => {
-      //   this.ngZone.run(() => {
-      //     if (this.timeRemaining > 0) {
-      //       this.timeRemaining--;
-      //     } else {
-      //       clearInterval(this.interval);
-      //     }
-      //   });
-      // }, 1000);
     });
   } 
 
@@ -299,24 +260,16 @@ export class mainTestsComponent implements OnInit, OnDestroy {
       this.loadingTest = false;
       connectionTimeout.unsubscribe();
     });
-
-    // for(let i = 0; i < Queue_tests.length; i++) {
-    //   totalTime += Queue_tests[i].totalTime;
-    // }
     
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
         this.loadingTest = true;
-        console.log(message);
         if (message.type === "sended" && message.test === "queue") {
-          console.log("зашел в sended")
           this.pullman(Queue_tests[Queue_tests.length - 1].totalTime);
           connectionTimeout.unsubscribe();
-          console.log("Отписался от интервала")
           this.loadingTest = true;
           this.TestProcessing = true;
           this.cdr.detectChanges();
-          console.log("Значение loadingTest", this.loadingTest)
         }
           else if (message.status === "error exec") {
             this.notificationService.showError('Проверьте подключение к устройствам...');
@@ -328,18 +281,14 @@ export class mainTestsComponent implements OnInit, OnDestroy {
             this.loadingTest = true;
             this.TestProcessing = true;
             this.modulation = 0;
-            this.currentStageQueue += (100 / Queue_tests.length);
+            this.currentStageQueue += Math.round(100 / Queue_tests.length);
             this.notificationService.showWarning(`Тест пройден. Осталось ${(Queue_tests.length - i)} ...`);
-            // console.log(message["params"].length - i);
-            // console.log("Я ВЫВОЖУ СКОК ТЕСТОВ ОСТАЛОСЬ");
             i++;
             this.cdr.detectChanges();
           }
           else if (message.status === "completed") {
             this.modulation = 0;
             this.currentStageQueue = 0;
-            console.log("ПРОЙДЕНОООООО")
-            this.buttonsControlTest(subscription);
             this.notificationService.showSuccess('Все тесты успешно завершены! Проверьте папку пользователя...');
             this.buttonsControlTest(subscription);
             this.cdr.detectChanges();

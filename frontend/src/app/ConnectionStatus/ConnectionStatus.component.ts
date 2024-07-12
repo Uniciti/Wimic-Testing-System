@@ -37,7 +37,6 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
 
   tableOpacity = false;
 
-  //displayedColumns: string[] = ['device', 'status'];
   devices = [
     { device: 'Беркут-ЕТ', status: 'Отключено' },
     { device: 'Аттенюатор', status: 'Отключено' },
@@ -45,7 +44,6 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
     { device: 'M3M', status: 'Отключено' }
   ];
 
-  //displayedParamColumns: string[] = ['parameter', 'value'];
   parameters = [
     { parameter: 'IP адрес базы', value: '' },
     { parameter: 'IP адрес абонента', value: '' },
@@ -105,18 +103,6 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
       this.subscription.unsubscribe();
     }
   }
-
-  // showTableStatus() {
-  //   const table = this.childDiv.nativeElement;
-  //   if (this.tableOpacity) {
-  //     this.renderer.addClass(table, 'table_with_status');
-  //   }
-  //   else {
-  //     this.renderer.removeClass(table, 'table_with_status');
-  //   }
-
-  //   this.tableOpacity != this.tableOpacity;
-  // }
 }
 
 

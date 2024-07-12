@@ -1,35 +1,3 @@
-// import { Component, EventEmitter, Output } from '@angular/core';
-// import { TableModule } from 'primeng/table';
-// import { DynamicDialogRef } from 'primeng/dynamicdialog';
-// import { DynamicDialogConfig } from 'primeng/dynamicdialog';
-// import { QueueTestsFormService } from './queue-tests-form.service';
-// import { PullTestsInterface } from '../core/interfaces/pull_tests'
-
-// @Component({
-//   selector: 'app-queue-tests-form',
-//   standalone: true,
-//   imports: [ TableModule ],
-//   templateUrl: './queue-tests-form.component.html',
-//   styleUrls: ['./queue-tests-form.component.css']
-// })
-// export class QueueTestsFormComponent {
-//   pullman_tests: PullTestsInterface;
-
-//   massive_tests: any[];
-
-//   constructor(private queue: QueueTestsFormService, private ref: DynamicDialogRef, private config: DynamicDialogConfig) { }
-
-//   ngOnInit() {
-//       //id: this.config.id
-//       //this.queue.pushingTest().then(cars => this.cars = cars);
-//   }
-
-//   applyParamsForTest(this.queue.pushingTest()) {
-//     this.ref.close(car);
-// }
-
-
-// }
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import {NgFor, CommonModule} from "@angular/common";
 import {FormsModule} from '@angular/forms';
@@ -80,6 +48,7 @@ export class QueueTestsFormComponent implements OnInit, OnDestroy {
   duration: string = "60";
   totalTime: number = 0;
   massiveTests: any[] = [];
+  originalTests: any[] = [];
 
   constructor(
     public dialogRef: MatDialogRef<QueueTestsFormComponent>,
@@ -98,6 +67,8 @@ export class QueueTestsFormComponent implements OnInit, OnDestroy {
         this.massiveTests = [savedTests];
       }
     }
+
+    this.originalTests = [...this.massiveTests];
   }
 
   ngOnDestroy() {
@@ -128,6 +99,7 @@ export class QueueTestsFormComponent implements OnInit, OnDestroy {
   }
 
   closeDialog() {
+    this.massiveTests = [...this.originalTests];
     this.dialogRef.close();
   }
   
