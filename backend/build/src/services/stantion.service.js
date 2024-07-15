@@ -63,8 +63,8 @@ class SNMPClient {
     // }
     checkConnect() {
         return __awaiter(this, void 0, void 0, function* () {
-            const maxAttempts = 5; // Максимальное количество попыток пинга
-            const delayBetweenPings = 1000; // Задержка между попытками в миллисекундах
+            const maxAttempts = 5;
+            const delayBetweenPings = 1000;
             const pingHost = (host) => __awaiter(this, void 0, void 0, function* () {
                 const res = yield ping_1.default.promise.probe(host);
                 return res.alive;

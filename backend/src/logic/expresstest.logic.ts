@@ -68,21 +68,21 @@ export class ExpressTest {
 			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
             await delay(1000);
             await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
-            await delay(5000);
+            await delay(4000);
 		} else {
 			this.speed = speed10;
 			this.sens = sens10;
 			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
             await delay(1000);
             await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
-            await delay(5000);
+            await delay(4000);
 		}
 		const freq = await snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0");
 		const ver = await snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.3.99.0");
 		if (ver <= '2.7.5'){
 			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
 			await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-			await delay(5000);
+			await delay(4000);
 		}
 
 		let firstTime: boolean = true;

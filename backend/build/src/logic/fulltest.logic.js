@@ -59,7 +59,7 @@ class FullTest {
                 yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
                 yield (0, main_logic_1.delay)(1000);
                 yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
-                yield (0, main_logic_1.delay)(5000);
+                yield (0, main_logic_1.delay)(4000);
             }
             else {
                 this.speed = consts_logic_1.speed10;
@@ -67,14 +67,14 @@ class FullTest {
                 yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
                 yield (0, main_logic_1.delay)(1000);
                 yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
-                yield (0, main_logic_1.delay)(5000);
+                yield (0, main_logic_1.delay)(4000);
             }
             const freq = yield stantion_service_1.snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0");
             const ver = yield stantion_service_1.snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.3.99.0");
             if (ver <= '2.7.5') {
                 yield stantion_service_1.snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
                 yield stantion_service_1.snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-                yield (0, main_logic_1.delay)(5000);
+                yield (0, main_logic_1.delay)(4000);
             }
             let firstTime = true;
             console.log("pullman time");
