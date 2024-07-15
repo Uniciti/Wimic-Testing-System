@@ -6,21 +6,12 @@ import { comClient, COMClient } from '../services/m3m.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
 import { broadcaster } from '../ws.server';
 import 'dotenv/config';
-import { resolve } from 'path';
-import { promises } from 'dns';
 
 export class ExpressTest {
 	// private m3mPow: number = 0;
 	private offset: number = 0;
 	private baseAtt: number = 0;
 
-	private pa1: number = 0;
-	private pa2: number = 0; 
-	private splitterAtt: number = 0;
-	private splitterM3M: number = 0;
-	private pa1ToSplit: number = 0;
-	private splitToAtt: number = 0;
-	private attToPa2: number = 0;
 	private duration: number = 0;
 
 	private bandwidth: number = 10;
@@ -43,14 +34,6 @@ export class ExpressTest {
 		frequency: number,
 		modList: number[]
 		) {
-
-		this.pa1 = pa1;
-		this.pa2 = pa2;
-		this.splitterAtt = splitterAtt;
-		this.splitterM3M = splitterM3M; 
-		this.pa1ToSplit = pa1ToSplit;
-		this.splitToAtt = splitToAtt;
-		this.attToPa2 = attToPa2;
 		this.duration = duration * 1000;
 		this.bandwidth = bandwidth;
 		this.frequency = frequency;
@@ -103,6 +86,7 @@ export class ExpressTest {
 		}
 
 		let firstTime: boolean = true;
+		console.log("pullman time");
 		return new Promise((resolve, reject) => {
 			let pingStat0: boolean;
 			let pingStat1: boolean;
@@ -142,7 +126,7 @@ export class ExpressTest {
 		
 	public async test(): Promise<void> {
 
-		const valid = await validator();
+		let valid = await validator();
 		// console.log(valid);
 		if (!valid) {
 			return;
@@ -160,7 +144,7 @@ export class ExpressTest {
 			// for(let i = 6; i >= 0; i--) {
 			for (const i of this.modList) {
 
-				const valid = await validator();
+				valid = await validator();
 				if (!valid) {
 					break;
 				}
@@ -203,7 +187,7 @@ export class ExpressTest {
 
 					let intervalChecker: NodeJS.Timeout;
 
-					let valid: boolean = true;
+					// let valid: boolean = true;
 					
 					const startTest = async () => {
 						intervalChecker = setInterval(async () => {
@@ -255,7 +239,8 @@ export class ExpressTest {
 					if (0.1 < errorRate) {
 						verdict = "Не пройдено";
 					}
-
+					console.log(valid);
+					console.log("^^^^");
 					dataArray[dataArray.length - 1] = {
 									"Модуляция": modName[i],
 									"Аттен, ДБ": attValue,

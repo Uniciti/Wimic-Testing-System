@@ -25,8 +25,9 @@ export class SNMPClient {
 
   public async connect(): Promise<boolean> {
     try {
-      this.baseSession = snmp.createSession(this.baseHost, this.community, { version: this.version });
+
       this.subscriberSession = snmp.createSession(this.subscriberHost, this.community, { version: this.version });
+      this.baseSession = snmp.createSession(this.baseHost, this.community, { version: this.version });
       const [res0, res1] = await this.checkConnect();
       return res0 && res1;
 
@@ -47,17 +48,53 @@ export class SNMPClient {
     // this.connect();
   }
 
+  // public async checkConnect(): Promise<[boolean, boolean]> {
+  //   try {
+  //     const res0 = await ping.promise.probe(this.baseHost);
+  //     const res1 = await ping.promise.probe(this.subscriberHost);
+  //     return [res0.alive && (this.baseSession != null), res1.alive && (this.subscriberSession != null)];
+  //   } catch (error) {
+  //     console.error(`Ping error: ${error}`);
+  //     return [false, false];
+  //   }
+  // }
+
   public async checkConnect(): Promise<[boolean, boolean]> {
+    const maxAttempts = 5;  // Максимальное количество попыток пинга
+    const delayBetweenPings = 1000;  // Задержка между попытками в миллисекундах
+
+    const pingHost = async (host: string): Promise<boolean> => {
+        const res = await ping.promise.probe(host);
+        return res.alive;
+    };
+
     try {
-      const res0 = await ping.promise.probe(this.baseHost);
-      const res1 = await ping.promise.probe(this.subscriberHost);
-      return [res0.alive && (this.baseSession != null), res1.alive && (this.subscriberSession != null)];
+        let attempt = 0;
+        let res0 = false;
+        let res1 = false;
+
+        while (attempt < maxAttempts) {
+            if (!res0) {
+                res0 = await pingHost(this.baseHost);
+            }
+            if (!res1) {
+                res1 = await pingHost(this.subscriberHost);
+            }
+
+            if (res0 && res1) {
+                break;
+            }
+
+            attempt++;
+            await new Promise(resolve => setTimeout(resolve, delayBetweenPings));
+        }
+
+        return [res0 && (this.baseSession != null), res1 && (this.subscriberSession != null)];
     } catch (error) {
-      console.error(`Ping error: ${error}`);
-      return [false, false];
+        console.error(`Ping error: ${error}`);
+        return [false, false];
     }
   }
-
   // public async checkBaseConnect(): Promise<boolean> {
   //   return this.checkConnect(this.baseHost);
   // }

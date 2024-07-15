@@ -40,7 +40,7 @@ function setupWebSocketServer(server) {
             try {
                 const parsedMessage = JSON.parse(message);
                 const { type, deviceId, command, value, ber, att, stat, m3m, params } = parsedMessage;
-                console.log(parsedMessage);
+                // console.log(parsedMessage);
                 // console.log(parsedMessage.type);
                 // console.log(parsedMessage.params);
                 // console.log(parsedMessage.params[0].modulation);
@@ -86,10 +86,10 @@ function setupWebSocketServer(server) {
                                 frequency = test.frequency;
                             }
                             if (test.type == 'expresstest') {
-                                queue_logic_1.queue.addTest(new expresstest_logic_1.ExpressTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), frequency, modList));
+                                queue_logic_1.queue.addTest(new expresstest_logic_1.ExpressTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), frequency, modList.reverse()));
                             }
                             else if (test.type == 'fulltest') {
-                                queue_logic_1.queue.addTest(new fulltest_logic_1.FullTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), frequency, modList));
+                                queue_logic_1.queue.addTest(new fulltest_logic_1.FullTest(command.Attenuator_PA1, command.Attenuator_PA2, command.splitter_straight, command.splitterM3M, command.cable1, command.cable2, command.cable3, parseInt(test.time), parseInt(test.bandwidth), frequency, modList.reverse()));
                             }
                             else {
                                 console.log('Cant find this test pattern');
@@ -206,6 +206,7 @@ function broadcaster(data) {
     }
     wss.clients.forEach(client => {
         if (client.readyState === ws_1.default.OPEN) {
+            console.log(data);
             client.send(data);
         }
     });

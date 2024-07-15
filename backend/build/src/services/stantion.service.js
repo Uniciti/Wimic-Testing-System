@@ -32,8 +32,8 @@ class SNMPClient {
     connect() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                this.baseSession = net_snmp_1.default.createSession(this.baseHost, this.community, { version: this.version });
                 this.subscriberSession = net_snmp_1.default.createSession(this.subscriberHost, this.community, { version: this.version });
+                this.baseSession = net_snmp_1.default.createSession(this.baseHost, this.community, { version: this.version });
                 const [res0, res1] = yield this.checkConnect();
                 return res0 && res1;
             }
@@ -51,12 +51,42 @@ class SNMPClient {
         this.subscriberHost = subscriberHost;
         // this.connect();
     }
+    // public async checkConnect(): Promise<[boolean, boolean]> {
+    //   try {
+    //     const res0 = await ping.promise.probe(this.baseHost);
+    //     const res1 = await ping.promise.probe(this.subscriberHost);
+    //     return [res0.alive && (this.baseSession != null), res1.alive && (this.subscriberSession != null)];
+    //   } catch (error) {
+    //     console.error(`Ping error: ${error}`);
+    //     return [false, false];
+    //   }
+    // }
     checkConnect() {
         return __awaiter(this, void 0, void 0, function* () {
+            const maxAttempts = 5; // Максимальное количество попыток пинга
+            const delayBetweenPings = 1000; // Задержка между попытками в миллисекундах
+            const pingHost = (host) => __awaiter(this, void 0, void 0, function* () {
+                const res = yield ping_1.default.promise.probe(host);
+                return res.alive;
+            });
             try {
-                const res0 = yield ping_1.default.promise.probe(this.baseHost);
-                const res1 = yield ping_1.default.promise.probe(this.subscriberHost);
-                return [res0.alive && (this.baseSession != null), res1.alive && (this.subscriberSession != null)];
+                let attempt = 0;
+                let res0 = false;
+                let res1 = false;
+                while (attempt < maxAttempts) {
+                    if (!res0) {
+                        res0 = yield pingHost(this.baseHost);
+                    }
+                    if (!res1) {
+                        res1 = yield pingHost(this.subscriberHost);
+                    }
+                    if (res0 && res1) {
+                        break;
+                    }
+                    attempt++;
+                    yield new Promise(resolve => setTimeout(resolve, delayBetweenPings));
+                }
+                return [res0 && (this.baseSession != null), res1 && (this.subscriberSession != null)];
             }
             catch (error) {
                 console.error(`Ping error: ${error}`);

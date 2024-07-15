@@ -92,12 +92,28 @@ export async function validator(): Promise<boolean> {
     response.pingBert = result0;
     const result1 = await tcpClient.checkConnect();
     response.pingAtt = result1;
-    const result2 = await snmpClient.checkConnect();
-    const [pingStat0, pingStat1] = result2;
-    response.pingStat0 = pingStat0;
-    response.pingStat1 = pingStat1;
     const result3 = await comClient.checkConnect();
     response.pingM3M = result3;
+    const result2 = await snmpClient.checkConnect();
+    const [pingStat0, pingStat1] = result2;
+    
+    // let result2 = await snmpClient.checkConnect();
+    // let [pingStat0, pingStat1] = result2;
+    // console.log(pingStat0, pingStat1);
+    // if (!pingStat0 || !pingStat1) {
+    //     const realStat = await snmpClient.connect();
+    //     console.log(realStat);
+    //     await delay(500);
+    //     result2 = await snmpClient.checkConnect();
+    //     [pingStat0, pingStat1] = result2;
+    // }
+
+    // console.log(pingStat0, pingStat1);
+
+    response.pingStat0 = pingStat0;
+    response.pingStat1 = pingStat1;
+
+
     broadcaster(JSON.stringify(response));
     return result0 && result1 && pingStat0 && pingStat1 && result3;    
 }

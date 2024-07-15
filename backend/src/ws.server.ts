@@ -34,7 +34,7 @@ export function setupWebSocketServer(server: any) {
 
         const parsedMessage = JSON.parse(message);
         const { type, deviceId, command, value, ber, att, stat, m3m, params} = parsedMessage;
-        console.log(parsedMessage);
+        // console.log(parsedMessage);
         // console.log(parsedMessage.type);
         // console.log(parsedMessage.params);
         // console.log(parsedMessage.params[0].modulation);
@@ -100,7 +100,7 @@ export function setupWebSocketServer(server: any) {
                                               parseInt(test.time),
                                               parseInt(test.bandwidth),
                                               frequency,
-                                              modList));
+                                              modList.reverse()));
               } else if (test.type == 'fulltest') {
                 queue.addTest(new FullTest(command.Attenuator_PA1,
                                               command.Attenuator_PA2,
@@ -112,7 +112,7 @@ export function setupWebSocketServer(server: any) {
                                               parseInt(test.time),
                                               parseInt(test.bandwidth),
                                               frequency,
-                                              modList));
+                                              modList.reverse()));
               } else {
                 console.log('Cant find this test pattern');
               }
@@ -250,6 +250,7 @@ export function broadcaster(data: any) {
 
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
+      console.log(data);
       client.send(data);
     }
   });

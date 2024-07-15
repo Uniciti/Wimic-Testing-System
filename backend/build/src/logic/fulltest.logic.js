@@ -23,25 +23,11 @@ class FullTest {
         // private m3mPow: number = 0;
         this.offset = 0;
         this.baseAtt = 0;
-        this.pa1 = 0;
-        this.pa2 = 0;
-        this.splitterAtt = 0;
-        this.splitterM3M = 0;
-        this.pa1ToSplit = 0;
-        this.splitToAtt = 0;
-        this.attToPa2 = 0;
         this.duration = 0;
         this.bandwidth = 10;
         this.frequency = 5600000;
         this.speed = consts_logic_1.speed10;
         this.sens = consts_logic_1.sens10;
-        this.pa1 = pa1;
-        this.pa2 = pa2;
-        this.splitterAtt = splitterAtt;
-        this.splitterM3M = splitterM3M;
-        this.pa1ToSplit = pa1ToSplit;
-        this.splitToAtt = splitToAtt;
-        this.attToPa2 = attToPa2;
         this.duration = duration * 1000;
         this.bandwidth = bandwidth;
         this.frequency = frequency;
@@ -91,6 +77,7 @@ class FullTest {
                 yield (0, main_logic_1.delay)(5000);
             }
             let firstTime = true;
+            console.log("pullman time");
             return new Promise((resolve, reject) => {
                 let pingStat0;
                 let pingStat1;
@@ -128,7 +115,7 @@ class FullTest {
     }
     test() {
         return __awaiter(this, void 0, void 0, function* () {
-            const valid = yield (0, main_logic_1.validator)();
+            let valid = yield (0, main_logic_1.validator)();
             // console.log(valid);
             if (!valid) {
                 return;
@@ -141,7 +128,7 @@ class FullTest {
                 const dataArray = [];
                 // for(let i = 6; i >= 0; i--) {
                 for (const i of this.modList) {
-                    const valid = yield (0, main_logic_1.validator)();
+                    valid = yield (0, main_logic_1.validator)();
                     if (!valid) {
                         break;
                     }
@@ -163,7 +150,7 @@ class FullTest {
                     let pinV = "";
                     if (i != 0) {
                         while (x != i.toString()) {
-                            const valid = yield (0, main_logic_1.validator)();
+                            valid = yield (0, main_logic_1.validator)();
                             if (!valid) {
                                 break;
                             }
@@ -183,7 +170,7 @@ class FullTest {
                             }
                         }
                         while (x == i.toString()) {
-                            const valid = yield (0, main_logic_1.validator)();
+                            valid = yield (0, main_logic_1.validator)();
                             if (!valid) {
                                 break;
                             }
@@ -215,7 +202,7 @@ class FullTest {
                             yield bert_service_1.sshClient.sendCommand('bert start');
                             yield (0, main_logic_1.delay)(1000);
                             let intervalChecker;
-                            let valid = true;
+                            // let valid: boolean = true;
                             const startTest = () => __awaiter(this, void 0, void 0, function* () {
                                 intervalChecker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
                                     valid = yield (0, main_logic_1.validator)();
@@ -251,11 +238,14 @@ class FullTest {
                             errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
                             console.log(errorRate);
                             console.log(0.1 < errorRate);
+                            if (!valid) {
+                                break;
+                            }
                         } while (0.1 < errorRate);
                     }
                     else {
                         while (x != i.toString()) {
-                            const valid = yield (0, main_logic_1.validator)();
+                            valid = yield (0, main_logic_1.validator)();
                             if (!valid) {
                                 break;
                             }
@@ -310,6 +300,9 @@ class FullTest {
                             errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
                             console.log(errorRate);
                             console.log(0.1 > errorRate);
+                            if (!valid) {
+                                break;
+                            }
                         } while (0.1 > errorRate);
                         do {
                             yield att_service_1.tcpClient.sendCommand(attValue - 2);
@@ -368,6 +361,9 @@ class FullTest {
                             (0, main_logic_1.delay)(500);
                             lostBytes = txBytes - rxBytes;
                             errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
+                            if (!valid) {
+                                break;
+                            }
                         } while (0.1 < errorRate);
                     }
                     const snr = yield stantion_service_1.snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
@@ -377,6 +373,8 @@ class FullTest {
                     if (pinN < this.sens[i]) {
                         pinVerdict = "Чуствительность не соответствует";
                     }
+                    console.log(valid);
+                    console.log("^^^^");
                     dataArray.push({
                         "Модуляция": consts_logic_1.modName[i],
                         "Аттен, ДБ": attValue,

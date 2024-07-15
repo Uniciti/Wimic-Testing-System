@@ -6,20 +6,12 @@ import { comClient, COMClient } from '../services/m3m.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
 import { broadcaster } from '../ws.server';
 import 'dotenv/config';
-import { resolve } from 'path';
 
 export class FullTest {
 	// private m3mPow: number = 0;
 	private offset: number = 0;
 	private baseAtt: number = 0;
 
-	private pa1: number = 0;
-	private pa2: number = 0; 
-	private splitterAtt: number = 0;
-	private splitterM3M: number = 0;
-	private pa1ToSplit: number = 0;
-	private splitToAtt: number = 0;
-	private attToPa2: number = 0;
 	private duration: number = 0;
 
 	private bandwidth: number = 10;
@@ -42,14 +34,6 @@ export class FullTest {
 		frequency: number,
 		modList: number[]
 		) {
-
-		this.pa1 = pa1;
-		this.pa2 = pa2;
-		this.splitterAtt = splitterAtt;
-		this.splitterM3M = splitterM3M; 
-		this.pa1ToSplit = pa1ToSplit;
-		this.splitToAtt = splitToAtt;
-		this.attToPa2 = attToPa2;
 		this.duration = duration * 1000;
 		this.bandwidth = bandwidth;
 		this.frequency = frequency;
@@ -102,6 +86,7 @@ export class FullTest {
 		}
 
 		let firstTime: boolean = true;
+		console.log("pullman time");
 		return new Promise((resolve, reject) => {
 			let pingStat0: boolean;
 			let pingStat1: boolean;
@@ -141,7 +126,7 @@ export class FullTest {
 		
 	public async test(): Promise<void> {
 
-		const valid = await validator();
+		let valid = await validator();
 		// console.log(valid);
 		if (!valid) {
 			return;
@@ -156,7 +141,7 @@ export class FullTest {
 			// for(let i = 6; i >= 0; i--) {
 			for (const i of this.modList) {
 
-				const valid = await validator();
+				valid = await validator();
 				if (!valid) {
 					break;
 				}
@@ -186,7 +171,7 @@ export class FullTest {
 				if (i != 0){
 					while (x != i.toString()) {
 
-						const valid = await validator();
+						valid = await validator();
 						if (!valid) {
 							break;
 						}
@@ -209,7 +194,7 @@ export class FullTest {
 
 					while (x == i.toString()) {
 
-						const valid = await validator();
+						valid = await validator();
 						if (!valid) {
 							break;
 						}
@@ -252,7 +237,7 @@ export class FullTest {
 
 						let intervalChecker: NodeJS.Timeout;
 
-						let valid: boolean = true;
+						// let valid: boolean = true;
 
 						
 						const startTest = async () => {
@@ -299,7 +284,9 @@ export class FullTest {
 						errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
 						console.log(errorRate);
 						console.log(0.1 < errorRate);
-
+						if (!valid) {
+							break;
+						}
 
 					} while (0.1 < errorRate);
 
@@ -307,7 +294,7 @@ export class FullTest {
 
 					while (x != i.toString()) {
 
-						const valid = await validator();
+						valid = await validator();
 						if (!valid) {
 							break;
 						}
@@ -378,7 +365,9 @@ export class FullTest {
 						errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
 						console.log(errorRate);
 						console.log(0.1 > errorRate);
-
+						if (!valid) {
+							break;
+						}
 
 					} while (0.1 > errorRate);
 
@@ -456,7 +445,9 @@ export class FullTest {
 						delay(500);
 						lostBytes = txBytes - rxBytes
 						errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
-
+						if (!valid) {
+							break;
+						}
 
 					} while (0.1 < errorRate);
 				}
@@ -472,7 +463,8 @@ export class FullTest {
 				if (pinN < this.sens[i]) {
 					pinVerdict = "Чуствительность не соответствует"
 				}
-
+				console.log(valid);
+				console.log("^^^^");
 				dataArray.push({
 						"Модуляция": modName[i],
 						"Аттен, ДБ": attValue,

@@ -78,8 +78,9 @@ export class Queue {
         if (nextTest) {
 
             const result = await nextTest.setBandwidth();
+            await delay(1000);
             await nextTest.setFreq();
-            await delay(500);
+            await delay(1000);
 
             if (result) {
                 await nextTest.test();

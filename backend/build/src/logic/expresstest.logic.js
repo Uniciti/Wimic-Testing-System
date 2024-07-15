@@ -23,25 +23,11 @@ class ExpressTest {
         // private m3mPow: number = 0;
         this.offset = 0;
         this.baseAtt = 0;
-        this.pa1 = 0;
-        this.pa2 = 0;
-        this.splitterAtt = 0;
-        this.splitterM3M = 0;
-        this.pa1ToSplit = 0;
-        this.splitToAtt = 0;
-        this.attToPa2 = 0;
         this.duration = 0;
         this.bandwidth = 10;
         this.frequency = 5600000;
         this.speed = consts_logic_1.speed10;
         this.sens = consts_logic_1.sens10;
-        this.pa1 = pa1;
-        this.pa2 = pa2;
-        this.splitterAtt = splitterAtt;
-        this.splitterM3M = splitterM3M;
-        this.pa1ToSplit = pa1ToSplit;
-        this.splitToAtt = splitToAtt;
-        this.attToPa2 = attToPa2;
         this.duration = duration * 1000;
         this.bandwidth = bandwidth;
         this.frequency = frequency;
@@ -91,6 +77,7 @@ class ExpressTest {
                 yield (0, main_logic_1.delay)(5000);
             }
             let firstTime = true;
+            console.log("pullman time");
             return new Promise((resolve, reject) => {
                 let pingStat0;
                 let pingStat1;
@@ -128,7 +115,7 @@ class ExpressTest {
     }
     test() {
         return __awaiter(this, void 0, void 0, function* () {
-            const valid = yield (0, main_logic_1.validator)();
+            let valid = yield (0, main_logic_1.validator)();
             // console.log(valid);
             if (!valid) {
                 return;
@@ -141,7 +128,7 @@ class ExpressTest {
                 const dataArray = [];
                 // for(let i = 6; i >= 0; i--) {
                 for (const i of this.modList) {
-                    const valid = yield (0, main_logic_1.validator)();
+                    valid = yield (0, main_logic_1.validator)();
                     if (!valid) {
                         break;
                     }
@@ -178,7 +165,7 @@ class ExpressTest {
                         let txBytes = 0;
                         let rxBytes = 0;
                         let intervalChecker;
-                        let valid = true;
+                        // let valid: boolean = true;
                         const startTest = () => __awaiter(this, void 0, void 0, function* () {
                             intervalChecker = setInterval(() => __awaiter(this, void 0, void 0, function* () {
                                 valid = yield (0, main_logic_1.validator)();
@@ -218,6 +205,8 @@ class ExpressTest {
                         if (0.1 < errorRate) {
                             verdict = "Не пройдено";
                         }
+                        console.log(valid);
+                        console.log("^^^^");
                         dataArray[dataArray.length - 1] = {
                             "Модуляция": consts_logic_1.modName[i],
                             "Аттен, ДБ": attValue,
