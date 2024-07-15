@@ -60,8 +60,8 @@ export class SNMPClient {
   // }
 
   public async checkConnect(): Promise<[boolean, boolean]> {
-    const maxAttempts = 5;  // Максимальное количество попыток пинга
-    const delayBetweenPings = 1000;  // Задержка между попытками в миллисекундах
+    const maxAttempts = 5;
+    const delayBetweenPings = 1000;
 
     const pingHost = async (host: string): Promise<boolean> => {
         const res = await ping.promise.probe(host);
