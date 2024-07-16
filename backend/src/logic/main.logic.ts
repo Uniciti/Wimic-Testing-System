@@ -9,7 +9,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 
-export let pathToFile: string = path.join(os.homedir(), '/');;
+// export let pathToFile: string = path.join(os.homedir(), '/');
+export let pathToFile: string = '/app/data';
 export let fileName: string = "test.xlsx";
 
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));

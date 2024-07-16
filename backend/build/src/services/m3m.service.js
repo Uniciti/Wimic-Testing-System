@@ -26,9 +26,13 @@ class COMClient {
     }
     findPort() {
         return __awaiter(this, void 0, void 0, function* () {
-            const ports = yield serialport_1.SerialPort.list();
-            const portInfo = ports.find(port => port.path.includes('ttyUSB'));
-            return portInfo ? portInfo.path : null;
+            // Данный метод не работает внутри докера
+            // const ports = await SerialPort.list();
+            // console.log(ports);
+            // const portInfo = ports.find(port=> port.path.includes('ttyUSB'));
+            // console.log(portInfo);
+            // return portInfo ? portInfo.path : null;
+            return '/dev/ttyUSB0';
         });
     }
     setupListeners() {
@@ -106,7 +110,7 @@ class COMClient {
             }
             (_a = this.port) === null || _a === void 0 ? void 0 : _a.close((err) => {
                 if (err) {
-                    return reject(err);
+                    reject(err);
                 }
                 this.isConnected = false;
                 this.port = null;

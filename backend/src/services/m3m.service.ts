@@ -17,9 +17,13 @@ export class COMClient {
   constructor() {}
 
   private async findPort(): Promise<string | null> {
-    const ports = await SerialPort.list();
-    const portInfo = ports.find(port=> port.path.includes('ttyUSB'));
-    return portInfo ? portInfo.path : null;
+    // Данный метод не работает внутри докера
+    // const ports = await SerialPort.list();
+    // console.log(ports);
+    // const portInfo = ports.find(port=> port.path.includes('ttyUSB'));
+    // console.log(portInfo);
+    // return portInfo ? portInfo.path : null;
+    return '/dev/ttyUSB0';
   }
 
   private setupListeners(): void {
@@ -109,7 +113,7 @@ export class COMClient {
 
       this.port?.close((err) => {
         if (err) {
-          return reject(err);
+          reject(err);
         }
 
         this.isConnected = false;
