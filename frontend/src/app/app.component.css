@@ -1,8 +1,68 @@
 .content {
   margin-left: 13%;
-  margin-right: 28%;
+  margin-right: 33%;
+ 
   margin-top: 62px;
   height: calc(100vh - 62px);
-  overflow-y: auto;
 }
+
+::ng-deep .SHOW_TABLE {
+  font-size: 0.9rem !important;
+  padding: 0.3rem 0.6rem !important;
+}
+
+.blurredbox {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100%;
+  display: block;
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s;
+}
+
+.blurredbox.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.table_with_status {
+  backdrop-filter: none;
+  transition: opacity 0.3s, transform 0.3s;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-100%);
+}
+
+.sidebar_with_blur {
+  backdrop-filter: none;
+  transition: opacity 0.3s, transform 0.3s;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-100%);
+}
+
+.visible {
+  transition: opacity 0.3s, transform 0.3s;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+@media screen and (max-width: 1102px)  {
+  .content {
+    margin-right: 0;
+  }
+}
+
+@media screen and (max-width: 963px)  {
+  .content {
+    margin-left: 5%;
+  }
+}
+
+
 

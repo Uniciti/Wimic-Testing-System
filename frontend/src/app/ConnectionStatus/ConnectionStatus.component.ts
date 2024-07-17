@@ -1,13 +1,23 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { SharedWebSocketService } from '../SharedWebSocket.service';
-import { SharedService } from './ConnectionStatus.service';
-import { NgClass } from "@angular/common";
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { NgClass, NgFor } from "@angular/common";
 import { Subscription } from 'rxjs';
+
+import { TableModule } from 'primeng/table';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+
+import { ConnectionStatusService } from '../core/services/ConnectionStatus.service';
 
 @Component({
   selector: 'app-ConnectionStatus',
-  standalone: true,
-  imports: [NgClass],
+  standalone: true, 
+  imports: [
+    NgClass,
+    NgFor,
+    TableModule,
+    CardModule,
+    ButtonModule
+  ],
   templateUrl: './ConnectionStatus.component.html',
   styleUrls: ['./ConnectionStatus.component.css']
 })
@@ -18,73 +28,84 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
   StationStatus: string = '';
   M3MStatus: string = '';
 
-  _IP_Abonent: string = '';
-  _IP_Base: string = '';
+  _IP_Abonent: string | null = '';
+  _IP_Base: string | null = '';
   _Frequency: string | null = null;  
-  _Bandwidth: string = '';
-  _Attenuation: string = '';
-  _Offset: string | null = null;
+  // _Bandwidth: string = '';
+  // _Attenuation: string = '';
+  // _Offset: string | null = null;
+
+  //tableOpacity = false;
+
+  devices = [
+    { device: 'Беркут-ЕТ', status: 'Отключено' },
+    { device: 'Аттенюатор', status: 'Отключено' },
+    { device: 'Станции', status: 'Отключено' },
+    { device: 'M3M', status: 'Отключено' }
+  ];
+
+  parameters = [
+    { parameter: 'IP адрес базы', value: '' },
+    { parameter: 'IP адрес абонента', value: '' },
+    { parameter: 'Частота, МГц', value: '' }
+  ];
   
   private subscription: Subscription = new Subscription();
 
-  //public messages: any[] = [];
-  //public isConnected: boolean = false;
-
-  constructor(private sharedWebSocketService: SharedWebSocketService, private sharedService: SharedService) { }
+  constructor(
+    private connectionStatusService: ConnectionStatusService,
+    private cdr: ChangeDetectorRef
+   ) { }
 
   ngOnInit() {
-    this.sharedWebSocketService.connect();
+    this.subscription.add(this.connectionStatusService.currentIP_BaseStatus.subscribe(_IP_Base => {
+      this.parameters[0].value = _IP_Base!;
+      this.cdr.detectChanges();
+    }));
 
-    // this.subscription.add(this.sharedWebSocketService.getMessages().subscribe(message => {
-    //   //this.updateStatus(message);
+    this.subscription.add(this.connectionStatusService.currentIP_AbonentStatus.subscribe(_IP_Abonent => {
+      this.parameters[1].value = _IP_Abonent!;
+      this.cdr.detectChanges();
+    }));
+
+    this.subscription.add(this.connectionStatusService.currentFrequencyStatus.subscribe(_Frequency => {
+      this.parameters[2].value = _Frequency!;
+      this.cdr.detectChanges();
+    }));
+
+    // this.subscription.add(this.connectionStatusService.currentBandwidthStatus.subscribe(_Bandwidth => {
+    //   this._Bandwidth = _Bandwidth!;
+    //   this.cdr.detectChanges();
     // }));
 
-    //  this.subscription_interval_attenuator = interval(5000).subscribe(() => {
-    //   const message = {
-    //     "type": "is-connected",
-    //     "deviceId": "attenuator"
-    //   };
-    //   this.sharedWebSocketService.sendMessage(message);
-    // });
+    // this.subscription.add(this.connectionStatusService.currentAttenuationStatus.subscribe(_Attenuation => {
+    //   this._Attenuation = _Attenuation!;
+    //   this.cdr.detectChanges();
+    // }));
 
-    this.subscription.add(this.sharedService.currentIP_BaseStatus.subscribe(_IP_Base => {
-      this._IP_Base = _IP_Base;
+    // this.subscription.add(this.connectionStatusService.currentOffsetStatus.subscribe(_Offset => {
+    //   this._Offset = _Offset!;
+    //   this.cdr.detectChanges();
+    // }));
+
+    this.subscription.add(this.connectionStatusService.currentBercutStatus.subscribe(_bercutStatus => {
+      this.devices[0].status = _bercutStatus ? "Подключено" : "Отключено";
+      this.cdr.detectChanges();
     }));
 
-    this.subscription.add(this.sharedService.currentIP_AbonentStatus.subscribe(_IP_Abonent => {
-      this._IP_Abonent = _IP_Abonent;
+    this.subscription.add(this.connectionStatusService.currentAttenuatorStatus.subscribe(_attStatus => {
+      this.devices[1].status = _attStatus ? "Подключено" : "Отключено"
+      this.cdr.detectChanges();
     }));
 
-    this.subscription.add(this.sharedService.currentFrequencyStatus.subscribe(_Frequency => {
-      this._Frequency = _Frequency;
+    this.subscription.add(this.connectionStatusService.currentStationStatus.subscribe(_StationStatus => {
+      this.devices[2].status = _StationStatus ? "Подключено" : "Отключено"
+      this.cdr.detectChanges();
     }));
 
-    this.subscription.add(this.sharedService.currentBandwidthStatus.subscribe(_Bandwidth => {
-      this._Bandwidth = _Bandwidth;
-    }));
-
-    this.subscription.add(this.sharedService.currentAttenuationStatus.subscribe(_Attenuation => {
-      this._Attenuation = _Attenuation;
-    }));
-
-    this.subscription.add(this.sharedService.currentOffsetStatus.subscribe(_Offset => {
-      this._Offset = _Offset;
-    }));
-
-    this.subscription.add(this.sharedService.currentBercutStatus.subscribe(_bercutStatus => {
-      this.bercutStatus = _bercutStatus ? "Подключено" : "Отключено";
-    }));
-
-    this.subscription.add(this.sharedService.currentAttenuatorStatus.subscribe(_attStatus => {
-      this.attStatus = _attStatus ? "Подключено" : "Отключено"
-    }));
-
-    this.subscription.add(this.sharedService.currentStationStatus.subscribe(_StationStatus => {
-      this.StationStatus = _StationStatus ? "Подключено" : "Отключено"
-    }));
-
-    this.subscription.add(this.sharedService.currentM3MStatus.subscribe(_M3MStatus => {
-      this.M3MStatus = _M3MStatus ? "Подключено" : "Отключено"
+    this.subscription.add(this.connectionStatusService.currentM3MStatus.subscribe(_M3MStatus => {
+      this.devices[3].status = _M3MStatus ? "Подключено" : "Отключено"
+      this.cdr.detectChanges();
     }));
   }
 
@@ -92,25 +113,7 @@ export class ConnectionStatusComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
-    this.sharedWebSocketService.disconnect();
   }
-
-  // private updateStatus(message: any): void {
-  //    if (message.deviceId === "bercut" && message.type === "is-connected") {
-  //      this.bercutStatus = message.isConnected == true ? 'Подключено' : 'Отключено';
-  //    } else if (message.deviceId === "attenuator" && message.type === "is-connected") {
-  //      this.attStatus = message.isConnected == true ? 'Подключено' : 'Отключено';
-  //    } else if (message.deviceId === "M3M" && message.type === "is-connected") {
-  //      this.M3MStatus = message.isConnected == true ? 'Подключено' : 'Отключено';
-  //    }
-  //     if (message.deviceId === "bercut" && (message.type === "disconnect" || message.type === "connect")) {
-  //      this.bercutStatus = message.type === "connect" ? 'Подключено' : 'Отключено';
-  //    } else if (message.deviceId === "attenuator" && (message.type === "disconnect" || message.type === "connect")) {
-  //      this.attStatus = message.type === "connect" ? 'Подключено' : 'Отключено';
-  //    } else if (message.deviceId === "M3M" && (message.type === "disconnect" || message.type === "connect")) {
-  //      this.M3MStatus = message.type === "connect" ? 'Подключено' : 'Отключено';
-  //    }
-  // }
 }
 
 

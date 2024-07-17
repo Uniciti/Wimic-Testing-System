@@ -1,30 +1,26 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { NgClass } from "@angular/common";
 import { FormsModule } from '@angular/forms';
-//import { HttpClient } from '@angular/common/http';
 import { NgIf } from "@angular/common";
-import { Subscription, timer, interval } from 'rxjs';
+import { Subscription, timer } from 'rxjs';
+
 import { ButtonModule } from 'primeng/button';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
-import { SharedWebSocketService } from '../SharedWebSocket.service';
-import { SharedService } from '../ConnectionStatus/ConnectionStatus.service';
-// import { NotificationService } from '../Notifications/Notification.service';
-import { NotificationService } from '../Notification.service';
 import { ToastModule } from 'primeng/toast';
 
-interface Message {
-  type: string;
-  ber: boolean;
-  att: boolean;
-  stat: boolean;
-  M3M: boolean;
-}
+import { SharedWebSocketService } from '../core/services/SharedWebSocket.service';
+import { ConnectionStatusService } from '../core/services/ConnectionStatus.service';
+import { NotificationService } from '../core/services/Notification.service';
+//import { TabStateService } from '../app.component.service';
+
 
 @Component({
   selector: 'app-deviceStatus',
   standalone: true,
   imports: [
+    NgClass,
     FormsModule,
     NgIf,
     ButtonModule,
@@ -35,526 +31,139 @@ interface Message {
   ],
   templateUrl: './deviceStatus.component.html',
   styleUrls: ['./deviceStatus.component.css'],
+  styles: [`.tab_content{height: 70.5rem; overflow-y: scroll;}`],
   providers: [ NotificationService ]
 })
 
-export class deviceStatusComponent implements OnInit, OnDestroy {
-  bercutConnected: boolean = false;
-  attConnected: boolean = false;
-  statConnected: boolean = false;
-  M3MConnected: boolean = false;
-
-  stationOptions: any[] = [{ label: '10 МГц', value: '3' },{ label: '20 МГц', value: '5' }];
+export class DeviceStatusComponent implements OnInit, OnDestroy {
+  //deviceConnected: boolean =  false;
+  deviceStatusData: any = {};
 
   inputIP_BASE: string = '';
   inputIP_ABONENT: string = '';
-  inputFrequency: string | null = null;
-  selectionBandwidth: string = '';
-  inputAttenuation: string = '';
-  inputCommandBer: string = '';
-  inputOffset: string | null = null;
+  inputFrequency: string = '5600';
+  inputOffset: string = '';
 
-  loadingAtt: boolean = false;
-  loadingBer: boolean = false;
-  loadingStat: boolean = false;
-  loadingStatIp: boolean = false;
-  loadingStatParams: boolean = false;
-  loadingM3M: boolean = false;
-  loadingM3Msend: boolean = false;
+  loadingButtons: {[key: string] : boolean} = {
+    "Att": false,
+    "Ber": false,
+    "TC602": false,
+    "Stat": false,
+    "M3M": false,
+    "StatIP": false,
+    "StatOID": false,
+    "M3Moffset": false
+  }
+
+  connectionsButtons: {[key: string] : boolean} = {
+    "Att": false,
+    "Ber": false,
+    "TC602": false,
+    "Stat": false,
+    "M3M": false
+  }
 
   private subscription: Subscription = new Subscription();
   
   constructor(
-    //private http: HttpClient,
     private sharedWebSocketService: SharedWebSocketService, 
-    private sharedService: SharedService,
+    private connectionStatusService: ConnectionStatusService,
     private notificationService: NotificationService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    //private tabStateService: TabStateService
   ) {}
-
+ 
   ngOnInit() {
-  //    this.subscription.add(this.sharedWebSocketService.getMessages().subscribe(message => {
-  //     if (message.deviceId === "attenuator" && message.type === "is-connected" && message.isConnected == true) {
-  //       this.attConnected = true;
-  //     }
-  //     else if (message.deviceId === "attenuator" && message.type === "is-connected" && message.isConnected == false) {
-  //       this.notificationService.showError('Аттенюатор отключился ');
-  //      // this.subscription.unsubscribe();
-  //       this.attConnected = false;
-  //     }
-  //     else if (message.deviceId === "bercut" && message.type === "is-connected" &&  message.isConnected == true) {
-  //       this.bercutConnected = true;
-  //     }
-  //     else if (message.deviceId === "bercut" && message.type === "is-connected" &&  message.isConnected == false) {
-  //       this.notificationService.showError('Беркут-ЕТ отключился ');
-  //       //this.sharedService.stopSendingMessagesAtt();
-  //       //this.subscription.unsubscribe();
-  //       this.bercutConnected = false;
-  //     }
-  //     this.cdr.detectChanges();
-  // }));
-    // this.subscription = this.sharedService.ber$.subscribe(ber => {
-    //   ber = this.bercutConnected;
-    // });
-    // this.subscription = this.sharedService.att$.subscribe(att => {
-      
-    // });
-    this.startSendingMessages();
+    this.subscription.add(this.connectionStatusService.currentBercutStatus.subscribe(_bercutStatus => {
+      this.connectionsButtons['Ber'] = _bercutStatus ? true : false;
+    }));
+
+    this.subscription.add(this.connectionStatusService.currentAttenuatorStatus.subscribe(_attStatus => {
+      this.connectionsButtons['Att'] = _attStatus ? true : false;
+    }));
+
+    this.subscription.add(this.connectionStatusService.currentStationStatus.subscribe(_StationStatus => {
+      this.connectionsButtons['Stat'] = _StationStatus ? true : false;
+    }));
+
+    this.subscription.add(this.connectionStatusService.currentM3MStatus.subscribe(_M3MStatus => {
+      this.connectionsButtons['M3M'] = _M3MStatus ? true : false;
+    }));
   };
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    //this.tabStateService.setState('deviceStatus', this.deviceStatusData);
   }
 
-  startSendingMessages() {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-    this.subscription = interval(5000).subscribe(() => {
-      const message: Message = {
-        "type": "is-connected",
-        "ber": this.bercutConnected,
-        "att": this.attConnected,
-        "stat": this.statConnected,
-        "M3M": this.M3MConnected  
-      };
-      this.sharedWebSocketService.sendMessage(message);
-    });
-
-    this.sharedWebSocketService.getMessages().subscribe(message_ => {
-      if (message_.type === "is-connected") {
-        if (message_.pingBert == false && this.bercutConnected == true) {
-          this.loadingBer = false;
-          this.bercutConnected = false;
-          this.sharedService.updateStatus("ber", this.bercutConnected);
-        }
-        if (message_.pingAtt == false && this.attConnected == true) {
-          this.loadingAtt = false;
-          this.attConnected = false;
-          this.sharedService.updateStatus("att", this.attConnected);
-        }
-        if ((message_.isStat0 == false || message_.isStat1 == false) && this.statConnected == true) {
-          this.loadingStat = false;
-          this.statConnected = false;
-          this.sharedService.updateStatus("stat", this.statConnected);
-        }
-        //this.sharedService.updateStatus(message_);
-        this.cdr.detectChanges();
-      }
-    })
-  };
-
-  load(property: 'loadingAtt' | 'loadingBer' | 'loadingStat' | 'loadingM3M'
-    | 'loadingStatIp' | 'loadingStatParams' | 'loadingM3Msend'): void {
-    this[property] = true;
-
-    setTimeout(() => {
-      this[property] = false;
-    }, 4000);
+  buttonControlDevice(device: string, _status: boolean, sub: Subscription) {
+    this.loadingButtons[device] = false;
+    this.connectionsButtons[device] = _status;
+    //this.deviceConnected = _connected;
+    this.cdr.detectChanges();
+    sub.unsubscribe();
   }
 
-  connectBer() {
-    this.loadingBer = true;
-    const message = { "type": "connect", "deviceId": "bercut" };
+  connectToDevice(device: string) {
+    this.loadingButtons[device] = true;
+    const message = { "type": "connect", "deviceId": device };
     this.sharedWebSocketService.sendMessage(message);
 
     const timeout = timer(5000).subscribe(() => {
-      this.loadingBer = false;
+      this.loadingButtons[device] = false;
       timeout.unsubscribe();
     });
 
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
-        if (message.type === "connect" && message.deviceId === "bercut" && message.conStatus == true) {
-          this.loadingBer = false;
-          this.bercutConnected = true;
-          //this.sharedService.startSendingMessagesBer(); // Начинаем опрос устройства
-          //this.sharedService.setBer(true);
-          this.sharedService.updateStatus("ber", this.bercutConnected);
-          this.cdr.detectChanges();
-          subscription.unsubscribe();
+        if (message.type === "connect" && message.deviceId === device && message.conStatus == true) {
+          console.log(message);
+          this.connectionStatusService.updateStatus(device, true);
+          this.buttonControlDevice(device,true, subscription);
           timeout.unsubscribe();
         } else {
-          this.notificationService.showError('Ошибка подключения к Беркут-ЕТ');
-          this.loadingBer = false;
-          this.bercutConnected = false;
-          this.cdr.detectChanges();
+          this.notificationService.showError('Ошибка подключения к устройству');
+          this.buttonControlDevice(device,false, subscription);
+          timeout.unsubscribe();
         }
       },
       error: (error) => {
-        this.loadingBer = false;
-        this.notificationService.showError('Ошибка подключения к Беркут-ЕТ');
-        this.cdr.detectChanges();
-        subscription.unsubscribe();
+        this.notificationService.showError('Ошибка подключения к устройству');
+        this.buttonControlDevice(device,false, subscription);
         timeout.unsubscribe();
       }
     });
     this.subscription.add(subscription);
   }
 
-  disconnectBer() {
-    this.loadingBer = true;
-    const message = { "type": "disconnect", "deviceId": "bercut" };
+  disconnectToDevice(device: string) {
+    this.loadingButtons[device] = true;
+    const message = { "type": "disconnect", "deviceId": device }
     this.sharedWebSocketService.sendMessage(message);
 
     const timeout = timer(5000).subscribe(() => {
-      this.loadingBer = false;
+      this.loadingButtons[device] = false;
       timeout.unsubscribe();
     });
 
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
-      if (message.type === "disconnect" && message.deviceId === "bercut") {
-        this.loadingBer = false;
-        this.bercutConnected = false;
-        this.sharedService.updateStatus("ber", this.bercutConnected);
-        this.cdr.detectChanges();
-        //this.sharedService.stopSendingMessagesAtt(); // Останавливаем опрос устройства
-        //this.sharedService.setBer(false);
-        subscription.unsubscribe();
+      if (message.type === "disconnect" && message.deviceId === device) {
+        this.connectionStatusService.updateStatus(device, false);
+        this.buttonControlDevice(device,false, subscription);
         timeout.unsubscribe();
       }
       else {
-        this.notificationService.showError('Ошибка отключения от Беркут-ЕТ');
-        this.loadingBer = false;
-        this.bercutConnected = true;
-        this.cdr.detectChanges();
+        this.notificationService.showError('Ошибка отключения от устройства');
+        this.buttonControlDevice(device,true, subscription);
+        timeout.unsubscribe();
       }
     }, error: (error) => {
-      this.loadingBer = false;
-      this.notificationService.showError('Ошибка отключения от Беркут-ЕТ');
-      this.cdr.detectChanges();
-      subscription.unsubscribe();
+      this.notificationService.showError('Ошибка отключения от устройства');
+      this.buttonControlDevice(device,true , subscription);
       timeout.unsubscribe();
     }
     });
     this.subscription.add(subscription); // Добавляем подписку в общий объект подписок
-  }
-
-  connectAtt() {
-    this.loadingAtt = true;
-    const message = { "type": "connect", "deviceId": "attenuator" };
-    this.sharedWebSocketService.sendMessage(message);
-
-    const timeout = timer(5000).subscribe(() => {
-      this.loadingAtt = false;
-      timeout.unsubscribe();
-    });
-
-    let subscription = this.sharedWebSocketService.getMessages().subscribe({
-      next: (message) => {
-      if (message.type === "connect" && message.deviceId === "attenuator" && message.conStatus == true) {
-        this.loadingAtt = false;
-        this.attConnected = true;
-        this.sharedService.updateStatus("att", this.attConnected);
-        this.cdr.detectChanges();
-        //this.sharedService.setAtt(true);
-        subscription.unsubscribe();
-        timeout.unsubscribe();
-      } else {
-        this.notificationService.showError('Ошибка подключения к аттенюатору');
-        this.loadingAtt = false;
-        this.attConnected = false;
-        this.cdr.detectChanges();
-      }
-    }, error: (error) => {
-      this.loadingAtt = false;
-      this.notificationService.showError('Ошибка подключения к аттенюатору');
-      this.cdr.detectChanges();
-      subscription.unsubscribe();
-      timeout.unsubscribe();
-    }
-    });
-    this.subscription.add(subscription);
-  }
-
-  disconnectAtt() {
-    this.loadingAtt = true;
-    const message = { "type": "disconnect", "deviceId": "attenuator" };
-    this.sharedWebSocketService.sendMessage(message);
-
-    const timeout = timer(5000).subscribe(() => {
-      this.loadingAtt = false;
-      timeout.unsubscribe();
-    });
-
-    let subscription = this.sharedWebSocketService.getMessages().subscribe({
-      next: (message) => {
-      if (message.type === "disconnect" && message.deviceId === "attenuator") {
-        this.loadingAtt = false;
-        this.attConnected = false;
-        this.sharedService.updateStatus("att", this.attConnected);
-        this.cdr.detectChanges();
-        //this.sharedService.stopSendingMessagesAtt();
-        //this.sharedService.setAtt(false);
-        subscription.unsubscribe();
-        timeout.unsubscribe();
-      } else {
-        this.notificationService.showError('Ошибка отключения от аттенюатора');
-        this.loadingAtt = false;
-        this.attConnected = true;
-        this.cdr.detectChanges();
-      }
-    }, error: (error) => {
-      this.loadingAtt = false;
-      this.notificationService.showError('Ошибка отключения от аттенюатора');
-      this.cdr.detectChanges();
-      subscription.unsubscribe();
-      timeout.unsubscribe();
-    }
-    });
-    this.subscription.add(subscription);
-  }
-
-  
-  connectStat() {
-    this.loadingStat = true;
-    const message = { "type": "connect", "deviceId": "stat" };
-    this.sharedWebSocketService.sendMessage(message);
-
-    const timeout = timer(5000).subscribe(() => {
-      this.loadingStat = false;
-      timeout.unsubscribe();
-    });
-
-    let subscription = this.sharedWebSocketService.getMessages().subscribe({
-      next: (message) => {
-      if (message.type === "connect" && message.deviceId === "stat" && message.conStatus == true) {
-        this.loadingStat = false;
-        this.statConnected = true;
-        this.sharedService.updateStatus("stat", this.statConnected);
-        this.cdr.detectChanges();
-        subscription.unsubscribe();
-        timeout.unsubscribe();
-      } else {
-        this.notificationService.showError('Ошибка подключения к cтанциям');
-        this.loadingStat = false;
-        this.statConnected = false;
-        this.cdr.detectChanges();
-      }
-    }, error: (error) => {
-      this.loadingStat = false;
-      this.notificationService.showError('Ошибка подключения к cтанциям');
-      this.cdr.detectChanges();
-      subscription.unsubscribe();
-      timeout.unsubscribe();
-    }
-    });
-    this.subscription.add(subscription);
-  }
-
-  disconnectStat() {
-    this.loadingStat = true;
-    const message = { "type": "disconnect", "deviceId": "stat" };
-    this.sharedWebSocketService.sendMessage(message);
-
-    const timeout = timer(5000).subscribe(() => {
-      this.loadingStat = false;
-      timeout.unsubscribe();
-    });
-
-    let subscription = this.sharedWebSocketService.getMessages().subscribe({
-      next: (message) => {
-      if (message.type === "disconnect" && message.deviceId === "stat") {
-        this.loadingStat = false;
-        this.statConnected = false;
-        this.sharedService.updateStatus("stat", this.statConnected);
-        this.cdr.detectChanges();
-        subscription.unsubscribe();
-        timeout.unsubscribe();
-      } else {
-        this.notificationService.showError('Ошибка отключения от станций');
-        this.loadingStat = false;
-        this.statConnected = true;
-        this.cdr.detectChanges();
-      }
-    }, error: (error) => {
-      this.loadingStat = false;
-      this.notificationService.showError('Ошибка отключения от станций');
-      this.cdr.detectChanges();
-      subscription.unsubscribe();
-      timeout.unsubscribe();
-    }
-    });
-    this.subscription.add(subscription);
-  }
-
-  connectM3M() {
-    this.loadingM3M = true;
-    const message = { "type": "connect", "deviceId": "m3m" };
-    this.sharedWebSocketService.sendMessage(message);
-
-    const timeout = timer(5000).subscribe(() => {
-      this.loadingM3M = false;
-      timeout.unsubscribe();
-    });
-
-    let subscription = this.sharedWebSocketService.getMessages().subscribe({
-      next: (message) => {
-      if (message.type === "connect" && message.deviceId === "m3m" && message.conStatus == true) {
-        this.loadingM3M = false;
-        this.M3MConnected = true;
-        this.sharedService.updateStatus("m3m", this.M3MConnected);
-        this.cdr.detectChanges();
-        subscription.unsubscribe();
-        timeout.unsubscribe();
-      } else {
-        this.notificationService.showError('Ошибка подключения к M3M');
-        this.loadingM3M = false;
-        this.M3MConnected = false;
-        this.cdr.detectChanges();
-      }
-    }, error: (error) => {
-      this.loadingM3M = false;
-      this.notificationService.showError('Ошибка подключения к M3M');
-      this.cdr.detectChanges();
-      subscription.unsubscribe();
-      timeout.unsubscribe();
-    }
-    });
-    this.subscription.add(subscription);
-  }
-
-  disconnectM3M() {
-    this.loadingM3M = true;
-    const message = { "type": "disconnect", "deviceId": "m3m" };
-    this.sharedWebSocketService.sendMessage(message);
-
-    const timeout = timer(5000).subscribe(() => {
-      this.loadingM3M = false;
-      timeout.unsubscribe();
-    });
-
-    let subscription = this.sharedWebSocketService.getMessages().subscribe({
-      next: (message) => {
-      if (message.type === "disconnect" && message.deviceId === "m3m") {
-        this.loadingM3M = false;
-        this.M3MConnected = false;
-        this.sharedService.updateStatus("m3m", this.M3MConnected);
-        this.cdr.detectChanges();
-        //this.sharedService.stopSendingMessagesAtt();
-        //this.sharedService.setAtt(false);
-        subscription.unsubscribe();
-        timeout.unsubscribe();
-      } else {
-        this.notificationService.showError('Ошибка отключения от M3M');
-        this.loadingM3M = false;
-        this.M3MConnected = true;
-        this.cdr.detectChanges();
-      }
-    }, error: (error) => {
-      this.loadingM3M = false;
-      this.notificationService.showError('Ошибка отключения от M3M');
-      this.cdr.detectChanges();
-      subscription.unsubscribe();
-      timeout.unsubscribe();
-    }
-    });
-    this.subscription.add(subscription);
-  }
-
-  sendCommandAtt() {
-    const message = { "type": "send-command", "deviceId": "attenuator", "value": `${this.inputAttenuation}` };
-    console.log('message');
-    this.sharedService.changeAttenuationAttStatus(`${this.inputAttenuation}`);
-    this.sharedWebSocketService.sendMessage(message);
-    console.log('zalupa');
-  }
-
-
-  sendCommandBer() {
-    const message = { "type": "send-command", "deviceId": "bercut", "command": `${this.inputCommandBer}` };
-    console.log('message');
-    this.sharedService.changeAttenuationAttStatus("44");
-    this.sharedWebSocketService.sendMessage(message);
-    console.log('zalupa');
-    }
-
-  sendOID() {
-    this.loadingStatParams = true;
-    const InputedParams = {
-      frequency: this.inputFrequency,
-      width: this.selectionBandwidth
-    };
-
-    const message = {"type": "send-command", "deviceId": "stat", "command": InputedParams};
-    this.sharedWebSocketService.sendMessage(message);
-
-    const timeout = timer(5000).subscribe(() => {
-      this.loadingStatParams = false;
-      timeout.unsubscribe();
-    });
-
-    let subscription = this.sharedWebSocketService.getMessages().subscribe({
-      next: (message) => {
-      if (message.type === "sended" && message.deviceId === "stat") {
-        this.loadingStatParams = false;
-        this.sharedService.changeOidParamsStatus(InputedParams.frequency, InputedParams.width);
-        this.cdr.detectChanges();
-        subscription.unsubscribe();
-        timeout.unsubscribe();
-      } else {
-        this.notificationService.showError('Ошибка отправки параметров к станциям');
-        this.loadingStatParams = false;
-        this.cdr.detectChanges();
-      }
-    }, error: (error) => {
-      this.loadingStatParams = false;
-      this.notificationService.showError('Ошибка отправки параметров к станциям');
-      this.cdr.detectChanges();
-      subscription.unsubscribe();
-      timeout.unsubscribe();
-    }
-    });
-    this.subscription.add(subscription);
-  }
-
-  sendIP() {
-    const InputedParamsIP = {
-      baseIP: this.inputIP_BASE,
-      abonentIP: this.inputIP_ABONENT
-    };
-
-    const isBaseValid = this.validateIpAddress(this.inputIP_BASE);
-    const isAbonentValid = this.validateIpAddress(this.inputIP_ABONENT);
-
-    if (!isBaseValid || !isAbonentValid) {
-      this.notificationService.showError('Некорректный ввод IP адресов для станций ');
-      return;
-    }
-
-    this.loadingStatIp = true;
-
-    const message = {"type": "send-command", "deviceId": "stat", "command": InputedParamsIP};
-    this.sharedWebSocketService.sendMessage(message);
-
-    const timeout = timer(5000).subscribe(() => {
-      this.loadingStatIp = false;
-      timeout.unsubscribe();
-    });
-
-    let subscription = this.sharedWebSocketService.getMessages().subscribe({
-      next: (message) => {
-      if (message.type === "sended" && message.deviceId === "stat") {
-        this.loadingStatIp = false;
-        this.sharedService.changeIpParamsStatus(InputedParamsIP.baseIP, InputedParamsIP.abonentIP);
-        this.cdr.detectChanges();
-        subscription.unsubscribe();
-        timeout.unsubscribe();
-      } else {
-        this.notificationService.showError('Ошибка отправки параметров к станциям');
-        this.loadingStatIp = false;
-        this.cdr.detectChanges();
-      }
-    }, error: (error) => {
-      this.loadingStatIp = false;
-      this.notificationService.showError('Ошибка отправки параметров к станциям');
-      this.cdr.detectChanges();
-      subscription.unsubscribe();
-      timeout.unsubscribe();
-    }
-    });
-    this.subscription.add(subscription);
   }
 
   validateIpAddress(ip: string): boolean {
@@ -570,37 +179,82 @@ export class deviceStatusComponent implements OnInit, OnDestroy {
     console.log('Роли сменены: BASE ->', this.inputIP_BASE, ', ABONENT ->', this.inputIP_ABONENT);
   }
 
-  sendM3M() {
-    const InputedParamsM3M = {
-      offset: this.inputOffset
+  sendParams(device: string) {
+    this.loadingButtons[device] = true;
+    let InputedParams: {[key: string]: string} = { "" : ""};
+    let type: string = "";
+    switch(device) {
+      case "StatOID": 
+        InputedParams = {
+          "frequency": this.inputFrequency,
+        };
+        type = "changeFrequency";
+        break;
+      case "StatIP":
+        InputedParams = {
+          "baseIP": this.inputIP_BASE,
+          "abonentIP": this.inputIP_ABONENT
+        };
+        type = "changeIP";
+        if ((this.inputIP_ABONENT && this.inputIP_BASE) == '') {
+          this.loadingButtons[device] = false;
+          this.notificationService.showWarning('Введите IP адрес для станций ');
+          return;
+        } 
+    
+        const isBaseValid = this.validateIpAddress(this.inputIP_BASE);
+        const isAbonentValid = this.validateIpAddress(this.inputIP_ABONENT);
+    
+        if (!isBaseValid || !isAbonentValid) {
+          this.notificationService.showWarning('Некорректный ввод IP адресов для станций ');
+          this.loadingButtons[device] = false;
+          return;
+        }
+        break;
+      case "M3Moffset":
+        InputedParams = {
+          "offset": this.inputOffset
+        };
+        type = "changeOffset";
+        break;
     };
 
-    this.loadingM3Msend = true;
-
-    const message = {"type": "send-command", "deviceId": "m3m", "command": InputedParamsM3M};
+    const message = {"type": type, "command": InputedParams};
     this.sharedWebSocketService.sendMessage(message);
 
     const timeout = timer(5000).subscribe(() => {
-      this.loadingM3Msend = false;
+      this.loadingButtons[device] = false;
       timeout.unsubscribe();
     });
 
     let subscription = this.sharedWebSocketService.getMessages().subscribe({
       next: (message) => {
-      if (message.type === "sended" && message.deviceId === "m3m") {
-        this.loadingM3Msend = false;
-        this.sharedService.changeOffsetM3MStatus(InputedParamsM3M.offset);
+      if (message.status === "sended") {
+        this.loadingButtons[device] = false;
+        switch(device) {
+          case "StatOID":
+            this.connectionStatusService.changeOidParamsStatus(InputedParams["frequency"]);
+            break;
+          case "StatIP":
+            this.connectionStatusService.changeIpParamsStatus(InputedParams["baseIP"], InputedParams["abonentIP"]);
+            break;
+          case "M3Moffset":
+            this.connectionStatusService.changeOffsetM3MStatus(InputedParams["offset"]);
+            break;
+        }
         this.cdr.detectChanges();
         subscription.unsubscribe();
         timeout.unsubscribe();
       } else {
-        this.notificationService.showError('Ошибка отправки компенсации к M3M');
-        this.loadingM3Msend = false;
+        this.notificationService.showError('Ошибка установки параметров');
+        this.loadingButtons[device] = false;
         this.cdr.detectChanges();
+        subscription.unsubscribe();
+        timeout.unsubscribe();
       }
     }, error: (error) => {
-      this.loadingM3Msend = false;
-      this.notificationService.showError('Ошибка отправки компенсации к M3M');
+      this.notificationService.showError('Ошибка установки параметров');
+      this.loadingButtons[device] = false;
       this.cdr.detectChanges();
       subscription.unsubscribe();
       timeout.unsubscribe();

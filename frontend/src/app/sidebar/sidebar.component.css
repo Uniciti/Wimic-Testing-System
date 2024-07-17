@@ -1,12 +1,8 @@
-/*.sidebar {
-  position: fixed;
-  left: 0;
-  top: 62px;
-  bottom: 0;
+.sidebar_always {
+  backdrop-filter: none;
 }
-*/
 
- .sidebar {
+.sidebar {
   position: fixed;
   top: 62px;
   left: 0;
@@ -14,26 +10,34 @@
   width: 13%;
   background-color: #1a202c;
   color: #cbd5e0;
-    }
+}
+
+.sidebar .svg {
+  width: 24px; /* Фиксированная ширина для иконок */
+  height: 24px; /* Фиксированная высота для иконок */
+  flex-shrink: 0; /* Предотвращает сжатие иконок */
+}
+.sidebar .WIDTH {
+  width: 24px; /* Fixed width for icons */
+}
+
+.sidebar .HEIGHT {
+  height: 24px; /* Fixed height for icons */
+}
+
 .active-link {
   background-color: #4A5568;
-  color: #fff; 
-}
-/*
-.sidebar a {
   color: #fff;
-  text-decoration: none;
-  display: inline-block;
-  padding: 10px;
-  transition: background-color 0.3s ease;
 }
-.sidebar a:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+
+@media screen and (max-width: 963px)  {
+  .sidebar {
+    width: 25%;
+  }
 }
-.sidebar ul {
-  list-style-type: none;
-  padding: 0;
+
+@media screen and (max-width: 501px)  {
+  .sidebar {
+    width: 34%;
+  }
 }
-.sidebar li {
-  margin-bottom: 40px;
-}*/

@@ -1,14 +1,22 @@
-import { ApplicationConfig } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom } from '@angular/core';
 import { provideRouter, Routes } from '@angular/router';
-import { deviceStatusComponent } from './deviceStatus/deviceStatus.component';
-import { ExpressTest } from './ExpressTest/ExpressTest.component';
+import { BrowserModule } from '@angular/platform-browser';
+import { DeviceStatusComponent } from './deviceStatus/deviceStatus.component';
+import { mainTestsComponent } from './mainTests/mainTests.component';
+import { CustomRouteReuseStrategy } from './core/services/app.component.service';
+import { RouteReuseStrategy } from '@angular/router';
+import { SettingsComponent } from './settings/settings.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/deviceStatus', pathMatch: 'full' },
-  { path: 'deviceStatus', component: deviceStatusComponent },
-  { path: 'expressTest', component: ExpressTest }
+  { path: 'deviceStatus', component: DeviceStatusComponent },
+  { path: 'mainTests', component: mainTestsComponent },
+  { path: 'settings', component: SettingsComponent}
 ];
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes)]
+  providers: [
+    importProvidersFrom(BrowserModule),
+    provideRouter(routes),
+    { provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }]
 };

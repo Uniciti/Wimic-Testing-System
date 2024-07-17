@@ -1,19 +1,13 @@
-/*header {
-    background-color: White;
-    padding: 6px;
-}*/
 header {
     background-color: #fff;
-    padding: 6px;
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 999;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgb(0, 0, 0);
 }
 
 .logo img {
-    height: 50px;
+    height: 62px;
     vertical-align: middle;
 }

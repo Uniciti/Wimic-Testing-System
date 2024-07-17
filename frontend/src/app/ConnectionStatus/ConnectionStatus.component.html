@@ -1,11 +1,11 @@
-<div class="max-w-4xl mx-auto">
+<!-- <div class="table_with_status max-w-4xl mx-auto">
   <h2 class="text-2xl font-semibold mb-6">Информация об устройствах</h2>
   <div class="mb-8">
     <h3 class="text-xl font-semibold mb-4">Статус подключений устройств</h3>
     <table class="min-w-full bg-white border border-gray-200">
       <thead>
         <tr class="bg-gray-100 border-b">
-          <th class="text-left py-2 px-4 font-medium">Устройство</th>
+          <th class="text-left py-2 px-4 font-medium w-1/2">Устройство</th>
           <th class="text-left py-2 px-4 font-medium">Статус</th>
         </tr>
       </thead>
@@ -34,7 +34,7 @@
         <tr class="border-b">
           <td class="py-2 px-4 text-sm font-medium text-gray-700">M3M</td>
           <td class="py-2 px-4 text-sm font-medium text-gray-700" [ngClass]=
-          "{'text-red-500': StationStatus === 'Отключено', 'text-green-500': StationStatus === 'Подключено'}">
+          "{'text-red-500': M3MStatus === 'Отключено', 'text-green-500': M3MStatus === 'Подключено'}">
             {{ M3MStatus }}
           </td>
         </tr>
@@ -46,7 +46,7 @@
     <table class="min-w-full bg-white border border-gray-200">
       <thead>
         <tr class="bg-gray-100 border-b">
-          <th class="text-left py-2 px-4 font-medium">Параметр</th>
+          <th class="text-left py-2 px-4 font-medium w-1/2">Параметр</th>
           <th class="text-left py-2 px-4 font-medium">Значение</th>
         </tr>
       </thead>
@@ -62,24 +62,72 @@
         <tr class="border-b">
           <td class="py-2 px-4 text-sm font-medium text-gray-700">Частота, КГц:</td>
           <td class="py-2 px-4 text-sm font-medium text-gray-700">{{_Frequency}}</td>
-        </tr>
-        <tr class="border-b">
+        </tr>  -->
+        <!-- <tr class="border-b">
           <td class="py-2 px-4 text-sm font-medium text-gray-700">Ширина полосы, МГц:</td>
           <td class="py-2 px-4 text-sm font-medium text-gray-700">{{_Bandwidth}}</td>
-        </tr>
-        <tr class="border-b">
+        </tr> -->
+        <!-- <tr class="border-b">
           <td class="py-2 px-4 text-sm font-medium text-gray-700">Модуляция:</td>
           <td class="py-2 px-4 text-sm font-medium text-gray-700"></td>
-        </tr>
-        <tr class="border-b">
+        </tr> -->
+        <!-- <tr class="border-b">
           <td class="py-2 px-4 text-sm font-medium text-gray-700">Ослабление, дБ:</td>
           <td class="py-2 px-4 text-sm font-medium text-gray-700">{{_Attenuation}}</td>
-        </tr>
-        <tr class="border-b">
+        </tr> -->
+        <!-- <tr class="border-b">
           <td class="py-2 px-4 text-sm font-medium text-gray-700">Компенсация ослабления, дБ:</td>
           <td class="py-2 px-4 text-sm font-medium text-gray-700">{{_Offset}}</td>
-        </tr>
-      </tbody>
+        </tr> -->
+      <!-- </tbody>
     </table>
   </div>
+</div>
+-->
+ <div class="table_with_status_always mx-auto bg-white fixed top-16 right-0  p-6
+ overflow-auto">
+  <p-card>
+    <ng-template pTemplate="header">
+      <h2 class="p-2 text-2xl font-semibold mb-4">Информация об устройствах</h2>
+    </ng-template>
+    <ng-template pTemplate="content">
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold mb-4">Статус подключений устройств</h3>
+        <p-table [value]="devices" class="p-datatable-gridlines">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="text-left py-2 px-4 font-medium w-1/2">Устройство</th>
+              <th class="text-left py-2 px-4 font-medium">Статус</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-device>
+            <tr>
+              <td class="py-2 px-4 text-sm font-medium text-gray-700">{{ device.device }}</td>
+              <td class="py-2 px-4 text-sm font-medium text-gray-700"
+                  [ngClass]="{'text-red-500': device.status === 'Отключено', 'text-green-500': device.status === 'Подключено'}">
+                {{ device.status }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <div>
+        <h3 class="text-xl font-semibold mb-4">Параметры</h3>
+        <p-table [value]="parameters" class="p-datatable-gridlines">
+          <ng-template pTemplate="header">
+            <tr>
+              <th class="text-left py-2 px-4 font-medium w-1/2">Параметр</th>
+              <th class="text-left py-2 px-4 font-medium">Значение</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-parameter>
+            <tr>
+              <td class="py-2 px-4 text-sm font-medium text-gray-700">{{ parameter.parameter }}</td>
+              <td class="py-2 px-4 text-sm font-medium text-gray-700">{{ parameter.value }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </ng-template>
+  </p-card>
 </div>

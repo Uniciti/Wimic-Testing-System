@@ -1,0 +1,26 @@
+<div class="container CARDS p-6 max-w-lg bg-white shadow-md rounded-lg">
+<h2 class="text-xl font-semibold mb-4">Настройки</h2>
+  <div class="flex">
+    <div class="mt-2 mr-2 mb-2">
+      <p-button 
+      label="Скачать настройки"
+      type="button"
+      (click)="downloadJSONWithSettings()"
+      severity="warning"
+      position="center"
+      class="" />
+    </div>
+    <div class="mt-2 mb-2">
+      <p-fileUpload #fileUpload name="jsonFile"
+      mode="basic"
+      chooseIcon="pi pi-upload"
+      accept=".json"
+      [auto]="true"
+      styleClass="FILEUPLOAD"
+      chooseLabel="Загрузить файл"
+      customUpload="true"
+      (uploadHandler)="uploadJSONWithSettings($event)">
+      </p-fileUpload>
+    </div>
+  </div>
+</div>

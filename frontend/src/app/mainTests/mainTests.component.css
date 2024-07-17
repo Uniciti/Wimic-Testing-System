@@ -1,0 +1,73 @@
+.container {
+	margin: 20px;
+	padding: 20px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	background-color: #fff;
+	box-shadow: 0 2px 4px rgb(0, 0, 0);
+}
+
+.CARDS {
+	max-width: 512px;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-thead>tr>th {
+	padding: 4px;
+	font-weight: 500;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody>tr>td {
+	padding: 4px;
+}
+
+.center-buttons {
+    text-align: left;
+}
+
+.buttons-container {
+	margin: 0;
+    display: flex;
+    justify-content: left;
+    align-items: left;
+    gap: 10px; /* Расстояние между кнопками */
+}
+
+.modulation-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Расстояние между строками квадратиков */
+}
+
+.modulation-row {
+    display: flex;
+    gap: 5px; /* Расстояние между квадратиками */
+}
+
+.modulation-box {
+    width: 12px;
+    height: 12px;
+    border: 1px solid #000; /* Граница квадратиков */
+    background-color: white; /* Цвет по умолчанию */
+}
+
+.modulation-box.selected {
+    background-color: rgb(17, 134, 180); /* Цвет для выбранной модуляции */
+}
+
+@media screen and (max-width: 1102px) {
+	.CARDS {
+		width: 70%
+	}
+}
+
+@media screen and (max-width: 742px) {
+	.card_table {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+	
+	:host ::ng-deep .p-table {
+		min-width: 100%;
+		table-layout: auto;
+	}
+}

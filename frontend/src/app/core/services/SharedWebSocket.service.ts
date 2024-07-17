@@ -10,7 +10,7 @@ export class SharedWebSocketService {
   private socket$: WebSocketSubject<any>;
 
   constructor() {
-    this.socket$ = webSocket('ws://localhost:8080');
+    this.socket$ = webSocket('');
   }
 
   public connect(): void {
