@@ -11,15 +11,16 @@ import { DeviceStatusComponent } from './deviceStatus/deviceStatus.component';
 import { mainTestsComponent } from './mainTests/mainTests.component';
 import { ConnectionStatusComponent } from './ConnectionStatus/ConnectionStatus.component';
 import { QueueTestsFormComponent } from './queue-tests-form/queue-tests-form.component'
+import { SettingsComponent } from './settings/settings.component';
 
 import { MessageService } from 'primeng/api';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
 
-import { SharedWebSocketService } from './SharedWebSocket.service';
+import { SharedWebSocketService } from './core/services/SharedWebSocket.service';
 import { ConnectionStatusService } from './core/services/ConnectionStatus.service';
-import { NotificationService } from './Notification.service';
-import { CustomRouteReuseStrategy } from './app.component.service';
+import { NotificationService } from './core/services/Notification.service';
+import { CustomRouteReuseStrategy } from './core/services/app.component.service';
 
 @Component({
   selector: 'app-root',
@@ -35,6 +36,7 @@ import { CustomRouteReuseStrategy } from './app.component.service';
     ConnectionStatusComponent, 
     RouterOutlet, 
     QueueTestsFormComponent,
+    SettingsComponent,
     FileUploadModule,
     ToastModule,
     HttpClientModule

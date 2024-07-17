@@ -8,7 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { CheckboxModule } from 'primeng/checkbox';
 
-import { StorageService } from '../localStorage.service';
+import { StorageService } from '../core/services/localStorage.service';
 
 @Component({
   selector: 'app-queue-tests-form',
@@ -40,7 +40,7 @@ export class QueueTestsFormComponent implements OnInit, OnDestroy {
 
   selectedTestType: string = "expresstest"
   selectedBandwidth: string =  "10";
-  inputedFrequncy: number = 0;
+  inputedFrequncy: number = 5900;
   selectedModulation: any[] = [{ label: 'BPSK 1/2', value: 0}, { label: 'QPSK 1/2', value: 1},
     { label: 'QPSK 3/4', value: 2},{ label: 'QPSK16 1/2', value: 3},
     { label: 'QAM16 3/4', value: 4},{ label: 'QAM64 2/3', value: 5},
@@ -76,14 +76,14 @@ export class QueueTestsFormComponent implements OnInit, OnDestroy {
    }
 
   addTest() {
-    if (this.selectedModulation.length == 0) {
+    if (this.selectedModulation.length == 0 || (this.inputedFrequncy < 5900 || this.inputedFrequncy > 6300) || this.duration == '') {
       return;
     }
 
     const newTest = { type: this.selectedTestType,
       bandwidth: this.selectedBandwidth,
-      frequency: (this.inputedFrequncy == 0 ? "none" : this.inputedFrequncy),
-      modulation: this.selectedModulation,
+      frequency: this.inputedFrequncy,
+      modulation: (this.selectedModulation.length == 7 ? [{label: "Все"}] : this.selectedModulation),
       time: this.duration,
       totalTime: this.totalTime += ((+this.duration) * this.selectedModulation.length )
     };

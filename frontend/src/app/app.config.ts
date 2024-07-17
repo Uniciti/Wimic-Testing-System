@@ -3,13 +3,15 @@ import { provideRouter, Routes } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
 import { DeviceStatusComponent } from './deviceStatus/deviceStatus.component';
 import { mainTestsComponent } from './mainTests/mainTests.component';
-import { CustomRouteReuseStrategy } from './app.component.service';
+import { CustomRouteReuseStrategy } from './core/services/app.component.service';
 import { RouteReuseStrategy } from '@angular/router';
+import { SettingsComponent } from './settings/settings.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/deviceStatus', pathMatch: 'full' },
   { path: 'deviceStatus', component: DeviceStatusComponent },
-  { path: 'mainTests', component: mainTestsComponent }
+  { path: 'mainTests', component: mainTestsComponent },
+  { path: 'settings', component: SettingsComponent}
 ];
 
 export const appConfig: ApplicationConfig = {

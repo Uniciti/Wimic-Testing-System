@@ -16,3 +16,24 @@
 		width: 70%
 	}
 }
+
+:host ::ng-deep .p-datatable .p-datatable-thead>tr>th {
+	padding: 0.5rem;
+}
+
+/* .no-padding {
+    padding: 0 !important;
+} */
+
+.center-buttons {
+    text-align: center;
+}
+
+.buttons-container {
+	margin: 0 auto;
+	width: 38%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Расстояние между кнопками */
+}

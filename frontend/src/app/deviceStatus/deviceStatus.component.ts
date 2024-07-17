@@ -10,9 +10,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 
-import { SharedWebSocketService } from '../SharedWebSocket.service';
+import { SharedWebSocketService } from '../core/services/SharedWebSocket.service';
 import { ConnectionStatusService } from '../core/services/ConnectionStatus.service';
-import { NotificationService } from '../Notification.service';
+import { NotificationService } from '../core/services/Notification.service';
 //import { TabStateService } from '../app.component.service';
 
 

@@ -1,0 +1,18 @@
+.container {
+	margin: 20px;
+	padding: 20px;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+	background-color: #fff;
+	box-shadow: 0 2px 4px rgb(0, 0, 0);
+}
+
+.CARDS {
+	max-width: 512px;
+}
+
+@media screen and (max-width: 1102px) {
+	.CARDS {
+		width: 70%
+	}
+}
