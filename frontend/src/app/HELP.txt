@@ -1,0 +1,211 @@
+mainTestsComponent.ts: 
+ngOnInit() {
+    this.testService.tests$.subscribe(tests => {
+      this.massiveTests = tests;
+      console.log(tests);
+    });
+
+    this.settingsService.updateSettings(this.settingsData);
+}
+
+SettingsComponent.ts:
+export class SettingsComponent implements OnInit {
+
+  settingsData: any;
+  parsedData: any;
+
+  constructor(
+    private fileSaveService: FileSaveService,
+    private ngZone: NgZone,
+    private testService: QueueCommunicationService,
+    private settingsService: SettingsService
+  ) {}
+
+  ngOnInit(): void {
+    this.settingsService.settings$.subscribe(data => {
+      this.settingsData = data;
+    });
+  }
+
+  uploadJSONWithSettings(event: any) {
+    const file = event.files[0];
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.ngZone.run(() => {
+        try {
+          this.parsedData = JSON.parse(e.target.result);
+          // //this.massiveTests = this.parsedData.slice(0, -1);
+          // const currentTests = this.testService.testsSubject.value;
+          // currentTests.push(this.parsedData.slice(0, -1));
+          // this.testService.testsSubject.next(currentTests);
+          this.testService.loadTests(this.parsedData);
+
+          const settingsElement = this.parsedData.length - 1;
+          // this.pa1 = this.parsedData[settingsElement].Attenuator_PA1;
+          // this.pa2 = this.parsedData[settingsElement].Attenuator_PA2;
+          // this.splitterM3M = this.parsedData[settingsElement].splitter_to_M3M;
+          // this.splitterST = this.parsedData[settingsElement].splitter_straight;
+          // this.cable1 = this.parsedData[settingsElement].cable1;
+          // this.cable2 = this.parsedData[settingsElement].cable2;
+          // this.cable3 = this.parsedData[settingsElement].cable3;
+          this.settingsService.updateSettings(settingsElement);
+  
+          //this.localStorage.setItem('massiveTests', this.massiveTests);
+  
+          //this.cdr.detectChanges();
+        } catch (error) {
+          console.error('Ошибка при парсинге JSON:', error);
+        }
+      });
+    };
+    reader.readAsText(file);
+  }
+
+  downloadJSONWithSettings() {
+
+    const jsonDataSettings = this.testService.getTests().concat(this.settingsData);
+    const blob = new Blob([JSON.stringify(jsonDataSettings, null, 2)], {type: 'application/json' });
+    this.fileSaveService.saveFile(blob);
+   }
+
+}
+
+QueueCommunicationService.service.ts:
+import { Injectable } from '@angular/core';
+import { parse } from 'path';
+import { BehaviorSubject } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class QueueCommunicationService {
+  private testsSubject = new BehaviorSubject<any[]>([]);
+  tests$ = this.testsSubject.asObservable();
+
+  constructor() {
+    const savedTests = JSON.parse(localStorage.getItem('massiveTests') || '[]');
+    this.testsSubject.next(savedTests);
+  }
+
+  getTests() {
+    return this.testsSubject.value;
+  }
+
+  addTest(test: any) {
+    const currentTests = this.testsSubject.value;
+    currentTests.push(test);
+    this.testsSubject.next(currentTests);
+    localStorage.setItem('massiveTests', JSON.stringify(currentTests));
+  }
+
+  editTest(index: number, updatedTest: any) {
+    const currentTests = this.testsSubject.value;
+    currentTests[index] = updatedTest;
+    this.testsSubject.next(currentTests);
+    localStorage.setItem('massiveTests', JSON.stringify(currentTests));
+  }
+
+  removeTest(index: number) {
+    const currentTests = this.testsSubject.value;
+    currentTests.splice(index, 1);
+    this.testsSubject.next(currentTests);
+    localStorage.setItem('massiveTests', JSON.stringify(currentTests));
+  }
+
+  loadTests(parsedData: any) {
+    let currentTests = this.testsSubject.value;
+    currentTests.push(parsedData.slice(0, -1));
+    this.testsSubject.next(currentTests);
+  }
+}
+
+Settings.service.ts:
+import { Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
+
+@Injectable ({
+    providedIn: 'root'
+})
+
+export class SettingsService {
+  private settingsSubject = new BehaviorSubject<any>(null);
+  settings$ = this.settingsSubject.asObservable();
+
+  updateSettings(settings: any) {
+    this.settingsSubject.next(settings);
+  }
+
+  getSettings() {
+    return this.settingsSubject.value;
+  }
+    
+}
+
+MY_JSON:
+[
+  {
+    "type": "fulltest",
+    "bandwidth": 10,
+    "frequency": 5900,
+    "modulation": [
+      {
+        "label": "BPSK 1/2",
+        "value": 0
+      },
+      {
+        "label": "QPSK 1/2",
+        "value": 1
+      },
+      {
+        "label": "QPSK 3/4",
+        "value": 2
+      },
+      {
+        "label": "QPSK16 1/2",
+        "value": 3
+      },
+      {
+        "label": "QAM16 3/4",
+        "value": 4
+      },
+      {
+        "label": "QAM64 2/3",
+        "value": 5
+      },
+      {
+        "label": "QAM64 3/4",
+        "value": 6
+      }
+    ],
+    "time": "60"
+  },
+  {
+    "type": "expresstest",
+    "bandwidth": 10,
+    "frequency": 5900,
+    "modulation": [
+      {
+        "label": "QPSK16 1/2",
+        "value": 3
+      },
+      {
+        "label": "BPSK 1/2",
+        "value": 0
+      },
+      {
+        "label": "QAM16 3/4",
+        "value": 4
+      }
+    ],
+    "time": 1260
+  },
+  {
+    "Attenuator_PA1": 1423,
+    "Attenuator_PA2": 214,
+    "splitter_to_M3M": 124,
+    "splitter_straight": null,
+    "cable1": 124,
+    "cable2": 142,
+    "cable3": null
+  }
+]

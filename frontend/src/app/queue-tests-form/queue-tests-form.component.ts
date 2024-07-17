@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
 import {NgFor, CommonModule} from "@angular/common";
 import {FormsModule} from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
@@ -9,6 +9,9 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { CheckboxModule } from 'primeng/checkbox';
 
 import { StorageService } from '../core/services/localStorage.service';
+import { QueueCommunicationService } from "../core/services/QueueCommunication.service"
+
+import { TestData } from '../core/interfaces/test.models';
 
 @Component({
   selector: 'app-queue-tests-form',
@@ -37,70 +40,47 @@ export class QueueTestsFormComponent implements OnInit, OnDestroy {
     { label: 'QAM16 3/4', value: 4},{ label: 'QAM64 2/3', value: 5},
     { label: 'QAM64 3/4', value: 6}];
     
-
-  selectedTestType: string = "expresstest"
-  selectedBandwidth: string =  "10";
-  inputedFrequncy: number = 5900;
-  selectedModulation: any[] = [{ label: 'BPSK 1/2', value: 0}, { label: 'QPSK 1/2', value: 1},
-    { label: 'QPSK 3/4', value: 2},{ label: 'QPSK16 1/2', value: 3},
-    { label: 'QAM16 3/4', value: 4},{ label: 'QAM64 2/3', value: 5},
-    { label: 'QAM64 3/4', value: 6}];
-  duration: string = "60";
-  totalTime: number = 0;
-  massiveTests: any[] = [];
-  originalTests: any[] = [];
+  selectedTestType: string;
+  selectedBandwidth: number;
+  inputedFrequency: number;
+  selectedModulation: any[];
+  duration: number;
 
   constructor(
+    private localStorage: StorageService,
+    private testService: QueueCommunicationService,
     public dialogRef: MatDialogRef<QueueTestsFormComponent>,
-    private localStorage: StorageService
-  ) { }
+    @Inject(MAT_DIALOG_DATA) public data:any | null
+  ) { 
+    this.selectedTestType = data ? data.type : "expresstest";
+    this.selectedBandwidth = data ? data.bandwidth : 10;
+    this.inputedFrequency = data ? data.frequency : 5900;
+    this.selectedModulation = data ? (data.modulation.length === 1 && data.modulation[0].label === "Все"
+      ? this.modulationOptions
+      : data.modulation) : this.modulationOptions;
+    this.duration = data ? data.time : 60;
+  }
 
   ngOnInit(): void {
-    const savedTests = this.localStorage.getItem('massiveTests');
-    console.log('Saved Tests:', savedTests);
-  
-    // Если сохраненные тесты не являются массивом, преобразуем их в массив
-    if (savedTests) {
-      if (Array.isArray(savedTests)) {
-        this.massiveTests = savedTests;
-      } else {
-        this.massiveTests = [savedTests];
-      }
-    }
-
-    this.originalTests = [...this.massiveTests];
+    console.log("");
   }
 
   ngOnDestroy() {
-    this.localStorage.setItem('massiveTests', this.massiveTests);
-   }
+    console.log("");
+  }
 
-  addTest() {
-    if (this.selectedModulation.length == 0 || (this.inputedFrequncy < 5900 || this.inputedFrequncy > 6300) || this.duration == '') {
-      return;
-    }
-
-    const newTest = { type: this.selectedTestType,
+  save(): void {
+    const newTest: TestData = {
+      type: this.selectedTestType,
       bandwidth: this.selectedBandwidth,
-      frequency: this.inputedFrequncy,
-      modulation: (this.selectedModulation.length == 7 ? [{label: "Все"}] : this.selectedModulation),
+      frequency: this.inputedFrequency,
+      modulation: this.selectedModulation,
       time: this.duration,
-      totalTime: this.totalTime += ((+this.duration) * this.selectedModulation.length )
     };
-    this.massiveTests.push(newTest);
+    this.dialogRef.close(newTest);
   }
 
-  removeTest(index: number) {
-    this.massiveTests.splice(index, 1);
-  }
-
-  acceptTests() {
-    this.dialogRef.close(this.massiveTests);
-  }
-
-  closeDialog() {
-    this.massiveTests = [...this.originalTests];
+  closeDialog(): void {
     this.dialogRef.close();
   }
-  
 }

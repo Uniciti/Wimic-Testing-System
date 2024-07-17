@@ -129,7 +129,7 @@
           </div>
         </div>
       </div>
-      <div class="card">
+      <div class="card_table">
         <p-table [columns]="cols" [value]="massiveTests">
             <ng-template pTemplate="header" let-columns>
                 <tr>
@@ -139,31 +139,57 @@
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-rowData let-columns="columns">
-              <tr (mouseover)="onMouseOver(rowData)" (mouseleave)="onMouseLeave(rowData)">
-                <ng-container *ngIf="!rowData.hovered">
-                    <td *ngFor="let col of columns">
-                        <ng-container *ngIf="col.field !== 'modulation'">
-                            {{ rowData[col.field] }}
-                        </ng-container>
-                        <ng-container *ngIf="col.field === 'modulation'">
-                            {{ getModulationLabels(rowData[col.field]) }}
+              <tr>
+                <ng-container>
+                  <td *ngFor="let col of columns">
+                    <ng-container *ngIf="col.field === 'type'">
+                      {{  getLabelByValue(rowData[col.field]) }}
+                    </ng-container>
+                    <ng-container *ngIf="col.field !== 'modulation' && col.field !=='type'">
+                      {{  rowData[col.field] }}
+                    </ng-container>
+                    <ng-container *ngIf="col.field === 'modulation'">
+                      <ng-container *ngIf="rowData[col.field].length === 7; else notAllSelected">
+                          Все
+                      </ng-container>
+                      <ng-template #notAllSelected>
+                        <div class="modulation-container">
+                          <div class="modulation-row">
+                            <div *ngFor="let box of getModulationBoxes(rowData[col.field]).slice(0, 4)"
+                                class="modulation-box"
+                                [ngClass]="{'selected': box.selected}">
+                            </div>
+                          </div>
+                          <div class="modulation-row">
+                            <div *ngFor="let box of getModulationBoxes(rowData[col.field]).slice(4, 7)"
+                                class="modulation-box"
+                                [ngClass]="{'selected': box.selected}">
+                            </div>
+                          </div>
+                        </div>
+                      </ng-template>
+                    </ng-container>
+                        <ng-container *ngIf="col.field === 'buttons'">
+                            <div class="buttons-container">
+                              <button pButton type="button" (click)="editTest(rowData)"><i class="fa-solid fa-gear"></i></button>
+                              <button pButton severity="danger" type="button" (click)="deleteTest(rowData)"><i class="fa-solid fa-trash"></i></button>
+                            </div> 
                         </ng-container>
                     </td>
-                </ng-container>
-                <!-- <ng-container > -->
-                <td [attr.colspan]="cols.length" class="center-buttons" *ngIf="rowData.hovered">
+                  </ng-container>
+                <!-- <td [attr.colspan]="cols.length" class="center-buttons" *ngIf="rowData.hovered">
                   <div class="buttons-container">
                     <button pButton type="button" label="Изменить" (click)="editTest(rowData)"></button>
                     <button pButton severity="danger" type="button" label="Удалить" (click)="deleteTest(rowData)"></button>
                   </div>
-                </td>
-                <!-- </ng-container> -->
+                </td> -->                                                     
               </tr>
             </ng-template>
         </p-table>
-        <div class="flex justify-center mt-2">
-          <button class="w-1/4" pButton severity="success" type="button" label="Добавить тест" (click)="openDialog()"></button>
-        </div>
+        
+      </div>
+      <div class="flex justify-center items-center mt-2 mx-auto">
+        <button class="w-full" pButton severity="success" type="button" label="Добавить тест" (click)="openDialog()"></button>
       </div>
       <div class="gap-x-2 items-left flex mt-1 w-full">
         <p-button 
@@ -174,13 +200,13 @@
           severity="success"
           position="center"
           class="" />
-        <p-button 
+        <!-- <p-button 
           label="Очередь тестов"
           type="button"
           (click)="openDialog()"
           severity="info"
           position="center"
-          class="" />
+          class="" /> -->
       </div>
       <!-- <div class="mt-2 w-full flex">
         <p-button 

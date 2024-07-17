@@ -4,8 +4,7 @@ import { NgClass, NgFor, CommonModule } from "@angular/common";
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router, NavigationStart } from '@angular/router';
-import { Subscription, timer } from 'rxjs';
-
+import { BehaviorSubject, Subscription, timer } from 'rxjs';
 
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
@@ -17,6 +16,10 @@ import { TableModule } from 'primeng/table';
 import { SharedWebSocketService } from '../core/services/SharedWebSocket.service';
 import { NotificationService } from '../core/services/Notification.service';
 import { StorageService } from '../core/services/localStorage.service';
+import { QueueCommunicationService } from '../core/services/QueueCommunication.service';
+import { SettingsService } from '../core/services/settings.service';
+
+import { TestData } from '../core/interfaces/test.models';
 
 import { QueueTestsFormComponent } from "../queue-tests-form/queue-tests-form.component"
 
@@ -75,25 +78,35 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     };
   }
 
-  parsedData: any;
-
-  //massiveTests = [];
   massiveTests: any[] = [];
+  
+  modulationOptions: any[] = [
+    { label: 'BPSK 1/2', value: 0 },
+    { label: 'QPSK 1/2', value: 1 },
+    { label: 'QPSK 3/4', value: 2 },
+    { label: 'QPSK16 1/2', value: 3 },
+    { label: 'QAM16 3/4', value: 4 },
+    { label: 'QAM64 2/3', value: 5 },
+    { label: 'QAM64 3/4', value: 6 }
+  ];
 
-  testOptions: any[] = [{ label: 'Экспресс тест', value: "express_test" },{ label: 'Полный тест', value: "full_test" }];
-  stationOptions: any[] = [{ label: '10 МГц', value: 3 },{ label: '20 МГц', value: 5 }];
+  testOptions: any[] = [
+    { label: 'Экспресс', value: 'expresstest' },
+    { label: 'Полный', value: 'fulltest' }
+  ];
+  stationOptions: any[] = [
+    { label: '10 МГц', value: 3 },
+    { label: '20 МГц', value: 5 }
+  ];
 
   cols: any[] = [
     { field: 'type', header: 'Тип теста' },
     { field: 'bandwidth', header: 'Ширина полосы' },
     { field: 'frequency', header: 'Частота' },
     { field: 'modulation', header: 'Модуляции' },
-    { field: 'time', header: 'Время' }
+    { field: 'time', header: 'Время' },
+    { field: 'buttons', header: 'Действия'}
   ];
-
-  getModulationLabels(modulation: any[]): string {
-    return modulation.map(mod => mod.label).join(', ');
-  }
   
   private subscription: Subscription = new Subscription();
 
@@ -104,12 +117,11 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private dialog: MatDialog,
     private localStorage: StorageService,
-    private router: Router
+    private testService: QueueCommunicationService,
+    private router: Router,
+    private settingsService: SettingsService
   ) { 
-    const savedTests = this.localStorage.getItem('massiveTests');
-    if (savedTests) {
-      this.massiveTests = savedTests;
-    }
+    this.massiveTests = this.testService.getTests();
   }
 
   @HostListener('window:beforeunload', ['$event'])
@@ -132,79 +144,78 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     this.routerSubscription = this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         this.localStorage.setItem('settingsData', this.settingsData);
-        this.localStorage.setItem('massiveTests', this.massiveTests);
       }
     });
-    this.massiveTests = [
-      {
-        "type": "Экспресс",
-        "bandwidth": "10",
-        "frequency": 5900,
-        "modulation": [
-          {
-            "label": "Все"
-          }
-        ],
-        "time": "60",
-        "totalTime": 420
-      },
-      {
-        "type": "Полный",
-        "bandwidth": "10",
-        "frequency": 5900,
-        "modulation": [
-          {
-            "label": "Все"
-          }
-        ],
-        "time": "60",
-        "totalTime": 420
+    
+    this.testService.tests$.subscribe(tests => {
+      this.massiveTests = tests;
+    });
+
+    this.settingsService.settings$.subscribe(data => {
+      if (data) {
+        this.pa1 = data.Attenuator_PA1;
+        this.pa2 = data.Attenuator_PA2;
+        this.splitterM3M = data.splitter_to_M3M;
+        this.splitterST = data.splitter_straight;
+        this.cable1 = data.cable1;
+        this.cable2 = data.cable2;
+        this.cable3 = data.cable3;
       }
-      // другие объекты
-    ];
-    console.log(this.massiveTests);
+    });
   }
 
   ngOnDestroy() {
     this.localStorage.setItem('settingsData', this.settingsData);
-    this.localStorage.setItem('massiveTests', this.massiveTests);
 
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
     }
   }
 
-  onMouseOver(rowData: any): void {
-    this.massiveTests.forEach(test => test.hovered = false); // Сбрасываем hover для всех строк
-    rowData.hovered = true; // Устанавливаем hover для текущей строки
+  getLabelByValue(value: string): string {
+    const option = this.testOptions.find(opt => opt.value === value);
+    return option ? option.label : '';
   }
 
-  onMouseLeave(rowData: any): void {
-    rowData.hovered = false; // Убираем hover для текущей строки
+  getModulationBoxes(modulation: any[]): any[] {
+    return this.modulationOptions.map(opt => ({
+      selected: modulation.some(mod => mod.label === opt.label)
+    }));
   }
 
-  openDialog() {
+  openDialog(testData: TestData | null = null): void {
     const dialogRef = this.dialog.open(QueueTestsFormComponent, {
       width: '350px',
       height: '580px',
       panelClass: 'FormStyle',
-      data: this.massiveTests 
+      data: testData
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.massiveTests = result;
-        this.localStorage.setItem('massiveTests', this.massiveTests);
+        if (testData) {
+          const index = this.massiveTests.indexOf(testData);
+          if (index !== -1) {
+            this.testService.editTest(index, result);
+          }
+        } else {
+          this.testService.addTest(result);
+        }
       }
     });
   }
 
-  editTest(massiveTests: any[]) {
-
+  editTest(rowData: any): void {
+    this.openDialog(rowData);
   }
 
-  deleteTest(massiveTests: any[]) {
+  deleteTest(rowData: any): void {
+    const index = this.massiveTests.indexOf(rowData);
+    this.testService.removeTest(index);
+  }
 
+  addTest(): void {
+    this.openDialog();
   }
 
   // uploadJSONWithSettings(event: any) {

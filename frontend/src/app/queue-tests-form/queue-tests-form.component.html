@@ -1,6 +1,6 @@
 <div class="forma mx-auto p-5">
   <h2 class="text-2xl font-bold mb-5">Добавить тест</h2>
-  <form (ngSubmit)="addTest()" class="space-y-4">
+  <form (ngSubmit)="save()" class="space-y-4">
     <div class="max-w-40">
       <label for="testType" class="block text-sm font-medium text-gray-700">Тип теста:</label>
       <select id="testType" [(ngModel)]="selectedTestType" name="testType" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -20,7 +20,7 @@
         styleClass="flex focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         name="frequency"
         inputId="frequency"
-        [(ngModel)]="inputedFrequncy"
+        [(ngModel)]="inputedFrequency"
         [placeholder]="'Введите частоту'"
         min="5900"
         required>
@@ -90,7 +90,7 @@
       <p-button 
         label="ОК"
         type="submit"
-        (click)="addTest()"
+        (click)="save()"
         severity="success" />
       <p-button 
         label="Отмена"
