@@ -1,30 +1,64 @@
 import { SerialPort } from 'serialport';
 import { delay } from '../logic/main.logic';
-import 'dotenv/config';
-import { ProtectInfo } from 'xlsx';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
+import * as fs from 'fs';
+import * as path from 'path';
+
+import 'dotenv/config';
+
+const execAsync = promisify(exec);
 const COM_PORT = process.env.COM_PORT || '/dev/ttyUSB0';
 const BAUD_RATE = parseInt(process.env.BAUD_RATE || '19300', 10);
 
 export class COMClient {
   private port: SerialPort | null = null;
   private isConnected: boolean = false;
-  private portPath: string = '/dev/ttyUSB0';
+  private portPath: string = COM_PORT;
   private output: number = 0;
   private commandResolve: ((value: number | PromiseLike<number>) => void) | null = null;
   private commandReject: ((reason?: any) => void) | null = null;
 
-  constructor() {}
+  constructor() { }
 
-  private async findPort(): Promise<string | null> {
-    // Данный метод не работает внутри докера
-    // const ports = await SerialPort.list();
-    // console.log(ports);
-    // const portInfo = ports.find(port=> port.path.includes('ttyUSB'));
-    // console.log(portInfo);
-    // return portInfo ? portInfo.path : null;
-    return '/dev/ttyUSB0';
+  private async getDeviceDetails(devicePath: string): Promise<boolean> {
+    try {
+      const { stdout } = await execAsync(`udevadm info --query=all --name=${devicePath}`);
+      const lines = stdout.split('\n');
+      const idModelIdLine = lines.find(line => line.includes('ID_MODEL_ID='));
+      if (idModelIdLine) {
+        const idModelId = idModelIdLine.split('=')[1].trim();
+        if (idModelId === '6001') {
+          return true;
+        }
+      }
+    } catch (err) {
+      console.error(`Error executing udevadm command for device ${devicePath}:`, err);
+    }
+    return false;
   }
+  
+  private async findPort(): Promise<string | null> {
+    try {
+      const { stdout } = await execAsync('ls /dev/ttyUSB*');
+      const devices = stdout.trim().split('\n');
+      for (const device of devices) {
+        const res = await this.getDeviceDetails(device);
+        if (res) {
+          return device;
+        }
+      }
+    } catch (err: any) {
+      if (err.stderr && err.stderr.includes('No such file or directory')) {
+        console.log('No ttyUSB devices found.');
+      } else {
+        console.error('Error executing ls command:', err);
+      }
+    }
+    return null;
+  }
+  
 
   private setupListeners(): void {
 
@@ -74,7 +108,7 @@ export class COMClient {
     return new Promise(async (resolve, reject) => {
       this.port = new SerialPort({             
       		path: portPath,
-            baudRate: 19300,
+            baudRate: BAUD_RATE,
             dataBits: 8,
             stopBits: 1,
             parity: 'none', });
@@ -106,8 +140,15 @@ export class COMClient {
   }
 
   public disconnect(): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (!this.port) {
+        resolve();
+      }
+
+      const res = await this.checkConnect();
+      if (!res){
+        this.isConnected = false;
+        this.port = null;
         resolve();
       }
 
@@ -134,7 +175,7 @@ export class COMClient {
       }
 
       try {
-      	if (portPath && this.port && this.portPath) {
+      	if (this.port && this.portPath) {
       		this.isConnected = true;
       		resolve(true);
       	} else {
@@ -175,29 +216,6 @@ export class COMClient {
       });
     });
   }
-
-  // public receiveData(): Promise<number> {
-  //   return new Promise((resolve, reject) => {
-  //     if (!this.isConnected || !this.port) {
-  //       return reject(new Error('COM port is not connected.'));
-  //     }
-
-  //     const buf = new Uint8Array(1);
-  //     buf[0] = 0;
-
-  //     this.port?.write(buf, (err) => {
-  //       if (err) {
-  //         return reject(err);
-  //       }
-  //       this.port?.once('data', (data: any) => {
-	//    	    const deviceResponse = parseFloat(data);
-	//       	resolve(deviceResponse);
-	//       });
-
-	//       this.port?.once('error', (err: any) => {
-	//       	reject(err);
-	//       });
-	//   });
 
     public receiveData(): Promise<number> {
       return new Promise(async (resolve, reject) => {

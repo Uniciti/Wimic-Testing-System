@@ -12,27 +12,66 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.comClient = exports.COMClient = void 0;
 const serialport_1 = require("serialport");
 const main_logic_1 = require("../logic/main.logic");
+const child_process_1 = require("child_process");
+const util_1 = require("util");
 require("dotenv/config");
+const execAsync = (0, util_1.promisify)(child_process_1.exec);
 const COM_PORT = process.env.COM_PORT || '/dev/ttyUSB0';
 const BAUD_RATE = parseInt(process.env.BAUD_RATE || '19300', 10);
 class COMClient {
     constructor() {
         this.port = null;
         this.isConnected = false;
-        this.portPath = '/dev/ttyUSB0';
+        this.portPath = COM_PORT;
         this.output = 0;
         this.commandResolve = null;
         this.commandReject = null;
     }
+    getDeviceDetails(devicePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { stdout } = yield execAsync(`udevadm info --query=all --name=${devicePath}`);
+                const lines = stdout.split('\n');
+                const idModelIdLine = lines.find(line => line.includes('ID_MODEL_ID='));
+                if (idModelIdLine) {
+                    const idModelId = idModelIdLine.split('=')[1].trim();
+                    console.log(`ID_MODEL_ID for ${devicePath}: ${idModelId}`);
+                    if (idModelId === '6001') {
+                        return true;
+                    }
+                }
+                else {
+                    console.log(`ID_MODEL_ID not found for ${devicePath}`);
+                }
+            }
+            catch (err) {
+                console.error(`Error executing udevadm command for device ${devicePath}:`, err);
+            }
+            return false;
+        });
+    }
     findPort() {
         return __awaiter(this, void 0, void 0, function* () {
-            // Данный метод не работает внутри докера
-            // const ports = await SerialPort.list();
-            // console.log(ports);
-            // const portInfo = ports.find(port=> port.path.includes('ttyUSB'));
-            // console.log(portInfo);
-            // return portInfo ? portInfo.path : null;
-            return '/dev/ttyUSB0';
+            try {
+                const { stdout } = yield execAsync('ls /dev/ttyUSB*');
+                const devices = stdout.trim().split('\n');
+                for (const device of devices) {
+                    const res = yield this.getDeviceDetails(device);
+                    if (res) {
+                        console.log(`Found matching device: ${device}`);
+                        return device;
+                    }
+                }
+            }
+            catch (err) {
+                if (err.stderr && err.stderr.includes('No such file or directory')) {
+                    console.log('No ttyUSB devices found.');
+                }
+                else {
+                    console.error('Error executing ls command:', err);
+                }
+            }
+            return null;
         });
     }
     setupListeners() {
@@ -75,7 +114,7 @@ class COMClient {
             return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                 this.port = new serialport_1.SerialPort({
                     path: portPath,
-                    baudRate: 19300,
+                    baudRate: BAUD_RATE,
                     dataBits: 8,
                     stopBits: 1,
                     parity: 'none',
@@ -103,9 +142,15 @@ class COMClient {
         });
     }
     disconnect() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             var _a;
             if (!this.port) {
+                resolve();
+            }
+            const res = yield this.checkConnect();
+            if (!res) {
+                this.isConnected = false;
+                this.port = null;
                 resolve();
             }
             (_a = this.port) === null || _a === void 0 ? void 0 : _a.close((err) => {
@@ -116,7 +161,7 @@ class COMClient {
                 this.port = null;
                 resolve();
             });
-        });
+        }));
     }
     checkConnect() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -128,7 +173,7 @@ class COMClient {
                     resolve(false);
                 }
                 try {
-                    if (portPath && this.port && this.portPath) {
+                    if (this.port && this.portPath) {
                         this.isConnected = true;
                         resolve(true);
                     }
@@ -169,25 +214,6 @@ class COMClient {
             });
         });
     }
-    // public receiveData(): Promise<number> {
-    //   return new Promise((resolve, reject) => {
-    //     if (!this.isConnected || !this.port) {
-    //       return reject(new Error('COM port is not connected.'));
-    //     }
-    //     const buf = new Uint8Array(1);
-    //     buf[0] = 0;
-    //     this.port?.write(buf, (err) => {
-    //       if (err) {
-    //         return reject(err);
-    //       }
-    //       this.port?.once('data', (data: any) => {
-    //    	    const deviceResponse = parseFloat(data);
-    //       	resolve(deviceResponse);
-    //       });
-    //       this.port?.once('error', (err: any) => {
-    //       	reject(err);
-    //       });
-    //   });
     receiveData() {
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             var _a;
