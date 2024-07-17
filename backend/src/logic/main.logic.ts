@@ -6,11 +6,11 @@ import { broadcaster } from '../ws.server';
 // import { speed, sens, modName } from './consts.logic';
 import * as XLSX from 'xlsx';
 import * as path from 'path';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as os from 'os';
 
-// export let pathToFile: string = path.join(os.homedir(), '/');
-export let pathToFile: string = '/app/data';
+export let pathToFile: string = path.join(os.homedir(), '/tests/');
+// export let pathToFile = path.join(__dirname, 'tests');
 export let fileName: string = "test.xlsx";
 
 export const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -146,22 +146,39 @@ export function parseData(data: string): Promise<[number, number]> {
     });
 };
 
-export function writeDataToExcel(newData: any[],  testName: string): void {
-	// const filePath = path.join(__dirname, 'test.xlsx');
-	const worksheet = XLSX.utils.json_to_sheet(newData);
-	const workbook = XLSX.utils.book_new();
-  	XLSX.utils.book_append_sheet(workbook, worksheet, testName);
-
+export async function writeDataToExcel(newData: any[], testName: string): Promise<void> {
+    await fs.ensureDir(pathToFile);
+  
+    const worksheet = XLSX.utils.json_to_sheet(newData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, testName);
+  
     const date = new Date();
     const dateString = date.toISOString().split('T')[0];
     const timeString = date.toTimeString().split(' ')[0].replace(/:/g, '-');
     const uniqueFileName = `${testName} ${dateString} ${timeString}.xlsx`;
     const filePath = path.join(pathToFile, uniqueFileName);
-
-  	XLSX.writeFile(workbook, filePath);
+  
+    XLSX.writeFile(workbook, filePath);
     console.log(`File saved as: ${filePath}`);
+  }
 
-}
+// export function writeDataToExcel(newData: any[],  testName: string): void {
+// 	// const filePath = path.join(__dirname, 'test.xlsx');
+// 	const worksheet = XLSX.utils.json_to_sheet(newData);
+// 	const workbook = XLSX.utils.book_new();
+//   	XLSX.utils.book_append_sheet(workbook, worksheet, testName);
+
+//     const date = new Date();
+//     const dateString = date.toISOString().split('T')[0];
+//     const timeString = date.toTimeString().split(' ')[0].replace(/:/g, '-');
+//     const uniqueFileName = `${testName} ${dateString} ${timeString}.xlsx`;
+//     const filePath = path.join(pathToFile, uniqueFileName);
+
+//   	XLSX.writeFile(workbook, filePath);
+//     console.log(`File saved as: ${filePath}`);
+
+// }
 
 // export function setPathName(path: string, name: string) { 
 //     pathToFile = (path || os.homedir()) || "/home/vlad/";

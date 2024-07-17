@@ -41,8 +41,10 @@ const ws_server_1 = require("../ws.server");
 // import { speed, sens, modName } from './consts.logic';
 const XLSX = __importStar(require("xlsx"));
 const path = __importStar(require("path"));
-// export let pathToFile: string = path.join(os.homedir(), '/');
-exports.pathToFile = '/app/data';
+const fs = __importStar(require("fs-extra"));
+const os = __importStar(require("os"));
+exports.pathToFile = path.join(os.homedir(), '/tests/');
+// export let pathToFile = path.join(__dirname, 'tests');
 exports.fileName = "test.xlsx";
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 exports.delay = delay;
@@ -171,19 +173,34 @@ function parseData(data) {
 exports.parseData = parseData;
 ;
 function writeDataToExcel(newData, testName) {
-    // const filePath = path.join(__dirname, 'test.xlsx');
-    const worksheet = XLSX.utils.json_to_sheet(newData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, testName);
-    const date = new Date();
-    const dateString = date.toISOString().split('T')[0];
-    const timeString = date.toTimeString().split(' ')[0].replace(/:/g, '-');
-    const uniqueFileName = `${testName} ${dateString} ${timeString}.xlsx`;
-    const filePath = path.join(exports.pathToFile, uniqueFileName);
-    XLSX.writeFile(workbook, filePath);
-    console.log(`File saved as: ${filePath}`);
+    return __awaiter(this, void 0, void 0, function* () {
+        yield fs.ensureDir(exports.pathToFile);
+        const worksheet = XLSX.utils.json_to_sheet(newData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, testName);
+        const date = new Date();
+        const dateString = date.toISOString().split('T')[0];
+        const timeString = date.toTimeString().split(' ')[0].replace(/:/g, '-');
+        const uniqueFileName = `${testName} ${dateString} ${timeString}.xlsx`;
+        const filePath = path.join(exports.pathToFile, uniqueFileName);
+        XLSX.writeFile(workbook, filePath);
+        console.log(`File saved as: ${filePath}`);
+    });
 }
 exports.writeDataToExcel = writeDataToExcel;
+// export function writeDataToExcel(newData: any[],  testName: string): void {
+// 	// const filePath = path.join(__dirname, 'test.xlsx');
+// 	const worksheet = XLSX.utils.json_to_sheet(newData);
+// 	const workbook = XLSX.utils.book_new();
+//   	XLSX.utils.book_append_sheet(workbook, worksheet, testName);
+//     const date = new Date();
+//     const dateString = date.toISOString().split('T')[0];
+//     const timeString = date.toTimeString().split(' ')[0].replace(/:/g, '-');
+//     const uniqueFileName = `${testName} ${dateString} ${timeString}.xlsx`;
+//     const filePath = path.join(pathToFile, uniqueFileName);
+//   	XLSX.writeFile(workbook, filePath);
+//     console.log(`File saved as: ${filePath}`);
+// }
 // export function setPathName(path: string, name: string) { 
 //     pathToFile = (path || os.homedir()) || "/home/vlad/";
 //     fileName = (name + ".xlsx") || "test.xlsx";

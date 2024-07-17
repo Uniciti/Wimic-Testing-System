@@ -35,13 +35,9 @@ class COMClient {
                 const idModelIdLine = lines.find(line => line.includes('ID_MODEL_ID='));
                 if (idModelIdLine) {
                     const idModelId = idModelIdLine.split('=')[1].trim();
-                    console.log(`ID_MODEL_ID for ${devicePath}: ${idModelId}`);
                     if (idModelId === '6001') {
                         return true;
                     }
-                }
-                else {
-                    console.log(`ID_MODEL_ID not found for ${devicePath}`);
                 }
             }
             catch (err) {
@@ -58,7 +54,6 @@ class COMClient {
                 for (const device of devices) {
                     const res = yield this.getDeviceDetails(device);
                     if (res) {
-                        console.log(`Found matching device: ${device}`);
                         return device;
                     }
                 }

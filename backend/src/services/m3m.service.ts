@@ -3,9 +3,6 @@ import { delay } from '../logic/main.logic';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 
-import * as fs from 'fs';
-import * as path from 'path';
-
 import 'dotenv/config';
 
 const execAsync = promisify(exec);
