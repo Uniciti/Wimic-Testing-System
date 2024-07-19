@@ -1,12 +1,11 @@
-import snmp from 'net-snmp';
-import { Buffer } from 'buffer';
-import ping from 'ping';
+import snmp from "net-snmp";
+import { Buffer } from "buffer";
+import ping from "ping";
 
 const BASE_HOST = process.env.BASE_DEFAULT!;
 const SUBSCRIBER_HOST = process.env.SUBS_DEFAULT!;
-const SNMP_COMMUNITY = process.env.SNMP_COMMUNITY || 'public';
+const SNMP_COMMUNITY = process.env.SNMP_COMMUNITY || "public";
 // const SNMP_VERSION = process.env.SNMP_VERSION || '2c';
-
 
 export class SNMPClient {
   private baseHost: string;
@@ -25,21 +24,23 @@ export class SNMPClient {
 
   public async connect(): Promise<boolean> {
     try {
-
-      this.subscriberSession = snmp.createSession(this.subscriberHost, this.community, { version: this.version });
-      this.baseSession = snmp.createSession(this.baseHost, this.community, { version: this.version });
+      this.subscriberSession = snmp.createSession(
+        this.subscriberHost,
+        this.community,
+        { version: this.version }
+      );
+      this.baseSession = snmp.createSession(this.baseHost, this.community, {
+        version: this.version,
+      });
       const [res0, res1] = await this.checkConnect();
       return res0 && res1;
-
     } catch (error) {
       console.error(`Failed to create SNMP sessions: ${error}`);
       this.baseSession = null;
       this.subscriberSession = null;
       return false;
     }
-
   }
-
 
   public changeIp(baseHost: string, subscriberHost: string): void {
     this.disconnect();
@@ -64,35 +65,38 @@ export class SNMPClient {
     const delayBetweenPings = 1000;
 
     const pingHost = async (host: string): Promise<boolean> => {
-        const res = await ping.promise.probe(host);
-        return res.alive;
+      const res = await ping.promise.probe(host);
+      return res.alive;
     };
 
     try {
-        let attempt = 0;
-        let res0 = false;
-        let res1 = false;
+      let attempt = 0;
+      let res0 = false;
+      let res1 = false;
 
-        while (attempt < maxAttempts) {
-            if (!res0) {
-                res0 = await pingHost(this.baseHost);
-            }
-            if (!res1) {
-                res1 = await pingHost(this.subscriberHost);
-            }
-
-            if (res0 && res1) {
-                break;
-            }
-
-            attempt++;
-            await new Promise(resolve => setTimeout(resolve, delayBetweenPings));
+      while (attempt < maxAttempts) {
+        if (!res0) {
+          res0 = await pingHost(this.baseHost);
+        }
+        if (!res1) {
+          res1 = await pingHost(this.subscriberHost);
         }
 
-        return [res0 && (this.baseSession != null), res1 && (this.subscriberSession != null)];
+        if (res0 && res1) {
+          break;
+        }
+
+        attempt++;
+        await new Promise((resolve) => setTimeout(resolve, delayBetweenPings));
+      }
+
+      return [
+        res0 && this.baseSession != null,
+        res1 && this.subscriberSession != null,
+      ];
     } catch (error) {
-        console.error(`Ping error: ${error}`);
-        return [false, false];
+      console.error(`Ping error: ${error}`);
+      return [false, false];
     }
   }
   // public async checkBaseConnect(): Promise<boolean> {
@@ -105,28 +109,28 @@ export class SNMPClient {
 
   public getFromBase(oid: string): Promise<string> {
     if (!this.baseSession) {
-      return Promise.reject('Base session is not established');
+      return Promise.reject("Base session is not established");
     }
     return this.get(this.baseSession, oid);
   }
 
   public getFromSubscriber(oid: string): Promise<string> {
     if (!this.subscriberSession) {
-      return Promise.reject('Subscriber session is not established');
+      return Promise.reject("Subscriber session is not established");
     }
     return this.get(this.subscriberSession, oid);
   }
 
   public setToBase(oid: string, value: number): Promise<void> {
     if (!this.baseSession) {
-      return Promise.reject('Base session is not established');
+      return Promise.reject("Base session is not established");
     }
     return this.set(this.baseSession, oid, value);
   }
 
   public setToSubscriber(oid: string, value: number): Promise<void> {
     if (!this.subscriberSession) {
-      return Promise.reject('Subscriber session is not established');
+      return Promise.reject("Subscriber session is not established");
     }
     return this.set(this.subscriberSession, oid, value);
   }
@@ -146,17 +150,15 @@ export class SNMPClient {
             if (varbind.type === snmp.ObjectType.Opaque) {
               const valueBuffer = varbind.value;
               if (Buffer.isBuffer(valueBuffer)) {
-                  const floatBuffer = valueBuffer.slice(-4);
-                  const floatValue = floatBuffer.readFloatBE(0);
-                  resolve(floatValue.toString())
+                const floatBuffer = valueBuffer.slice(-4);
+                const floatValue = floatBuffer.readFloatBE(0);
+                resolve(floatValue.toString());
               } else {
-                  console.error("Expected a Buffer for the opaque float value.");
+                console.error("Expected a Buffer for the opaque float value.");
               }
-              
             } else {
-                resolve(varbind.value.toString());
+              resolve(varbind.value.toString());
             }
-            
           }
         }
       });
@@ -167,14 +169,17 @@ export class SNMPClient {
     return new Promise((resolve, reject) => {
       const varbind = {
         oid: oid,
-        type: typeof value === 'number' ? snmp.ObjectType.Integer : snmp.ObjectType.OctetString,
-        value: value
+        type:
+          typeof value === "number"
+            ? snmp.ObjectType.Integer
+            : snmp.ObjectType.OctetString,
+        value: value,
       };
 
       session.set([varbind], (error, varbinds) => {
         if (error) {
           reject(error);
-        } 
+        }
       });
 
       resolve();
@@ -191,9 +196,12 @@ export class SNMPClient {
       this.subscriberSession = null;
     }
   }
-
 }
 
-// , version: snmp.Version , snmp.Version[`${SNMP_VERSION}`] type: snmp.ObjectType, 
+// , version: snmp.Version , snmp.Version[`${SNMP_VERSION}`] type: snmp.ObjectType,
 
-export const snmpClient = new SNMPClient(BASE_HOST, SUBSCRIBER_HOST, SNMP_COMMUNITY);
+export const snmpClient = new SNMPClient(
+  BASE_HOST,
+  SUBSCRIBER_HOST,
+  SNMP_COMMUNITY
+);
