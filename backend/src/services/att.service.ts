@@ -2,8 +2,8 @@ import net from 'net';
 // import { Device } from '../interfaces/device.interface';
 import 'dotenv/config';
 
-const ATTENUATOR_HOST = process.env.ATTENUATOR_HOST || '169.254.0.160';
-const ATTENUATOR_PORT = parseInt(process.env.ATTENUATOR_PORT || '5025', 10);
+const ATTENUATOR_HOST = process.env.ATTENUATOR_HOST!;
+const ATTENUATOR_PORT = parseInt(process.env.ATTENUATOR_PORT!, 10);
 
 export class TcpClient {
   private host: string;
