@@ -4,10 +4,13 @@ import { tcpClient, TcpClient } from './services/att.service';
 import { sshClient, SSHClient } from './services/bert.service';
 import { snmpClient, SNMPClient } from './services/stantion.service';
 import { comClient, COMClient } from './services/m3m.service';
+import { mongoClient, MongoClient } from './services/db.service';
+
 import { ExpressTest } from './logic/expresstest.logic';
 import { FullTest } from './logic/fulltest.logic';
 import { queue, Queue } from './logic/queue.logic';
 import { delay, getPower, setFreq } from './logic/main.logic';
+
 import 'dotenv/config';
 
 
@@ -16,10 +19,7 @@ const devices: { [key: string]: TcpClient | SSHClient | SNMPClient | COMClient} 
   'Ber': sshClient,
   'Stat': snmpClient,
   'M3M': comClient,
-  
 };
-
-// let frequency: number = 5600000;
 
 let wss: WebSocket.Server;
 
@@ -129,6 +129,22 @@ export function setupWebSocketServer(server: any) {
             ws.send(JSON.stringify({ type: 'connect', deviceId, conStatus }));
             break;
           
+          case 'get-test':
+            await mongoClient.connect();
+            const table = await mongoClient.getByDate('2024-07-19', '15:13');
+            console.log(table);
+            console.log(table ? table[0] : null);
+            console.log(table ? table[0].data[0] : null);
+            await mongoClient.deleteTest('2024-07-19', '15:13');
+            const table1 = await mongoClient.getByDate('2024-07-19', '15:13');
+            console.log(table1);
+            console.log(table1 ? table1[0] : null);
+            console.log(table1 ? table1[0].data[0] : null);
+            await mongoClient.disconnect();
+
+            break;
+
+
           case "stat-test":
             const ver = await snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.3.99.0");
             console.log(ver);

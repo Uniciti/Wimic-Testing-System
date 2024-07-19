@@ -1,8 +1,8 @@
 import { spawn, ChildProcess, execSync } from 'child_process';
 import 'dotenv/config';
 
-const BERT_PROXY = process.env.BERT_PROXY || 'admin@172.16.17.32';
-const BERT_PASSWORD = process.env.BERT_PASSWORD || 'PleaseChangeTheAdminPassword';
+const BERT_PROXY = process.env.BERT_PROXY!;
+const BERT_PASSWORD = process.env.BERT_PASSWORD!;
 
 export class SSHClient {
 	private sshProcess: ChildProcess | null = null;
@@ -131,7 +131,7 @@ export class SSHClient {
 
 		        const checkOutput = () => {
 		            if (this.output) {
-		                console.log('Current output:', this.output);
+		                // ('Current output:', this.output);
 		                resolve(this.output);
 		            } else {
 		                setTimeout(checkOutput, 100);

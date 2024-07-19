@@ -1,10 +1,15 @@
 import { speed10, sens10, speed20, sens20, modName } from './consts.logic';
-import { getPower, parseData, writeDataToExcel, delay, setBertSpeed, setBertDuration, validator} from './main.logic';
+
 import { tcpClient, TcpClient } from '../services/att.service';
 import { sshClient, SSHClient } from '../services/bert.service';
 import { comClient, COMClient } from '../services/m3m.service';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
+import { mongoClient, MongoClient } from '../services/db.service';
+
+import { getPower, parseData, writeDataToExcel, delay, setBertSpeed, setBertDuration, validator} from './main.logic';
+
 import { broadcaster } from '../ws.server';
+
 import 'dotenv/config';
 
 export class ExpressTest {
@@ -55,9 +60,9 @@ export class ExpressTest {
 		}
 
 		console.log(this.frequency * 1000);
-		await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+		await snmpClient.setToBase('1.3.6.1.4.1.19707.7.7.2.1.4.13.0', this.frequency * 1000);
 		await delay(1000);
-		await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", this.frequency * 1000);
+		await snmpClient.setToSubscriber('1.3.6.1.4.1.19707.7.7.2.1.4.13.0', this.frequency * 1000);
 		await delay(4000);
 	}
 
@@ -65,28 +70,28 @@ export class ExpressTest {
 		if (this.bandwidth == 20) {
 			this.speed = speed20;
 			this.sens = sens20;
-			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+			await snmpClient.setToBase('1.3.6.1.4.1.19707.7.7.2.1.4.56.0', 5);
             await delay(1000);
-            await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+            await snmpClient.setToSubscriber('1.3.6.1.4.1.19707.7.7.2.1.4.56.0', 5);
             await delay(4000);
 		} else {
 			this.speed = speed10;
 			this.sens = sens10;
-			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+			await snmpClient.setToBase('1.3.6.1.4.1.19707.7.7.2.1.4.56.0', 3);
             await delay(1000);
-            await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+            await snmpClient.setToSubscriber('1.3.6.1.4.1.19707.7.7.2.1.4.56.0', 3);
             await delay(4000);
 		}
-		const freq = await snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0");
-		const ver = await snmpClient.getFromSubscriber("1.3.6.1.4.1.19707.7.7.2.1.3.99.0");
+		const freq = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.4.13.0');
+		const ver = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.99.0');
 		if (ver <= '2.7.5'){
-			await snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-			await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+			await snmpClient.setToBase('1.3.6.1.4.1.19707.7.7.2.1.4.102.0', 1);
+			await snmpClient.setToSubscriber('1.3.6.1.4.1.19707.7.7.2.1.4.102.0', 1);
 			await delay(4000);
 		}
 
 		let firstTime: boolean = true;
-		console.log("pullman time");
+		console.log('pullman time');
 		return new Promise((resolve, reject) => {
 			let pingStat0: boolean;
 			let pingStat1: boolean;
@@ -98,7 +103,7 @@ export class ExpressTest {
 	                }
 
 					if (pingStat1 && !pingStat0 && firstTime){
-						await snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", parseInt(freq));
+						await snmpClient.setToSubscriber('1.3.6.1.4.1.19707.7.7.2.1.4.13.0', parseInt(freq));
 						firstTime = false;
 					}
 
@@ -149,20 +154,20 @@ export class ExpressTest {
 					break;
 				}
 
-				dataArray.push({"Модуляция": modName[i],
-									"Аттен, ДБ": "none",
-									"С/Ш": "none",
-									"Отправлено, байт": "none", 
-									"Принято, байт": "none", 
-									"Потеряно, байт": "none", 
-									"Процент ошибок, %": "none",
-									"Статус": "Ошибка поиска модуляции",
-									"Полоса": this.bandwidth,
-									"Аварийное завершение": !valid,
+				dataArray.push({'Модуляция': modName[i],
+									'Аттен, ДБ': 'none',
+									'С/Ш': 'none',
+									'Отправлено, байт': 'none', 
+									'Принято, байт': 'none', 
+									'Потеряно, байт': 'none', 
+									'Процент ошибок, %': 'none',
+									'Статус': 'Ошибка поиска модуляции',
+									'Полоса': this.bandwidth,
+									'Аварийное завершение': !valid,
 									
 								});
 
-				const message  = {status: "modulation", messageMod: this.modList.findIndex(element => element ===i) + 1, stage: this.modList.length}
+				const message  = {status: 'modulation', messageMod: this.modList.findIndex(element => element ===i) + 1, stage: this.modList.length}
 				broadcaster(JSON.stringify(message));
 
 				const m3mPow = await getPower(this.speed[i]);
@@ -216,9 +221,9 @@ export class ExpressTest {
 					};
 
 
-					// broadcaster(JSON.stringify({status: "testingMod"}));
+					// broadcaster(JSON.stringify({status: 'testingMod'}));
 					await startTest();
-					// broadcaster(JSON.stringify({status: "stopTestingMod"}));
+					// broadcaster(JSON.stringify({status: 'stopTestingMod'}));
 					
 					await sshClient.sendCommand('bert stop');
 					await delay(2000);
@@ -235,37 +240,38 @@ export class ExpressTest {
 					const lostBytes = txBytes - rxBytes
 					const errorRate = parseFloat(((lostBytes / txBytes) * 100).toFixed(2));
 					const snr = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.1.0');
-					let verdict = "Пройдено";
+					let verdict = 'Пройдено';
 					if (0.1 < errorRate) {
-						verdict = "Не пройдено";
+						verdict = 'Не пройдено';
 					}
-					console.log(valid);
-					console.log("^^^^");
 					dataArray[dataArray.length - 1] = {
-									"Модуляция": modName[i],
-									"Аттен, ДБ": attValue,
-									"С/Ш": (parseFloat(snr.slice(0, 5))),
-									"Отправлено, байт": txBytes, 
-									"Принято, байт": rxBytes, 
-									"Потеряно, байт": lostBytes, 
-									"Процент ошибок, %": errorRate,
-									"Статус": verdict,
-									"Полоса": this.bandwidth,
-									"Аварийное завершение": !valid,
+									'Модуляция': modName[i],
+									'Аттен, ДБ': attValue,
+									'С/Ш': (parseFloat(snr.slice(0, 5))),
+									'Отправлено, байт': txBytes, 
+									'Принято, байт': rxBytes, 
+									'Потеряно, байт': lostBytes, 
+									'Процент ошибок, %': errorRate,
+									'Статус': verdict,
+									'Полоса': this.bandwidth,
+									'Аварийное завершение': !valid,
 
 								};
 
 				}
 			}
 			console.log(dataArray);
-			writeDataToExcel(dataArray, "express test");
+			writeDataToExcel(dataArray, 'express test');
 			let message: any = null;
+			let result: string = 'failure';
 			if (valid) {
-				message  = {testid: "expresstest", status: "processing"};
+				message  = {testid: 'expresstest', status: 'processing'};
+				result = 'success'
 			} else {
-				message  = {testid: "expresstest", status: "error exec"};
+				message  = {testid: 'expresstest', status: 'error exec'};
+				result = 'failure'
 			}
-			
+			await mongoClient.saveTest(dataArray, 'expresstest', 'm1', result);
 			broadcaster(JSON.stringify(message));
 			resolve();
 		});
@@ -275,7 +281,7 @@ export class ExpressTest {
 
 	public jsonParser() {
 		return {
-			name: "expresstest",
+			name: 'expresstest',
 			duration: this.duration / 1000,
 			bandwidth: this.bandwidth,
 			offset: this.offset,

@@ -161,7 +161,7 @@ export async function writeDataToExcel(newData: any[], testName: string): Promis
   
     XLSX.writeFile(workbook, filePath);
     console.log(`File saved as: ${filePath}`);
-  }
+}
 
 // export function writeDataToExcel(newData: any[],  testName: string): void {
 // 	// const filePath = path.join(__dirname, 'test.xlsx');

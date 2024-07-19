@@ -6,8 +6,8 @@ import { promisify } from 'util';
 import 'dotenv/config';
 
 const execAsync = promisify(exec);
-const COM_PORT = process.env.COM_PORT || '/dev/ttyUSB0';
-const BAUD_RATE = parseInt(process.env.BAUD_RATE || '19300', 10);
+const COM_PORT = process.env.COM_PORT!;
+const BAUD_RATE = parseInt(process.env.BAUD_RATE!, 10);
 
 export class COMClient {
   private port: SerialPort | null = null;

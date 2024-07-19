@@ -2,6 +2,7 @@ import { ExpressTest } from './expresstest.logic';
 import { FullTest } from './fulltest.logic';
 import { broadcaster } from '../ws.server';
 import { snmpClient, SNMPClient } from '../services/stantion.service';
+import { mongoClient, MongoClient } from '../services/db.service';
 import { delay } from './main.logic';
 
 export class Queue {
@@ -40,7 +41,7 @@ export class Queue {
     }
 
     public async start(): Promise<void> {
-
+        await mongoClient.connect();
         if (this.running) {
             broadcaster(JSON.stringify({type: "warn", message: "test already running"}));
             return;
@@ -51,9 +52,6 @@ export class Queue {
         this.running = true;
         
         this.runNext();
-
-
-
     }
 
     public stop(): void {
@@ -70,13 +68,13 @@ export class Queue {
     private async runNext(): Promise<void> {
         if (this.queue.length == 0 || this.stopRequested) {
             broadcaster(JSON.stringify({type: "stop", status: "completed"}));
+            await mongoClient.disconnect();
             this.running = false;
             return;
         }
     
         const nextTest = this.queue.shift();
         if (nextTest) {
-
             const result = await nextTest.setBandwidth();
             await delay(1000);
             await nextTest.setFreq();
