@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 //import { map } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SharedWebSocketService {
   private socket$: WebSocketSubject<any>;
@@ -22,7 +22,7 @@ export class SharedWebSocketService {
   }
 
   public getMessages(): Observable<any> {
-    return this.socket$.asObservable();   //.asObservable();
+    return this.socket$.asObservable(); //.asObservable();
   }
 
   public disconnect(): void {

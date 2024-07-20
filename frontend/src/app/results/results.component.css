@@ -1,0 +1,64 @@
+/* table.component.css */
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  padding: 8px;
+  font-weight: 600;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  padding: 8px;
+}
+
+.center-buttons {
+  text-align: left;
+}
+
+.buttons-container {
+  margin: 0;
+  display: flex;
+  justify-content: left;
+  align-items: left;
+  gap: 10px; /* Расстояние между кнопками */
+}
+
+.container {
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgb(0, 0, 0);
+}
+
+.CARDS {
+  max-width: 635px;
+}
+
+.center-buttons {
+  text-align: left;
+}
+
+.buttons-container {
+  margin: 0;
+  display: flex;
+  justify-content: left;
+  align-items: left;
+  gap: 10px; /* Расстояние между кнопками */
+}
+
+@media screen and (max-width: 1246px) {
+  .CARDS {
+    width: 70%;
+  }
+}
+
+@media screen and (max-width: 939px) {
+  .card_table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  :host ::ng-deep .p-table {
+    min-width: 100%;
+    table-layout: auto;
+  }
+}

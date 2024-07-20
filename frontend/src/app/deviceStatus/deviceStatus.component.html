@@ -1,71 +1,86 @@
 <div>
-  <div class="CARDS container mt-2 mx-0 p-4 border rounded-lg shadow-md mb-6">
+  <div
+    class="CARDS container mt-2 mx-0 p-4 border rounded-lg shadow-md mb-6"
+  >
     <h2 class="text-xl font-semibold mb-4">Беркут-ЕТ</h2>
     <div class="buttons-wrap flex space-x-2 mb-4">
-      <p-button 
-        label="Подключиться" 
-        [loading]="loadingButtons['Ber']" 
+      <p-button
+        label="Подключиться"
+        [loading]="loadingButtons['Ber']"
         *ngIf="!connectionsButtons['Ber']"
-        (click)="connectToDevice('Ber')" />
-      <p-button 
-        label="Отключиться" 
-        [loading]="loadingButtons['Ber']" 
+        (click)="connectToDevice('Ber')"
+      />
+      <p-button
+        label="Отключиться"
+        [loading]="loadingButtons['Ber']"
         *ngIf="connectionsButtons['Ber']"
         (click)="disconnectToDevice('Ber')"
-        severity="danger" />
+        severity="danger"
+      />
     </div>
   </div>
   <div class="container CARDS mx-0 p-4 border rounded-lg shadow-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Аттенюатор</h2>
     <div class="buttons-wrap flex space-x-2">
-      <p-button 
-        label="Подключиться" 
-        [loading]="loadingButtons['Att']" 
+      <p-button
+        label="Подключиться"
+        [loading]="loadingButtons['Att']"
         *ngIf="!connectionsButtons['Att']"
-        (click)="connectToDevice('Att')" />
-      <p-button 
-        label="Отключиться" 
-        [loading]="loadingButtons['Att']" 
+        (click)="connectToDevice('Att')"
+      />
+      <p-button
+        label="Отключиться"
+        [loading]="loadingButtons['Att']"
         *ngIf="connectionsButtons['Att']"
-        (click)="disconnectToDevice('Att')" 
-        severity="danger" />
+        (click)="disconnectToDevice('Att')"
+        severity="danger"
+      />
     </div>
   </div>
   <div class="container CARDS mx-0 p-4 border rounded-lg shadow-md mb-6">
     <h2 class="text-xl font-semibold mb-4">Станции</h2>
     <div class="buttons-wrap flex space-x-2 mb-4">
-      <p-button 
-        label="Подключиться" 
-        [loading]="loadingButtons['Stat']" 
+      <p-button
+        label="Подключиться"
+        [loading]="loadingButtons['Stat']"
         *ngIf="!connectionsButtons['Stat']"
-        (click)="connectToDevice('Stat')"  />
-      <p-button 
-        label="Отключиться" 
-        [loading]="loadingButtons['Stat']" 
+        (click)="connectToDevice('Stat')"
+      />
+      <p-button
+        label="Отключиться"
+        [loading]="loadingButtons['Stat']"
         *ngIf="connectionsButtons['Stat']"
-        (click)="disconnectToDevice('Stat')" 
-        severity="danger" />
+        (click)="disconnectToDevice('Stat')"
+        severity="danger"
+      />
     </div>
     <h3 class="text-l font-semibold mb-4">Параметры станций</h3>
     <form (ngSubmit)="sendParams('StatOID')">
       <div class="space-y-4">
         <div class="card flex flex-wrap gap-3 p-fluid">
           <div class="flex-auto">
-            <label for="inputFrequency" class="block text-sm font-medium text-gray-700">Частота станций, МГц:</label>
-            <p-inputNumber 
-              inputId="inputFrequency" 
+            <label
+              for="inputFrequency"
+              class="block text-sm font-medium text-gray-700"
+            >
+              Частота станций, МГц:
+            </label>
+            <p-inputNumber
+              inputId="inputFrequency"
               [(ngModel)]="inputFrequency"
               placeholder="Введите частоту"
               [min]="5600"
-              [max]="6400" /> 
+              [max]="6400"
+            />
           </div>
         </div>
         <div class="buttons-wrap mt-4">
-          <p-button 
+          <p-button
             label="Отправить"
-            type="submit" 
-            [loading]="loadingButtons['StatOID']" 
-            severity="success" />
+            type="submit"
+            [loading]="loadingButtons['StatOID']"
+            severity="success"
+          />
         </div>
       </div>
     </form>
@@ -74,44 +89,83 @@
       <div class="form-group">
         <div class="card flex flex-wrap gap-3 p-fluid">
           <div class="flex-auto">
-            <label for="inputIP_BASE" class="block text-sm font-medium text-gray-700">IP адрес <strong>Базы</strong>:</label>
-            <input id="inputIP_BASE" type="text" name="inputIP_BASE" pInputText [(ngModel)]="inputIP_BASE" class="mb-3 px-3 py-2" inputId="inputIP_BASE" placeholder="192.168.0.1"/>
+            <label
+              for="inputIP_BASE"
+              class="block text-sm font-medium text-gray-700"
+            >
+              IP адрес
+              <strong>Базы</strong>
+              :
+            </label>
+            <input
+              id="inputIP_BASE"
+              type="text"
+              name="inputIP_BASE"
+              pInputText
+              [(ngModel)]="inputIP_BASE"
+              class="mb-3 px-3 py-2"
+              inputId="inputIP_BASE"
+              placeholder="192.168.0.1"
+            />
           </div>
         </div>
         <div class="card flex flex-wrap gap-3 p-fluid">
           <div class="flex-auto">
-            <label for="inputIP_ABONENT" class="block text-sm font-medium text-gray-700">IP адрес <strong>Абонента</strong>:</label>
-            <input id="inputIP_ABONENT" type="text" name="inputIP_ABONENT" pInputText [(ngModel)]="inputIP_ABONENT" class="mb-3 px-3 py-2" inputId="inputIP_ABONENT" placeholder="192.168.0.2"/>
+            <label
+              for="inputIP_ABONENT"
+              class="block text-sm font-medium text-gray-700"
+            >
+              IP адрес
+              <strong>Абонента</strong>
+              :
+            </label>
+            <input
+              id="inputIP_ABONENT"
+              type="text"
+              name="inputIP_ABONENT"
+              pInputText
+              [(ngModel)]="inputIP_ABONENT"
+              class="mb-3 px-3 py-2"
+              inputId="inputIP_ABONENT"
+              placeholder="192.168.0.2"
+            />
           </div>
         </div>
       </div>
       <div class="buttons-wrap flex space-x-2">
-        <p-button 
+        <p-button
           label="Отправить"
-          type="submit" 
-          [loading]="loadingButtons['StatIP']" 
-          severity="success" />
-        <p-button 
+          type="submit"
+          [loading]="loadingButtons['StatIP']"
+          severity="success"
+        />
+        <p-button
           label="Сменить роли"
           severity="danger"
-          (click)="swapMode()" />
+          (click)="swapMode()"
+        />
       </div>
     </form>
   </div>
-  <div id="M3M" class="container CARDS mx-0 p-4 border rounded-lg shadow-md mb-6">
+  <div
+    id="M3M"
+    class="container CARDS mx-0 p-4 border rounded-lg shadow-md mb-6"
+  >
     <h2 class="text-xl font-semibold mb-4">Измеритель мощности M3M</h2>
     <div class="buttons-wrap flex space-x-2 mb-4">
-      <p-button 
-        label="Подключиться" 
-        [loading]="loadingButtons['M3M']" 
+      <p-button
+        label="Подключиться"
+        [loading]="loadingButtons['M3M']"
         *ngIf="!connectionsButtons['M3M']"
-        (click)="connectToDevice('M3M')" />
-      <p-button 
-        label="Отключиться" 
-        [loading]="loadingButtons['M3M']" 
+        (click)="connectToDevice('M3M')"
+      />
+      <p-button
+        label="Отключиться"
+        [loading]="loadingButtons['M3M']"
         *ngIf="connectionsButtons['M3M']"
-        (click)="disconnectToDevice('M3M')" 
-        severity="danger" />
+        (click)="disconnectToDevice('M3M')"
+        severity="danger"
+      />
     </div>
     <!-- <form (ngSubmit)="sendParams('M3Moffset')">
       <div class="card flex flex-wrap gap-3 p-fluid">

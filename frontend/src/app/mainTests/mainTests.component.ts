@@ -1,6 +1,12 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy,
-   NgZone, HostListener } from '@angular/core';
-import { NgClass, NgFor, CommonModule } from "@angular/common";
+import {
+  Component,
+  OnInit,
+  ChangeDetectorRef,
+  OnDestroy,
+  NgZone,
+  HostListener,
+} from '@angular/core';
+import { NgClass, NgFor, CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router, NavigationStart } from '@angular/router';
@@ -10,7 +16,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ToastModule } from 'primeng/toast';
-import { ProgressBarModule } from 'primeng/progressbar'
+import { ProgressBarModule } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
 
 import { SharedWebSocketService } from '../core/services/SharedWebSocket.service';
@@ -21,7 +27,7 @@ import { SettingsService } from '../core/services/settings.service';
 
 import { TestData } from '../core/interfaces/test.models';
 
-import { QueueTestsFormComponent } from "../queue-tests-form/queue-tests-form.component"
+import { QueueTestsFormComponent } from '../queue-tests-form/queue-tests-form.component';
 
 @Component({
   selector: 'app-mainTests',
@@ -42,12 +48,17 @@ import { QueueTestsFormComponent } from "../queue-tests-form/queue-tests-form.co
   ],
   templateUrl: './mainTests.component.html',
   styleUrls: ['./mainTests.component.css'],
-  styles: [`.tab_content{height: 38rem; overflow-y: scroll;}`],
-  providers: [ NotificationService ]
+  styles: [
+    `
+      .tab_content {
+        height: 38rem;
+        overflow-y: scroll;
+      }
+    `,
+  ],
+  providers: [],
 })
-
 export class mainTestsComponent implements OnInit, OnDestroy {
-
   mainTestsData: any = {};
 
   loadingTest: boolean = false;
@@ -68,18 +79,18 @@ export class mainTestsComponent implements OnInit, OnDestroy {
 
   get settingsData() {
     return {
-    Attenuator_PA1: this.pa1,
-    Attenuator_PA2: this.pa2,
-    splitter_to_M3M: this.splitterM3M,
-    splitter_straight: this.splitterST,
-    cable1: this.cable1,
-    cable2: this.cable2,
-    cable3: this.cable3
+      Attenuator_PA1: this.pa1,
+      Attenuator_PA2: this.pa2,
+      splitter_to_M3M: this.splitterM3M,
+      splitter_straight: this.splitterST,
+      cable1: this.cable1,
+      cable2: this.cable2,
+      cable3: this.cable3,
     };
   }
 
   massiveTests: any[] = [];
-  
+
   modulationOptions: any[] = [
     { label: 'BPSK 1/2', value: 0 },
     { label: 'QPSK 1/2', value: 1 },
@@ -87,16 +98,16 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     { label: 'QPSK16 1/2', value: 3 },
     { label: 'QAM16 3/4', value: 4 },
     { label: 'QAM64 2/3', value: 5 },
-    { label: 'QAM64 3/4', value: 6 }
+    { label: 'QAM64 3/4', value: 6 },
   ];
 
   testOptions: any[] = [
     { label: 'Экспресс', value: 'expresstest' },
-    { label: 'Полный', value: 'fulltest' }
+    { label: 'Полный', value: 'fulltest' },
   ];
   stationOptions: any[] = [
-    { label: '10 МГц', value: 3 },
-    { label: '20 МГц', value: 5 }
+    { label: '10 МГц', value: 10 },
+    { label: '20 МГц', value: 20 },
   ];
 
   cols: any[] = [
@@ -105,9 +116,9 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     { field: 'frequency', header: 'Частота' },
     { field: 'modulation', header: 'Модуляции' },
     { field: 'time', header: 'Время' },
-    { field: 'buttons', header: 'Действия'}
+    { field: 'buttons', header: 'Действия' },
   ];
-  
+
   private subscription: Subscription = new Subscription();
 
   constructor(
@@ -119,8 +130,8 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     private localStorage: StorageService,
     private testService: QueueCommunicationService,
     private router: Router,
-    private settingsService: SettingsService
-  ) { 
+    private settingsService: SettingsService,
+  ) {
     this.massiveTests = this.testService.getTests();
   }
 
@@ -128,7 +139,7 @@ export class mainTestsComponent implements OnInit, OnDestroy {
   unloadHandler(event: Event): void {
     this.localStorage.setItem('settingsData', this.settingsData);
   }
-  
+
   ngOnInit(): void {
     const savedValue = this.localStorage.getItem('settingsData');
     if (savedValue) {
@@ -137,50 +148,82 @@ export class mainTestsComponent implements OnInit, OnDestroy {
       this.splitterM3M = savedValue.splitter_to_M3M;
       this.splitterST = savedValue.splitter_straight;
       this.cable1 = savedValue.cable1;
-      this.cable2 = savedValue.cable2
-      this.cable3 = savedValue.cable3
+      this.cable2 = savedValue.cable2;
+      this.cable3 = savedValue.cable3;
     }
+    this.settingsService.settings$.subscribe((settings) => {
+      if (settings) {
+        this.pa1 = settings.Attenuator_PA1;
+        this.pa2 = settings.Attenuator_PA2;
+        this.splitterM3M = settings.splitter_to_M3M;
+        this.splitterST = settings.splitter_straight;
+        this.cable1 = settings.cable1;
+        this.cable2 = settings.cable2;
+        this.cable3 = settings.cable3;
+      }
+    });
 
-    this.routerSubscription = this.router.events.subscribe(event => {
+    this.routerSubscription = this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
         this.localStorage.setItem('settingsData', this.settingsData);
       }
     });
-    
-    this.testService.tests$.subscribe(tests => {
+
+    this.testService.tests$.subscribe((tests) => {
       this.massiveTests = tests;
     });
-
-    this.settingsService.settings$.subscribe(data => {
-      if (data) {
-        this.pa1 = data.Attenuator_PA1;
-        this.pa2 = data.Attenuator_PA2;
-        this.splitterM3M = data.splitter_to_M3M;
-        this.splitterST = data.splitter_straight;
-        this.cable1 = data.cable1;
-        this.cable2 = data.cable2;
-        this.cable3 = data.cable3;
-      }
-    });
   }
-
   ngOnDestroy() {
     this.localStorage.setItem('settingsData', this.settingsData);
+    this.settingsService.updateSettings(this.settingsData);
 
     if (this.routerSubscription) {
       this.routerSubscription.unsubscribe();
     }
   }
 
-  getLabelByValue(value: string): string {
-    const option = this.testOptions.find(opt => opt.value === value);
-    return option ? option.label : '';
+  // saveSettings(): void {
+  //   const settings = {
+  //     Attenuator_PA1: this.pa1,
+  //     Attenuator_PA2: this.pa2,
+  //     splitter_to_M3M: this.splitterM3M,
+  //     splitter_straight: this.splitterST,
+  //     cable1: this.cable1,
+  //     cable2: this.cable2,
+  //     cable3: this.cable3
+  //   };
+  //   this.settingsService.updateSettings(settings);
+  // }
+
+  getLabelByValue(options: any[], value: any): string {
+    try {
+      const option = options.find(
+        (opt) => opt.value == value || opt.value == Number(value),
+      );
+      if (option) {
+        return option.label;
+      } else {
+        throw new Error(`Option with value ${value} not found`);
+      }
+    } catch (error) {
+      console.error('Error in getLabelByValue:', error);
+      return ''; // Возвращаем пустую строку или любое другое значение по умолчанию
+    }
+  }
+
+  toNumber(value: any): number {
+    return Number(value);
   }
 
   getModulationBoxes(modulation: any[]): any[] {
-    return this.modulationOptions.map(opt => ({
-      selected: modulation.some(mod => mod.label === opt.label)
-    }));
+    try {
+      return this.modulationOptions.map((opt) => ({
+        selected: modulation.some((mod) => mod.label === opt.label),
+      }));
+    } catch (error) {
+      console.error('Error in getModulationBoxes:', error);
+      return [];
+    }
   }
 
   openDialog(testData: TestData | null = null): void {
@@ -188,10 +231,9 @@ export class mainTestsComponent implements OnInit, OnDestroy {
       width: '350px',
       height: '580px',
       panelClass: 'FormStyle',
-      data: testData
+      data: testData,
     });
-
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         if (testData) {
           const index = this.massiveTests.indexOf(testData);
@@ -218,52 +260,7 @@ export class mainTestsComponent implements OnInit, OnDestroy {
     this.openDialog();
   }
 
-  // uploadJSONWithSettings(event: any) {
-  //   const file = event.files[0];
-  //   const reader = new FileReader();
-  //   reader.onload = (e: any) => {
-  //     this.ngZone.run(() => {
-  //       try {
-  //         this.parsedData = JSON.parse(e.target.result);
-  //         this.massiveTests = this.parsedData.slice(0, -1);
-  
-  //         let settingsElement = this.parsedData.length - 1;
-  //         this.pa1 = this.parsedData[settingsElement].Attenuator_PA1;
-  //         this.pa2 = this.parsedData[settingsElement].Attenuator_PA2;
-  //         this.splitterM3M = this.parsedData[settingsElement].splitter_to_M3M;
-  //         this.splitterST = this.parsedData[settingsElement].splitter_straight;
-  //         this.cable1 = this.parsedData[settingsElement].cable1;
-  //         this.cable2 = this.parsedData[settingsElement].cable2;
-  //         this.cable3 = this.parsedData[settingsElement].cable3;
-  
-  //         this.localStorage.setItem('massiveTests', this.massiveTests);
-  
-  //         this.cdr.detectChanges();
-  //       } catch (error) {
-  //         console.error('Ошибка при парсинге JSON:', error);
-  //       }
-  //     });
-  //   };
-  //   reader.readAsText(file);
-  // }
-
-  // downloadJSONWithSettings() {
-  //   const settingsData : any = {
-  //     Attenuator_PA1: this.pa1,
-  //     Attenuator_PA2: this.pa2,
-  //     splitter_to_M3M: this.splitterM3M,
-  //     splitter_straight: this.splitterST,
-  //     cable1: this.cable1,
-  //     cable2: this.cable2,
-  //     cable3: this.cable3,
-  //   }
-
-  //   const jsonDataSettings = this.massiveTests.concat(settingsData);
-  //   const blob = new Blob([JSON.stringify(jsonDataSettings, null, 2)], {type: 'application/json' });
-  //   this.fileSaveService.saveFile(blob);
-  // }
-
-  buttonsControlTest(sub:  Subscription) {
+  buttonsControlTest(sub: Subscription) {
     this.TestProcessing = false;
     this.loadingTest = false;
     this.cdr.detectChanges();
@@ -271,96 +268,131 @@ export class mainTestsComponent implements OnInit, OnDestroy {
   }
 
   pullman() {
-    this.ngZone.runOutsideAngular(() => {  
-      let subscription = this.sharedWebSocketService.getMessages().subscribe({
-        next: (message) => {
-          if (message.status === "modulation") {
+    this.ngZone.runOutsideAngular(() => {
+      let subscription = this.sharedWebSocketService
+        .getMessages()
+        .subscribe({
+          next: (message) => {
+            if (message.status === 'modulation') {
+              this.ngZone.run(() => {
+                this.modulation = Math.round(
+                  (message.messageMod / message.stage) * 100 - 1,
+                );
+              });
+            }
+            if (message.status === 'completed') {
+              subscription.unsubscribe();
+            }
+          },
+          error: (error) => {
             this.ngZone.run(() => {
-              this.modulation = Math.round(((message.messageMod / message.stage) * 100) - 1);
+              this.TestProcessing = false;
+              this.loadingTest = false;
             });
-          }
-          if (message.status === "completed") {
             subscription.unsubscribe();
-          }
-        },
-        error: (error) => {
-          this.ngZone.run(() => {
-            this.TestProcessing = false;
-            this.loadingTest = false;
-          });
-          subscription.unsubscribe();
-        }
-      });
-  
+          },
+        });
+
       this.subscription.add(subscription);
     });
-  } 
+  }
 
+  areFieldsValid(): boolean {
+    return (
+      this.pa1 !== null &&
+      this.pa2 !== null &&
+      this.splitterM3M !== null &&
+      this.splitterST !== null &&
+      this.cable1 !== null &&
+      this.cable2 !== null &&
+      this.cable3 !== null
+    );
+  }
 
   startTest(Queue_tests: any[]) {
+    if (!this.areFieldsValid()) {
+      this.notificationService.showWarning('Введите все значения в поля.');
+      return;
+    }
+
+    if (Queue_tests.length == 0) {
+      this.notificationService.showWarning(
+        'Создайте хотя бы один тест для начала тестирования.',
+      );
+      return;
+    }
     this.loadingTest = true;
 
     let i: number = 1;
-    const InputedParams = 
-    {
+    const InputedParams = {
       Attenuator_PA1: this.pa1,
       Attenuator_PA2: this.pa2,
       splitterM3M: this.splitterM3M,
       splitter_straight: this.splitterST,
       cable1: this.cable1,
       cable2: this.cable2,
-      cable3: this.cable3
+      cable3: this.cable3,
     };
 
-    const message = {"type": "test", "params": Queue_tests, "command": InputedParams};
+    const message = {
+      type: 'test',
+      params: Queue_tests,
+      command: InputedParams,
+    };
     this.sharedWebSocketService.sendMessage(message);
 
     const connectionTimeout = timer(5000).subscribe(() => {
       this.loadingTest = false;
       connectionTimeout.unsubscribe();
     });
-    
-    let subscription = this.sharedWebSocketService.getMessages().subscribe({
-      next: (message) => {
-        this.loadingTest = true;
-        if (message.type === "sended" && message.test === "queue") {
-          this.pullman();
-          connectionTimeout.unsubscribe();
+
+    let subscription = this.sharedWebSocketService
+      .getMessages()
+      .subscribe({
+        next: (message) => {
           this.loadingTest = true;
-          this.TestProcessing = true;
-          this.cdr.detectChanges();
-        }
-          else if (message.status === "error exec") {
-            this.notificationService.showError('Проверьте подключение к устройствам...');
+          if (message.type === 'sended' && message.test === 'queue') {
+            this.pullman();
+            connectionTimeout.unsubscribe();
+            this.loadingTest = true;
+            this.TestProcessing = true;
+            this.cdr.detectChanges();
+          } else if (message.status === 'error exec') {
+            this.notificationService.showError(
+              'Проверьте подключение к устройствам.',
+            );
             this.loadingTest = false;
             this.TestProcessing = false;
             this.cdr.detectChanges();
-          }
-          else if (message.status === "processing") {
+          } else if (message.status === 'processing') {
             this.loadingTest = true;
             this.TestProcessing = true;
             this.modulation = 0;
             this.currentStageQueue += Math.round(100 / Queue_tests.length);
-            this.notificationService.showWarning(`Тест пройден. Осталось ${(Queue_tests.length - i)} ...`);
+            this.notificationService.showWarning(
+              `Тест пройден. Осталось ${Queue_tests.length - i} ...`,
+            );
             i++;
             this.cdr.detectChanges();
-          }
-          else if (message.status === "completed") {
+          } else if (message.status === 'completed') {
             this.modulation = 0;
             this.currentStageQueue = 0;
-            this.notificationService.showSuccess('Все тесты успешно завершены! Проверьте папку пользователя...');
+            this.notificationService.showSuccess(
+              'Все тесты успешно завершены! Проверьте папку пользователя.',
+            );
             this.buttonsControlTest(subscription);
             this.cdr.detectChanges();
           }
-      },
-      error: (error) => {
-        connectionTimeout.unsubscribe();
-        this.notificationService.showError('Проверьте подключение к устройствам');
-        this.buttonsControlTest(subscription);
-        this.cdr.detectChanges();
-      }
-    });
+        },
+        error: (error) => {
+          connectionTimeout.unsubscribe();
+          this.notificationService.showError(
+            'Проверьте подключение к устройствам.',
+          );
+          this.buttonsControlTest(subscription);
+          this.cdr.detectChanges();
+        },
+      });
     this.subscription.add(subscription);
   }
 }
-

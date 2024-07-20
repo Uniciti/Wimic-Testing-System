@@ -1,8 +1,10 @@
 <div class="container CARDS p-6 max-w-lg bg-white shadow-md rounded-lg">
-  <h2 class="text-xl font-semibold mb-4">Введите данные для тестирования</h2>
-  <form (ngSubmit)="startTest(massiveTests)">
-    <div class="card flex flex-wrap gap-3 p-fluid">
-      <!-- <div class="flex w-full">
+  <h2 class="text-xl font-semibold mb-4">
+    Введите данные для тестирования
+  </h2>
+  <!-- <form (ngSubmit)="startTest(massiveTests)"> -->
+  <div class="card flex flex-wrap gap-3 p-fluid">
+    <!-- <div class="flex w-full">
         <div class="w-1/2 pr-2">
           <label id="selectionBandwidthLabel" for="selectionBandwidth" class="block text-sm font-medium text-gray-700">Ширина полосы, МГц</label>
           <p-selectButton 
@@ -29,186 +31,251 @@
             required />
         </div>
       </div> -->
-      <div class="flex w-full">
-        <div class="w-1/2 pr-2">
-          <label for="pa1" class="block text-sm font-medium text-gray-700">Аттенюатор ПА1</label>
-          <p-inputNumber
-              name="pa1"
-              inputId="pa1" 
-              [(ngModel)]="pa1"
-              [placeholder]="'Введите затухание, дБ'"
-              class="w-full"
-              required /> 
+    <div class="flex w-full">
+      <div class="MAX_WIDTH_FOR_INPUT w-1/2 pr-2">
+        <label for="pa1" class="block text-sm font-medium text-gray-700">
+          Аттенюатор ПА1
+        </label>
+        <p-inputNumber
+          name="pa1"
+          inputId="pa1"
+          [(ngModel)]="pa1"
+          [placeholder]="'Введите затухание, дБ'"
+          class="w-full"
+          required
+        />
+      </div>
+      <div class="MAX_WIDTH_FOR_INPUT w-1/2 pl-2">
+        <label for="pa2" class="block text-sm font-medium text-gray-700">
+          Аттенюатор ПА2
+        </label>
+        <p-inputNumber
+          name="pa2"
+          inputId="pa2"
+          [(ngModel)]="pa2"
+          [placeholder]="'Введите затухание, дБ'"
+          class="w-full"
+          required
+        />
+      </div>
+    </div>
+    <div class="flex w-full">
+      <div class="MAX_WIDTH_FOR_INPUT w-1/2 pr-2">
+        <label
+          for="splitterM3M"
+          class="block text-sm font-medium text-gray-700"
+        >
+          Разветвитель на М3М
+        </label>
+        <p-inputNumber
+          name="splitterM3M"
+          inputId="splitterM3M"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [(ngModel)]="splitterM3M"
+          [placeholder]="'Введите затухание, дБ'"
+          class="w-full"
+          required
+        />
+      </div>
+      <div class="MAX_WIDTH_FOR_INPUT w-1/2 pl-2">
+        <label
+          for="splitterST"
+          class="block text-sm font-medium text-gray-700"
+        >
+          Разветвитель прямо
+        </label>
+        <p-inputNumber
+          name="splitterST"
+          inputId="splitterST"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [(ngModel)]="splitterST"
+          [placeholder]="'Введите затухание, дБ'"
+          class="w-full"
+          required
+        />
+      </div>
+    </div>
+    <div class="flex w-full">
+      <div class="MAX_WIDTH_FOR_INPUT w-1/2 pr-2">
+        <label
+          for="cable1"
+          class="block text-sm font-medium text-gray-700"
+        >
+          Кабель 1
+        </label>
+        <p-inputNumber
+          name="cable1"
+          inputId="cable1"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [(ngModel)]="cable1"
+          [placeholder]="'Введите затухание, дБ'"
+          class="w-full"
+          required
+        />
+      </div>
+      <div class="MAX_WIDTH_FOR_INPUT w-1/2 pl-2">
+        <label
+          for="cable2"
+          class="block text-sm font-medium text-gray-700"
+        >
+          Кабель 2
+        </label>
+        <p-inputNumber
+          name="cable2"
+          inputId="cable2"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [(ngModel)]="cable2"
+          [placeholder]="'Введите затухание, дБ'"
+          class="w-full"
+          required
+        />
+      </div>
+    </div>
+    <div class="flex w-full">
+      <div class="MAX_WIDTH_FOR_INPUT w-1/2 pr-2">
+        <label
+          for="cable3"
+          class="block text-sm font-medium text-gray-700"
+        >
+          Кабель 3
+        </label>
+        <p-inputNumber
+          name="cable3"
+          inputId="cable3"
+          mode="decimal"
+          [minFractionDigits]="2"
+          [(ngModel)]="cable3"
+          [placeholder]="'Введите затухание, дБ'"
+          class="w-full"
+          required
+        />
+      </div>
+    </div>
+    <div class="mt-2 text-center w-full">
+      <div *ngIf="TestProcessing" class="card mt-4 mb-2">
+        <div class="mt-1">
+          <p>Общий процент</p>
+          <p-progressBar [value]="currentStageQueue"></p-progressBar>
         </div>
-        <div class="w-1/2 pl-2">
-          <label for="pa2" class="block text-sm font-medium text-gray-700">Аттенюатор ПА2</label>
-          <p-inputNumber
-              name="pa2"
-              inputId="pa2" 
-              [(ngModel)]="pa2"
-              [placeholder]="'Введите затухание, дБ'"
-              class="w-full"
-              required /> 
+        <div class="mt-1">
+          <p>Процент теста</p>
+          <p-progressBar [value]="modulation"></p-progressBar>
         </div>
       </div>
-      <div class="flex w-full">
-        <div class="w-1/2 pr-2">
-          <label for="splitterM3M" class="block text-sm font-medium text-gray-700">Разветвитель на М3М</label>
-          <p-inputNumber
-              name="splitterM3M"
-              inputId="splitterM3M"
-              mode="decimal"
-              [minFractionDigits]="2" 
-              [(ngModel)]="splitterM3M"
-              [placeholder]="'Введите затухание, дБ'"
-              class="w-full"
-              required /> 
-        </div>
-        <div class="w-1/2 pl-2">
-          <label for="splitterST" class="block text-sm font-medium text-gray-700">Разветвитель прямо</label>
-          <p-inputNumber
-              name="splitterST"
-              inputId="splitterST"
-              mode="decimal"
-              [minFractionDigits]="2" 
-              [(ngModel)]="splitterST"
-              [placeholder]="'Введите затухание, дБ'"
-              class="w-full"
-              required /> 
-        </div>
-      </div>
-      <div class="flex w-full">
-        <div class="w-1/2 pr-2">
-          <label for="cable1" class="block text-sm font-medium text-gray-700">Кабель 1</label>
-          <p-inputNumber
-              name="cable1"
-              inputId="cable1"
-              mode="decimal"
-              [minFractionDigits]="2"
-              [(ngModel)]="cable1"
-              [placeholder]="'Введите затухание, дБ'"
-              class="w-full"
-              required /> 
-        </div>
-        <div class="w-1/2 pl-2">
-          <label for="cable2" class="block text-sm font-medium text-gray-700">Кабель 2</label>
-          <p-inputNumber
-              name="cable2"
-              inputId="cable2"
-              mode="decimal"
-              [minFractionDigits]="2"
-              [(ngModel)]="cable2"
-              [placeholder]="'Введите затухание, дБ'"
-              class="w-full"
-              required /> 
-        </div>
-      </div>
-      <div class="flex w-full">
-        <div class="w-1/2 pr-2">
-          <label for="cable3" class="block text-sm font-medium text-gray-700">Кабель 3</label>
-          <p-inputNumber
-              name="cable3"
-              inputId="cable3"
-              mode="decimal"
-              [minFractionDigits]="2"
-              [(ngModel)]="cable3"
-              [placeholder]="'Введите затухание, дБ'"
-              class="w-full"
-              required /> 
-        </div>
-      </div>
-      <div class="mt-2 text-center w-full">
-        <div *ngIf="TestProcessing" class="card mt-4 mb-2">
-          <div class="mt-1">
-            <p>Общий процент</p>
-            <p-progressBar [value]="currentStageQueue"></p-progressBar>
-          </div>
-          <div class="mt-1">
-            <p>Процент теста</p>
-            <p-progressBar [value]="modulation"></p-progressBar>
-          </div>
-        </div>
-      </div>
-      <div class="card_table">
-        <p-table [columns]="cols" [value]="massiveTests">
-            <ng-template pTemplate="header" let-columns>
-                <tr>
-                    <th *ngFor="let col of columns">
-                        {{ col.header }}
-                    </th>
-                </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-rowData let-columns="columns">
-              <tr>
-                <ng-container>
-                  <td *ngFor="let col of columns">
-                    <ng-container *ngIf="col.field === 'type'">
-                      {{  getLabelByValue(rowData[col.field]) }}
-                    </ng-container>
-                    <ng-container *ngIf="col.field !== 'modulation' && col.field !=='type'">
-                      {{  rowData[col.field] }}
-                    </ng-container>
-                    <ng-container *ngIf="col.field === 'modulation'">
-                      <ng-container *ngIf="rowData[col.field].length === 7; else notAllSelected">
-                          Все
-                      </ng-container>
-                      <ng-template #notAllSelected>
-                        <div class="modulation-container">
-                          <div class="modulation-row">
-                            <div *ngFor="let box of getModulationBoxes(rowData[col.field]).slice(0, 4)"
-                                class="modulation-box"
-                                [ngClass]="{'selected': box.selected}">
-                            </div>
-                          </div>
-                          <div class="modulation-row">
+    </div>
+    <div class="card_table">
+      <p-table [columns]="cols" [value]="massiveTests">
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns">
+              {{ col.header }}
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr>
+            <ng-container>
+              <td *ngFor="let col of columns">
+                <ng-container *ngIf="col.field === 'type'">
+                  {{ getLabelByValue(testOptions, rowData[col.field]) }}
+                </ng-container>
+                <ng-container *ngIf="col.field === 'bandwidth'">
+                  {{
+                    getLabelByValue(
+                      stationOptions,
+                      toNumber(rowData[col.field])
+                    )
+                  }}
+                </ng-container>
+                <ng-container
+                  *ngIf="
+                    col.field !== 'modulation' &&
+                    col.field !== 'type' &&
+                    col.field !== 'bandwidth'
+                  "
+                >
+                  {{ rowData[col.field] }}
+                </ng-container>
+                <ng-container *ngIf="col.field === 'modulation'">
+                  <ng-container
+                    *ngIf="
+                      rowData[col.field].length === 7;
+                      else notAllSelected
+                    "
+                  >
+                    Все
+                  </ng-container>
+                  <ng-template #notAllSelected>
+                    <div class="modulation-container">
+                      <div class="modulation-row">
+                        <div
+                          *ngFor="
+                            let box of getModulationBoxes(
+                              rowData[col.field]
+                            ).slice(0, 7)
+                          "
+                          class="modulation-box"
+                          [ngClass]="{ selected: box.selected }"
+                        ></div>
+                      </div>
+                      <!-- <div class="modulation-row">
                             <div *ngFor="let box of getModulationBoxes(rowData[col.field]).slice(4, 7)"
                                 class="modulation-box"
                                 [ngClass]="{'selected': box.selected}">
                             </div>
-                          </div>
-                        </div>
-                      </ng-template>
-                    </ng-container>
-                        <ng-container *ngIf="col.field === 'buttons'">
-                            <div class="buttons-container">
-                              <button pButton type="button" (click)="editTest(rowData)"><i class="fa-solid fa-gear"></i></button>
-                              <button pButton severity="danger" type="button" (click)="deleteTest(rowData)"><i class="fa-solid fa-trash"></i></button>
-                            </div> 
-                        </ng-container>
-                    </td>
-                  </ng-container>
-                <!-- <td [attr.colspan]="cols.length" class="center-buttons" *ngIf="rowData.hovered">
+                          </div> -->
+                    </div>
+                  </ng-template>
+                </ng-container>
+                <ng-container *ngIf="col.field === 'buttons'">
                   <div class="buttons-container">
-                    <button pButton type="button" label="Изменить" (click)="editTest(rowData)"></button>
-                    <button pButton severity="danger" type="button" label="Удалить" (click)="deleteTest(rowData)"></button>
+                    <button
+                      pButton
+                      type="button"
+                      (click)="editTest(rowData)"
+                    >
+                      <i class="fa-solid fa-gear"></i>
+                    </button>
+                    <button
+                      pButton
+                      severity="danger"
+                      type="button"
+                      (click)="deleteTest(rowData)"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
                   </div>
-                </td> -->                                                     
-              </tr>
-            </ng-template>
-        </p-table>
-        
-      </div>
-      <div class="flex justify-center items-center mt-2 mx-auto">
-        <button class="w-full" pButton severity="success" type="button" label="Добавить тест" (click)="openDialog()"></button>
-      </div>
-      <div class="gap-x-2 items-left flex mt-1 w-full">
-        <p-button 
-          label="Начать тестирование"
-          type="submit" 
-          [disabled]="TestProcessing"
-          [loading]="loadingTest" 
-          severity="success"
-          position="center"
-          class="" />
-        <!-- <p-button 
+                </ng-container>
+              </td>
+            </ng-container>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    <div class="flex justify-end ml-auto mt-2">
+      <button
+        class="w-auto"
+        pButton
+        severity="success"
+        type="button"
+        label="Добавить тест"
+        (click)="openDialog()"
+      ></button>
+    </div>
+    <div class="gap-x-2 items-left flex mt-1 w-full">
+      <!-- <p-button 
           label="Очередь тестов"
           type="button"
           (click)="openDialog()"
           severity="info"
           position="center"
           class="" /> -->
-      </div>
-      <!-- <div class="mt-2 w-full flex">
+    </div>
+    <!-- <div class="mt-2 w-full flex">
         <p-button 
           label="Скачать настройки"
           type="button"
@@ -228,12 +295,24 @@
           (uploadHandler)="uploadJSONWithSettings($event)">
           </p-fileUpload>
       </div> -->
-      <!-- <div *ngIf="parsedData">
+    <!-- <div *ngIf="parsedData">
         <p>Data: {{ parsedData | json }}</p>
       </div> -->
-      <!-- <ul>
+    <!-- <ul>
         <li *ngFor="let test of massiveTests">{{ test.type  }} - {{ test.bandwidth }}</li>
       </ul> -->
-    </div>
-  </form>
+  </div>
+  <!-- </form> -->
+</div>
+<div class="container CARDS p-6">
+  <p-button
+    label="Начать тестирование"
+    type="button"
+    (onClick)="startTest(massiveTests)"
+    [disabled]="TestProcessing"
+    [loading]="loadingTest"
+    severity="success"
+    position="center"
+    class=""
+  />
 </div>

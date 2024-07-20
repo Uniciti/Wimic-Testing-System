@@ -1,16 +1,152 @@
-mainTestsComponent.ts: 
-ngOnInit() {
-    this.testService.tests$.subscribe(tests => {
-      this.massiveTests = tests;
-      console.log(tests);
-    });
+import { Injectable } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
 
-    this.settingsService.updateSettings(this.settingsData);
+@Injectable ({
+    providedIn: 'root'
+})
+
+export class SettingsService {
+  private settingsSubject = new BehaviorSubject<any>(null);
+  settings$ = this.settingsSubject.asObservable();
+
+  updateSettings(settings: any) {
+    this.settingsSubject.next(settings);
+  }
+
+  getSettings() {
+    return this.settingsSubject.value;
+  }
+    
 }
 
-SettingsComponent.ts:
-export class SettingsComponent implements OnInit {
+export class mainTestsComponent implements OnInit, OnDestroy {
 
+  mainTestsData: any = {};
+
+  loadingTest: boolean = false;
+  TestProcessing: boolean = false;
+  interval: any;
+  modulation: number = 0;
+  currentStageQueue: number = 0;
+
+  routerSubscription: Subscription = new Subscription();
+
+  pa1: number | null = null;
+  pa2: number | null = null;
+  splitterM3M: number | null = null;
+  splitterST: number | null = null;
+  cable1: number | null = null;
+  cable2: number | null = null;
+  cable3: number | null = null;
+
+  get settingsData() {
+    return {
+    Attenuator_PA1: this.pa1,
+    Attenuator_PA2: this.pa2,
+    splitter_to_M3M: this.splitterM3M,
+    splitter_straight: this.splitterST,
+    cable1: this.cable1,
+    cable2: this.cable2,
+    cable3: this.cable3
+    };
+  }
+
+  massiveTests: any[] = [];
+  
+  modulationOptions: any[] = [
+    { label: 'BPSK 1/2', value: 0 },
+    { label: 'QPSK 1/2', value: 1 },
+    { label: 'QPSK 3/4', value: 2 },
+    { label: 'QPSK16 1/2', value: 3 },
+    { label: 'QAM16 3/4', value: 4 },
+    { label: 'QAM64 2/3', value: 5 },
+    { label: 'QAM64 3/4', value: 6 }
+  ];
+
+  testOptions: any[] = [
+    { label: 'Экспресс', value: 'expresstest' },
+    { label: 'Полный', value: 'fulltest' }
+  ];
+  stationOptions: any[] = [
+    { label: '10 МГц', value: 3 },
+    { label: '20 МГц', value: 5 }
+  ];
+
+  cols: any[] = [
+    { field: 'type', header: 'Тип теста' },
+    { field: 'bandwidth', header: 'Ширина полосы' },
+    { field: 'frequency', header: 'Частота' },
+    { field: 'modulation', header: 'Модуляции' },
+    { field: 'time', header: 'Время' },
+    { field: 'buttons', header: 'Действия'}
+  ];
+  
+  private subscription: Subscription = new Subscription();
+
+  constructor(
+    private sharedWebSocketService: SharedWebSocketService,
+    private cdr: ChangeDetectorRef,
+    private notificationService: NotificationService,
+    private ngZone: NgZone,
+    private dialog: MatDialog,
+    private localStorage: StorageService,
+    private testService: QueueCommunicationService,
+    private router: Router,
+    private settingsService: SettingsService
+  ) { 
+    this.massiveTests = this.testService.getTests();
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadHandler(event: Event): void {
+    this.localStorage.setItem('settingsData', this.settingsData);
+  }
+  
+  ngOnInit(): void {
+    const savedValue = this.localStorage.getItem('settingsData');
+    if (savedValue) {
+      this.pa1 = savedValue.Attenuator_PA1;
+      this.pa2 = savedValue.Attenuator_PA2;
+      this.splitterM3M = savedValue.splitter_to_M3M;
+      this.splitterST = savedValue.splitter_straight;
+      this.cable1 = savedValue.cable1;
+      this.cable2 = savedValue.cable2
+      this.cable3 = savedValue.cable3
+    }
+
+    this.routerSubscription = this.router.events.subscribe(event => {
+      if (event instanceof NavigationStart) {
+        this.localStorage.setItem('settingsData', this.settingsData);
+      }
+    });
+    
+    this.testService.tests$.subscribe(tests => {
+      this.massiveTests = tests;
+    });
+
+    this.settingsService.settings$.subscribe(data => {
+      if (data) {
+        this.pa1 = data.Attenuator_PA1;
+        this.pa2 = data.Attenuator_PA2;
+        this.splitterM3M = data.splitter_to_M3M;
+        this.splitterST = data.splitter_straight;
+        this.cable1 = data.cable1;
+        this.cable2 = data.cable2;
+        this.cable3 = data.cable3;
+      }
+    });
+  }
+  ngOnDestroy() {
+    this.localStorage.setItem('settingsData', this.settingsData);
+
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+
+  export class SettingsComponent implements OnInit {
+  
+  @ViewChild('fileUpload') fileUpload!: FileUpload;
   settingsData: any;
   parsedData: any;
 
@@ -34,25 +170,11 @@ export class SettingsComponent implements OnInit {
       this.ngZone.run(() => {
         try {
           this.parsedData = JSON.parse(e.target.result);
-          // //this.massiveTests = this.parsedData.slice(0, -1);
-          // const currentTests = this.testService.testsSubject.value;
-          // currentTests.push(this.parsedData.slice(0, -1));
-          // this.testService.testsSubject.next(currentTests);
           this.testService.loadTests(this.parsedData);
 
-          const settingsElement = this.parsedData.length - 1;
-          // this.pa1 = this.parsedData[settingsElement].Attenuator_PA1;
-          // this.pa2 = this.parsedData[settingsElement].Attenuator_PA2;
-          // this.splitterM3M = this.parsedData[settingsElement].splitter_to_M3M;
-          // this.splitterST = this.parsedData[settingsElement].splitter_straight;
-          // this.cable1 = this.parsedData[settingsElement].cable1;
-          // this.cable2 = this.parsedData[settingsElement].cable2;
-          // this.cable3 = this.parsedData[settingsElement].cable3;
+          const settingsElement = this.parsedData[this.parsedData.length - 1];
           this.settingsService.updateSettings(settingsElement);
-  
-          //this.localStorage.setItem('massiveTests', this.massiveTests);
-  
-          //this.cdr.detectChanges();
+          this.fileUpload.clear();
         } catch (error) {
           console.error('Ошибка при парсинге JSON:', error);
         }
@@ -69,143 +191,3 @@ export class SettingsComponent implements OnInit {
    }
 
 }
-
-QueueCommunicationService.service.ts:
-import { Injectable } from '@angular/core';
-import { parse } from 'path';
-import { BehaviorSubject } from 'rxjs';
-
-@Injectable({
-  providedIn: 'root'
-})
-export class QueueCommunicationService {
-  private testsSubject = new BehaviorSubject<any[]>([]);
-  tests$ = this.testsSubject.asObservable();
-
-  constructor() {
-    const savedTests = JSON.parse(localStorage.getItem('massiveTests') || '[]');
-    this.testsSubject.next(savedTests);
-  }
-
-  getTests() {
-    return this.testsSubject.value;
-  }
-
-  addTest(test: any) {
-    const currentTests = this.testsSubject.value;
-    currentTests.push(test);
-    this.testsSubject.next(currentTests);
-    localStorage.setItem('massiveTests', JSON.stringify(currentTests));
-  }
-
-  editTest(index: number, updatedTest: any) {
-    const currentTests = this.testsSubject.value;
-    currentTests[index] = updatedTest;
-    this.testsSubject.next(currentTests);
-    localStorage.setItem('massiveTests', JSON.stringify(currentTests));
-  }
-
-  removeTest(index: number) {
-    const currentTests = this.testsSubject.value;
-    currentTests.splice(index, 1);
-    this.testsSubject.next(currentTests);
-    localStorage.setItem('massiveTests', JSON.stringify(currentTests));
-  }
-
-  loadTests(parsedData: any) {
-    let currentTests = this.testsSubject.value;
-    currentTests.push(parsedData.slice(0, -1));
-    this.testsSubject.next(currentTests);
-  }
-}
-
-Settings.service.ts:
-import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
-
-@Injectable ({
-    providedIn: 'root'
-})
-
-export class SettingsService {
-  private settingsSubject = new BehaviorSubject<any>(null);
-  settings$ = this.settingsSubject.asObservable();
-
-  updateSettings(settings: any) {
-    this.settingsSubject.next(settings);
-  }
-
-  getSettings() {
-    return this.settingsSubject.value;
-  }
-    
-}
-
-MY_JSON:
-[
-  {
-    "type": "fulltest",
-    "bandwidth": 10,
-    "frequency": 5900,
-    "modulation": [
-      {
-        "label": "BPSK 1/2",
-        "value": 0
-      },
-      {
-        "label": "QPSK 1/2",
-        "value": 1
-      },
-      {
-        "label": "QPSK 3/4",
-        "value": 2
-      },
-      {
-        "label": "QPSK16 1/2",
-        "value": 3
-      },
-      {
-        "label": "QAM16 3/4",
-        "value": 4
-      },
-      {
-        "label": "QAM64 2/3",
-        "value": 5
-      },
-      {
-        "label": "QAM64 3/4",
-        "value": 6
-      }
-    ],
-    "time": "60"
-  },
-  {
-    "type": "expresstest",
-    "bandwidth": 10,
-    "frequency": 5900,
-    "modulation": [
-      {
-        "label": "QPSK16 1/2",
-        "value": 3
-      },
-      {
-        "label": "BPSK 1/2",
-        "value": 0
-      },
-      {
-        "label": "QAM16 3/4",
-        "value": 4
-      }
-    ],
-    "time": 1260
-  },
-  {
-    "Attenuator_PA1": 1423,
-    "Attenuator_PA2": 214,
-    "splitter_to_M3M": 124,
-    "splitter_straight": null,
-    "cable1": 124,
-    "cable2": 142,
-    "cable3": null
-  }
-]

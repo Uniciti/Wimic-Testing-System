@@ -1,76 +1,121 @@
-<div class="forma mx-auto p-5">
+<div class="mx-auto p-5">
   <h2 class="text-2xl font-bold mb-5">Добавить тест</h2>
   <form (ngSubmit)="save()" class="space-y-4">
     <div class="max-w-40">
-      <label for="testType" class="block text-sm font-medium text-gray-700">Тип теста:</label>
-      <select id="testType" [(ngModel)]="selectedTestType" name="testType" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-        <option *ngFor="let option of testOptions" [value]="option.value">{{ option.label }}</option>
+      <label
+        for="testType"
+        class="block text-sm font-medium text-gray-700"
+      >
+        Тип теста:
+      </label>
+      <select
+        id="testType"
+        [(ngModel)]="selectedTestType"
+        name="testType"
+        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+      >
+        <option *ngFor="let option of testOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
       </select>
     </div>
     <div class="max-w-40">
-      <label for="bandwidth" class="block text-sm font-medium text-gray-700">Ширина полосы, МГц:</label>
-      <select id="bandwidth" [(ngModel)]="selectedBandwidth" name="bandwidth" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
-        <option *ngFor="let option of bandwidthOptions" [value]="option.value">{{ option.label }}</option>
+      <label
+        for="bandwidth"
+        class="block text-sm font-medium text-gray-700"
+      >
+        Ширина полосы, МГц:
+      </label>
+      <select
+        id="bandwidth"
+        [(ngModel)]="selectedBandwidth"
+        name="bandwidth"
+        class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+      >
+        <option
+          *ngFor="let option of bandwidthOptions"
+          [value]="option.value"
+        >
+          {{ option.label }}
+        </option>
       </select>
     </div>
     <div class="p-inputgroup block">
-      <label for="frequency" class="block text-sm font-medium text-gray-700">Частота, МГц:</label>
+      <label
+        for="frequency"
+        class="block text-sm font-medium text-gray-700"
+      >
+        Частота, МГц:
+      </label>
       <div class="max-w-40 flex">
-      <p-inputNumber
-        styleClass="flex focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        name="frequency"
-        inputId="frequency"
-        [(ngModel)]="inputedFrequency"
-        [placeholder]="'Введите частоту'"
-        min="5900"
-        required>
-      </p-inputNumber>
-      <span class="p-inputgroup-addon sm:text-sm">МГц</span>
+        <p-inputNumber
+          styleClass="flex focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          name="frequency"
+          inputId="frequency"
+          [(ngModel)]="inputedFrequency"
+          [placeholder]="'Введите частоту'"
+          min="5900"
+          required
+        ></p-inputNumber>
+        <span class="p-inputgroup-addon sm:text-sm">МГц</span>
       </div>
     </div>
     <div>
-      <label class="block text-sm font-medium text-gray-700">Модуляция:</label>
+      <label class="block text-sm font-medium text-gray-700">
+        Модуляция:
+      </label>
       <div class="mt-2 flex space-x-4">
         <div class="space-y-2">
-          <ng-container *ngFor="let option of modulationOptions; let i = index">
+          <ng-container
+            *ngFor="let option of modulationOptions; let i = index"
+          >
             <div *ngIf="i < 4" class="flex items-center">
               <p-checkbox
                 [(ngModel)]="selectedModulation"
                 [label]="option.label"
                 name="modulationTypes"
                 [value]="option"
-                class="form-check-input mr-2">
-              </p-checkbox>
+                class="form-check-input mr-2"
+              ></p-checkbox>
             </div>
           </ng-container>
         </div>
         <div class="space-y-2">
-          <ng-container *ngFor="let option of modulationOptions; let i = index">
+          <ng-container
+            *ngFor="let option of modulationOptions; let i = index"
+          >
             <div *ngIf="i >= 4" class="flex items-center">
               <p-checkbox
                 [(ngModel)]="selectedModulation"
                 [label]="option.label"
                 name="modulationTypes"
                 [value]="option"
-                class="form-check-input mr-2">
-              </p-checkbox>
+                class="form-check-input mr-2"
+              ></p-checkbox>
             </div>
           </ng-container>
         </div>
       </div>
     </div>
     <div class="p-inputgroup block">
-      <label for="duration" class="block text-sm font-medium text-gray-700">Длительность, c:</label>
+      <label
+        for="duration"
+        class="block text-sm font-medium text-gray-700"
+      >
+        Длительность, c:
+      </label>
       <div class="max-w-40 flex">
-      <p-inputNumber
-        styleClass="flex focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-        name="duration"
-        inputId="duration"
-        [(ngModel)]="duration"
-        [placeholder]="'Введите длительность тестирования одной модуляции'"
-        required>
-      </p-inputNumber>
-      <span class="p-inputgroup-addon sm:text-sm">с</span>
+        <p-inputNumber
+          styleClass="flex focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          name="duration"
+          inputId="duration"
+          [(ngModel)]="duration"
+          [placeholder]="
+            'Введите длительность тестирования одной модуляции'
+          "
+          required
+        ></p-inputNumber>
+        <span class="p-inputgroup-addon sm:text-sm">с</span>
       </div>
     </div>
     <!-- <div class="max-w-40">
@@ -87,18 +132,16 @@
     <div class="mt-6 flex justify-between">
       <!-- <button (click)="acceptTests()" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">&#x2713; ОК</button>
       <button (click)="closeDialog()" class="bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Отмена</button> -->
-      <p-button 
+      <p-button
         label="ОК"
         type="submit"
         (click)="save()"
-        severity="success" />
-      <p-button 
-        label="Отмена"
-        (click)="closeDialog()"
-        severity="danger" />
+        severity="success"
+      />
+      <p-button label="Отмена" (click)="closeDialog()" severity="danger" />
     </div>
   </form>
-  
+
   <!-- <h3 class="text-xl font-semibold mt-8 mb-4">Список тестов</h3>
   <table class="min-w-full text-center bg-white border border-gray-200 rounded-md">
     <thead>
@@ -140,9 +183,9 @@
   </table> -->
 
   <!-- <div class="mt-6 flex justify-between"> -->
-    <!-- <button (click)="acceptTests()" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">&#x2713; ОК</button>
+  <!-- <button (click)="acceptTests()" class="bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">&#x2713; ОК</button>
     <button (click)="closeDialog()" class="bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">Отмена</button> -->
-    <!-- <p-button 
+  <!-- <p-button 
       label="ОК"
       (click)="acceptTests()"
       severity="success" />

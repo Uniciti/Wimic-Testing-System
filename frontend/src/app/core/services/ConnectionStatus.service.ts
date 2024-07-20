@@ -2,16 +2,17 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ConnectionStatusService {
-
-  constructor() { }
+  constructor() {}
 
   private IP_BaseStatusSource = new BehaviorSubject<string | null>(null);
   currentIP_BaseStatus = this.IP_BaseStatusSource.asObservable();
 
-  private IP_AbonentStatusSource = new BehaviorSubject<string | null>(null);
+  private IP_AbonentStatusSource = new BehaviorSubject<string | null>(
+    null,
+  );
   currentIP_AbonentStatus = this.IP_AbonentStatusSource.asObservable();
 
   private frequencyStatusSource = new BehaviorSubject<string | null>(null);
@@ -40,39 +41,41 @@ export class ConnectionStatusService {
 
   changeOidParamsStatus(_Frequency: string | null) {
     this.frequencyStatusSource.next(_Frequency);
-	  //this.BandwidthStatusSource.next(_Bandwidth);
+    //this.BandwidthStatusSource.next(_Bandwidth);
   }
 
-  changeIpParamsStatus(_IP_Base: string | null, _IP_Abonent: string | null) {
+  changeIpParamsStatus(
+    _IP_Base: string | null,
+    _IP_Abonent: string | null,
+  ) {
     this.IP_BaseStatusSource.next(_IP_Base);
-	  this.IP_AbonentStatusSource.next(_IP_Abonent);
+    this.IP_AbonentStatusSource.next(_IP_Abonent);
   }
 
   changeOffsetM3MStatus(_Offset: string | null) {
-	  this.OffsetStatusSource.next(_Offset);
+    this.OffsetStatusSource.next(_Offset);
   }
-  
+
   changeAttenuationAttStatus(_Attenuation: string) {
-	  this.AttenuationStatusSource.next(_Attenuation);
+    this.AttenuationStatusSource.next(_Attenuation);
   }
 
   updateStatus(device: string, value: boolean): void {
-    switch(device) {
-      case "Ber":
+    switch (device) {
+      case 'Ber':
         this.BercutStatus.next(value);
         break;
-      case "Att":
+      case 'Att':
         this.AttenuatorStatus.next(value);
         break;
-      case "Stat":
+      case 'Stat':
         this.StationStatus.next(value);
         break;
-      case "M3M":
+      case 'M3M':
         this.M3MStatus.next(value);
         break;
       default:
-        console.log("Такого устройства не существует.");
+        console.log('Такого устройства не существует.');
     }
-    
   }
 }

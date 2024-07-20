@@ -1,15 +1,13 @@
-import { Injectable } from "@angular/core"
-import { saveAs } from "file-saver"
+import { Injectable } from '@angular/core';
+import { saveAs } from 'file-saver';
 
-@Injectable ({
-    providedIn: 'root'
+@Injectable({
+  providedIn: 'root',
 })
-
 export class FileSaveService {
-    constructor() { }
+  constructor() {}
 
-    saveFile(Blob: Blob, filename: string = "SettingsForTest.json"): void {
-        saveAs(Blob, filename);
-    }
+  saveFile(Blob: Blob, filename: string = 'SettingsForTest.json'): void {
+    saveAs(Blob, filename);
+  }
 }
-
