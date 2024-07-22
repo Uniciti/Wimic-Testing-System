@@ -1,21 +1,36 @@
-import { Component, OnDestroy, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { RouterOutlet, NavigationEnd, Router } from "@angular/router";
-import { NgClass, NgIf } from "@angular/common";
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  AfterViewInit,
+  ViewChild,
+} from '@angular/core';
+import { RouterOutlet, NavigationEnd, Router } from '@angular/router';
+import { NgClass, NgIf } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { BreakpointObserver } from '@angular/cdk/layout';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+
+// import { BrowserModule } from '@angular/platform-browser';
+// import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { HeaderComponent } from './header/header.component';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { DeviceStatusComponent } from './deviceStatus/deviceStatus.component';
 import { mainTestsComponent } from './mainTests/mainTests.component';
 import { ConnectionStatusComponent } from './ConnectionStatus/ConnectionStatus.component';
-import { QueueTestsFormComponent } from './queue-tests-form/queue-tests-form.component'
+import { QueueTestsFormComponent } from './queue-tests-form/queue-tests-form.component';
 import { SettingsComponent } from './settings/settings.component';
+import { ResultsComponent } from './results/results.component';
+import { TestDetailComponent } from './test-detail/test-detail.component';
 
+import { MatIconModule } from '@angular/material/icon';
 import { MessageService } from 'primeng/api';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToastModule } from 'primeng/toast';
+import { TableModule } from 'primeng/table';
 
 import { SharedWebSocketService } from './core/services/SharedWebSocket.service';
 import { ConnectionStatusService } from './core/services/ConnectionStatus.service';
@@ -30,35 +45,48 @@ import { CustomRouteReuseStrategy } from './core/services/app.component.service'
     HeaderComponent,
     NgClass,
     NgIf,
-    SidebarComponent, 
-    DeviceStatusComponent, 
+    SidebarComponent,
+    DeviceStatusComponent,
     mainTestsComponent,
-    ConnectionStatusComponent, 
-    RouterOutlet, 
+    ConnectionStatusComponent,
+    RouterOutlet,
     QueueTestsFormComponent,
     SettingsComponent,
+    ResultsComponent,
+    TestDetailComponent,
     FileUploadModule,
     ToastModule,
-    HttpClientModule
-    ],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css' ],
-  styles: [`
-  .tab_content{height: screen;
-    overflow-y: scroll;
-    -ms-overflow-style: none; 
-    scrollbar-width: none}
-  .tab-content::-webkit-scrollbar{display: none}`
+    HttpClientModule,
+    MatDialogModule,
+    MatButtonModule,
+    TableModule,
+    MatIconModule,
   ],
-  providers: [ NotificationService,
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
+  styles: [
+    `
+      .tab_content {
+        height: screen;
+        overflow-y: scroll;
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .tab-content::-webkit-scrollbar {
+        display: none;
+      }
+    `,
+  ],
+  providers: [
+    NotificationService,
     MessageService,
     ConnectionStatusService,
-    CustomRouteReuseStrategy
-  ]
+    CustomRouteReuseStrategy,
+  ],
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
-
-  @ViewChild(ConnectionStatusComponent) connectionStatus!: ConnectionStatusComponent;
+  @ViewChild(ConnectionStatusComponent)
+  connectionStatus!: ConnectionStatusComponent;
   @ViewChild(SidebarComponent) sidebar!: SidebarComponent;
 
   constructor(
@@ -66,8 +94,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     private connectionStatusService: ConnectionStatusService,
     private notificationService: NotificationService,
     private router: Router,
-    private breakpointObserver: BreakpointObserver
-  ) { }
+    private breakpointObserver: BreakpointObserver,
+  ) {}
 
   isSmallScreen = false;
   isComponentVisible = true;
@@ -78,43 +106,50 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnInit(): void {
     this.sharedWebSocketService.connect();
 
-    this.breakpointObserver.observe(['(max-width: 1102px)']).subscribe(result => {
-      this.isSmallScreen = result.matches;
-      if (this.isSmallScreen) {
-        this.isComponentVisible = false;
+    this.breakpointObserver
+      .observe(['(max-width: 1246px)'])
+      .subscribe((result) => {
+        this.isSmallScreen = result.matches;
+        if (this.isSmallScreen) {
+          this.isComponentVisible = false;
+        }
+      });
+
+    this.breakpointObserver
+      .observe(['(max-width: 963px)'])
+      .subscribe((result) => {
+        this.isVerySmallScreen = result.matches;
+        if (this.isVerySmallScreen) {
+          this.isComponentSidebarVisible = false;
+        }
+      });
+
+    this.sharedWebSocketService.getMessages().subscribe((message_) => {
+      if (message_.type === 'is-connected') {
+        if (message_.pingBert == false) {
+          this.connectionStatusService.updateStatus('Ber', false);
+          this.notificationService.showError('Беркут-ЕТ отключился...');
+        }
+        if (message_.pingAtt == false) {
+          this.connectionStatusService.updateStatus('Att', false);
+          this.notificationService.showError('Аттенюатор отключился...');
+        }
+        if (message_.pingStat0 == false || message_.pingStat1 == false) {
+          this.connectionStatusService.updateStatus('Stat', false);
+          this.notificationService.showError(
+            'Станции или одна из них отключились...',
+          );
+        }
+        if (message_.pingM3M == false) {
+          this.connectionStatusService.updateStatus('M3M', false);
+          this.notificationService.showError('М3М отключился...');
+        }
       }
     });
-
-    this.breakpointObserver.observe(['(max-width: 963px)']).subscribe(result => {
-      this.isVerySmallScreen = result.matches;
-      if (this.isVerySmallScreen) {
-        this.isComponentSidebarVisible = false;
-      }
-    });
-
-    this.sharedWebSocketService.getMessages().subscribe(message_ => {
-    if (message_.type === "is-connected") {
-      if (message_.pingBert == false) {
-        this.connectionStatusService.updateStatus("Ber", false);
-        this.notificationService.showError("Беркут-ЕТ отключился...");
-      }
-      if (message_.pingAtt == false) {
-        this.connectionStatusService.updateStatus("Att", false);
-        this.notificationService.showError("Аттенюатор отключился...");
-      }
-      if (message_.pingStat0 == false || message_.pingStat1 == false) {
-        this.connectionStatusService.updateStatus("Stat", false);
-        this.notificationService.showError("Станции или одна из них отключились...");
-      }
-      if (message_.pingM3M == false) {
-        this.connectionStatusService.updateStatus("M3M", false);
-        this.notificationService.showError("М3М отключился...");
-      }
-    }})
   }
 
   ngAfterViewInit() {
-    this.router.events.subscribe(event => {
+    this.router.events.subscribe((event) => {
       if (event instanceof NavigationEnd) {
         this.resetScrollPosition();
       }
@@ -128,7 +163,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  ngOnDestroy(): void {  } 
+  ngOnDestroy(): void {}
 
   showTableStatus(): void {
     this.isComponentVisible = !this.isComponentVisible;

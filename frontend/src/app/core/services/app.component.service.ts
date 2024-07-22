@@ -1,4 +1,8 @@
-import { RouteReuseStrategy, DetachedRouteHandle, ActivatedRouteSnapshot } from '@angular/router';
+import {
+  RouteReuseStrategy,
+  DetachedRouteHandle,
+  ActivatedRouteSnapshot,
+} from '@angular/router';
 
 export class CustomRouteReuseStrategy implements RouteReuseStrategy {
   private storedRoutes: { [key: string]: DetachedRouteHandle } = {};
@@ -7,14 +11,20 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
     return true;
   }
 
-  store(route: ActivatedRouteSnapshot, handle: DetachedRouteHandle | null): void {
+  store(
+    route: ActivatedRouteSnapshot,
+    handle: DetachedRouteHandle | null,
+  ): void {
     if (route.routeConfig) {
       this.storedRoutes[route.routeConfig.path || ''] = handle!;
     }
   }
 
   shouldAttach(route: ActivatedRouteSnapshot): boolean {
-    return !!route.routeConfig && !!this.storedRoutes[route.routeConfig.path || ''];
+    return (
+      !!route.routeConfig &&
+      !!this.storedRoutes[route.routeConfig.path || '']
+    );
   }
 
   retrieve(route: ActivatedRouteSnapshot): DetachedRouteHandle | null {
@@ -24,7 +34,10 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy {
     return this.storedRoutes[route.routeConfig.path || ''] || null;
   }
 
-  shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
+  shouldReuseRoute(
+    future: ActivatedRouteSnapshot,
+    curr: ActivatedRouteSnapshot,
+  ): boolean {
     return future.routeConfig === curr.routeConfig;
   }
 }

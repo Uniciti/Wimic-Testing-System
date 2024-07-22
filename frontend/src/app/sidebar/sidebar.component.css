@@ -26,17 +26,17 @@
 }
 
 .active-link {
-  background-color: #4A5568;
+  background-color: #4a5568;
   color: #fff;
 }
 
-@media screen and (max-width: 963px)  {
+@media screen and (max-width: 963px) {
   .sidebar {
     width: 25%;
   }
 }
 
-@media screen and (max-width: 501px)  {
+@media screen and (max-width: 501px) {
   .sidebar {
     width: 34%;
   }

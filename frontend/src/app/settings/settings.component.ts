@@ -30,7 +30,11 @@ export class SettingsComponent implements OnInit {
 
   ngOnInit(): void {
     this.settingsService.settings$.subscribe(data => {
-      this.settingsData = data;
+      if (data) {
+        this.settingsData = { ...data }; // Создаем копию объекта
+      } else {
+        console.warn('Received null settings data');
+      }
     });
   }
 
@@ -41,25 +45,11 @@ export class SettingsComponent implements OnInit {
       this.ngZone.run(() => {
         try {
           this.parsedData = JSON.parse(e.target.result);
-          // //this.massiveTests = this.parsedData.slice(0, -1);
-          // const currentTests = this.testService.testsSubject.value;
-          // currentTests.push(this.parsedData.slice(0, -1));
-          // this.testService.testsSubject.next(currentTests);
           this.testService.loadTests(this.parsedData);
 
           const settingsElement = this.parsedData[this.parsedData.length - 1];
           this.settingsService.updateSettings(settingsElement);
-          // this.pa1 = this.parsedData[settingsElement].Attenuator_PA1;
-          // this.pa2 = this.parsedData[settingsElement].Attenuator_PA2;
-          // this.splitterM3M = this.parsedData[settingsElement].splitter_to_M3M;
-          // this.splitterST = this.parsedData[settingsElement].splitter_straight;
-          // this.cable1 = this.parsedData[settingsElement].cable1;
-          // this.cable2 = this.parsedData[settingsElement].cable2;
-          // this.cable3 = this.parsedData[settingsElement].cable3;
-  
-          //this.localStorage.setItem('massiveTests', this.massiveTests);
-  
-          //this.cdr.detectChanges();
+          console.log("SETTINGS ELEMENT: ",settingsElement);
           this.fileUpload.clear();
         } catch (error) {
           console.error('Ошибка при парсинге JSON:', error);
@@ -69,11 +59,21 @@ export class SettingsComponent implements OnInit {
     reader.readAsText(file);
   }
 
+  // downloadJSONWithSettings() {
+
+  //   const jsonDataSettings = this.testService.getTests().concat(this.settingsData);
+  //   const blob = new Blob([JSON.stringify(jsonDataSettings, null, 2)], {type: 'application/json' });
+  //   this.fileSaveService.saveFile(blob);
+  //  }
   downloadJSONWithSettings() {
-
-    const jsonDataSettings = this.testService.getTests().concat(this.settingsData);
-    const blob = new Blob([JSON.stringify(jsonDataSettings, null, 2)], {type: 'application/json' });
-    this.fileSaveService.saveFile(blob);
-   }
-
+    const tests = this.testService.getTests();
+    if (this.settingsData) {
+      const jsonDataSettings = [...tests, this.settingsData];
+      const blob = new Blob([JSON.stringify(jsonDataSettings, null, 2)], {type: 'application/json'});
+      this.fileSaveService.saveFile(blob);
+    } else {
+      console.error('Settings data is null or undefined');
+      // Здесь вы можете добавить уведомление пользователю о том, что данные настроек отсутствуют
+    }
+  }
 }

@@ -3,14 +3,16 @@ import { parse } from 'path';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class QueueCommunicationService {
   private testsSubject = new BehaviorSubject<any[]>([]);
   tests$ = this.testsSubject.asObservable();
 
   constructor() {
-    const savedTests = JSON.parse(localStorage.getItem('massiveTests') || '[]');
+    const savedTests = JSON.parse(
+      localStorage.getItem('massiveTests') || '[]',
+    );
     this.testsSubject.next(savedTests);
   }
 

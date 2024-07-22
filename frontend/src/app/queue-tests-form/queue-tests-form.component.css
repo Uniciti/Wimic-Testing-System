@@ -1,32 +1,32 @@
 .form {
-    border: 1px solid #ccc;
-	border-radius: 8px;
-	background-color: #fff;
-	box-shadow: 0 2px 4px rgb(0, 0, 0);
-	width: 100vw;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgb(0, 0, 0);
+  width: 100vw;
 }
 
 .inline-list {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
 .inline-list li {
-	display: inline;
-	margin-right: 10px; 
+  display: inline;
+  margin-right: 10px;
 }
 
 .p-inputnumber input {
-	height: 38px; 
-	display: flex;
-	align-items: center;
-  }
+  height: 38px;
+  display: flex;
+  align-items: center;
+}
 
-  .p-inputgroup-addon {
-	height: 40px;
-  }
-  
-  .p-inputnumber {
-	display: flex;
-	align-items: center;
-  }
+.p-inputgroup-addon {
+  height: 40px;
+}
+
+.p-inputnumber {
+  display: flex;
+  align-items: center;
+}

@@ -1,10 +1,9 @@
-import { Injectable } from "@angular/core";
-import { BehaviorSubject } from "rxjs";
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
-@Injectable ({
-    providedIn: 'root'
+@Injectable({
+  providedIn: 'root',
 })
-
 export class SettingsService {
   private settingsSubject = new BehaviorSubject<any>(null);
   settings$ = this.settingsSubject.asObservable();
@@ -16,5 +15,4 @@ export class SettingsService {
   getSettings() {
     return this.settingsSubject.value;
   }
-    
 }

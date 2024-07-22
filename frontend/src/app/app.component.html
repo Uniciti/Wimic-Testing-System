@@ -1,47 +1,68 @@
-<p-toast position="top-right" key="my-toast" [style]="{ 'z-index': '10' }" />
-<div [ngClass]="{tab_content: true}" class="content">
+<p-toast
+  position="top-right"
+  key="my-toast"
+  [style]="{ 'z-index': '10' }"
+/>
+<div [ngClass]="{ tab_content: true }" class="content">
   <router-outlet></router-outlet>
-  </div>
-<div [ngClass]="{
-  'blurredbox': !isSmallScreen || !isVerySmallScreen,
-  'blurredbox active': (isSmallScreen && isComponentVisible) || (isVerySmallScreen && isComponentSidebarVisible)
-}"></div>
+</div>
+<div
+  [ngClass]="{
+    blurredbox: !isSmallScreen || !isVerySmallScreen,
+    'blurredbox active':
+      (isSmallScreen && isComponentVisible) ||
+      (isVerySmallScreen && isComponentSidebarVisible)
+  }"
+></div>
 <app-header></app-header>
-<app-sidebar  [ngClass]="{
-  'sidebar_with_blur': isVerySmallScreen && !isComponentSidebarVisible,
-  'visible': !isVerySmallScreen || isComponentSidebarVisible}"></app-sidebar>
-<div class="top-4 right-4 mx-auto fixed" [ngClass]="{'visible': isSmallScreen}" >
+<app-sidebar
+  [ngClass]="{
+    sidebar_with_blur: isVerySmallScreen && !isComponentSidebarVisible,
+    visible: !isVerySmallScreen || isComponentSidebarVisible
+  }"
+></app-sidebar>
+<div
+  class="top-4 right-4 mx-auto fixed"
+  [ngClass]="{ visible: isSmallScreen }"
+>
   <p-button
-    styleClass = "SHOW_TABLE"
+    styleClass="SHOW_TABLE"
     icon="pi pi-angle-double-right"
     *ngIf="isSmallScreen && !isComponentVisible"
     (click)="showTableStatus()"
-    severity="success" />
+    severity="success"
+  />
   <p-button
-    styleClass = "SHOW_TABLE"
+    styleClass="SHOW_TABLE"
     icon="pi pi-angle-double-left"
     *ngIf="isSmallScreen && isComponentVisible"
     (click)="showTableStatus()"
-    severity="danger" />
+    severity="danger"
+  />
 </div>
-<div class="top-4 right-20 mx-auto fixed" [ngClass]="{'visible': isVerySmallScreen}">
-    <p-button
-    styleClass = "SHOW_TABLE"
+<div
+  class="top-4 right-20 mx-auto fixed"
+  [ngClass]="{ visible: isVerySmallScreen }"
+>
+  <p-button
+    styleClass="SHOW_TABLE"
     icon="pi pi-align-left"
     *ngIf="isVerySmallScreen && !isComponentSidebarVisible"
     (click)="showSidebar()"
-    severity="success" />
+    severity="success"
+  />
   <p-button
-    styleClass = "SHOW_TABLE"
+    styleClass="SHOW_TABLE"
     icon="pi pi-align-left"
     *ngIf="isVerySmallScreen && isComponentSidebarVisible"
     (click)="showSidebar()"
-    severity="danger" />
+    severity="danger"
+  />
 </div>
-<app-ConnectionStatus [ngClass]="{
-  'table_with_status': isSmallScreen && !isComponentVisible,
-  'visible': !isSmallScreen || isComponentVisible}" >
-</app-ConnectionStatus>
+<app-ConnectionStatus
+  [ngClass]="{
+    table_with_status: isSmallScreen && !isComponentVisible,
+    visible: !isSmallScreen || isComponentVisible
+  }"
+></app-ConnectionStatus>
 <!-- <app-Notifications></app-Notifications> -->
-
-

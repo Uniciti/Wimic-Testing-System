@@ -1,13 +1,13 @@
 header {
-    background-color: #fff;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    box-shadow: 0 2px 4px rgb(0, 0, 0);
+  background-color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 2px 4px rgb(0, 0, 0);
 }
 
 .logo img {
-    height: 62px;
-    vertical-align: middle;
+  height: 62px;
+  vertical-align: middle;
 }

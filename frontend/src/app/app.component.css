@@ -1,7 +1,7 @@
 .content {
   margin-left: 13%;
   margin-right: 33%;
- 
+
   margin-top: 62px;
   height: calc(100vh - 62px);
 }
@@ -52,17 +52,14 @@
   transform: translateX(0);
 }
 
-@media screen and (max-width: 1102px)  {
+@media screen and (max-width: 1246px) {
   .content {
     margin-right: 0;
   }
 }
 
-@media screen and (max-width: 963px)  {
+@media screen and (max-width: 963px) {
   .content {
     margin-left: 5%;
   }
 }
-
-
-
