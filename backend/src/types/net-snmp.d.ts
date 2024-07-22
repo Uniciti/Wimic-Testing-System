@@ -1,4 +1,4 @@
-declare module 'net-snmp' {
+declare module "net-snmp" {
   export interface Options {
     port?: number;
     retries?: number;
@@ -15,12 +15,18 @@ declare module 'net-snmp' {
   export enum Version {
     snmp1 = 0,
     snmp2c = 1,
-    snmp3 = 3
+    snmp3 = 3,
   }
 
   export interface Session {
-    get(oids: string[], callback: (error: Error | null, varbinds: Varbind[]) => void): void;
-    set(varbinds: Varbind[], callback: (error: Error | null, varbinds: Varbind[]) => void): void;
+    get(
+      oids: string[],
+      callback: (error: Error | null, varbinds: Varbind[]) => void
+    ): void;
+    set(
+      varbinds: Varbind[],
+      callback: (error: Error | null, varbinds: Varbind[]) => void
+    ): void;
     close(): void;
   }
 
@@ -46,10 +52,14 @@ declare module 'net-snmp' {
     Uinteger32 = 71,
     NoSuchObject = 128,
     NoSuchInstance = 129,
-    EndOfMibView = 130
+    EndOfMibView = 130,
   }
 
-  export function createSession(target: string, community: string, options?: Options): Session;
+  export function createSession(
+    target: string,
+    community: string,
+    options?: Options
+  ): Session;
   export function isVarbindError(varbind: Varbind): boolean;
   export function varbindError(varbind: Varbind): Error;
 }
