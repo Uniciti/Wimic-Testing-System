@@ -1,11 +1,23 @@
+import { ChangeDetectorRef } from "@angular/core";
+
 import { Component, NgZone, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+import { MatDialog } from "@angular/material/dialog";
+
+import { Subscription, timer } from "rxjs";
+
 import { FileUploadModule } from "primeng/fileupload";
 import { ButtonModule } from "primeng/button"; // Import PrimeNG ButtonModule
+
 import { FileSaveService } from "../core/services/fileSaver.service";
 import { QueueCommunicationService } from "../core/services/QueueCommunication.service";
+import { NotificationService } from "../core/services/Notification.service";
+import { ConnectionStatusService } from "../core/services/ConnectionStatus.service";
+import { SharedWebSocketService } from "../core/services/SharedWebSocket.service";
 import { SettingsService } from "../core/services/settings.service";
+
+import { ConstComponent } from "../consts/consts.component";
 
 @Component({
   selector: "app-settings",
@@ -22,12 +34,20 @@ export class SettingsComponent implements OnInit {
   bandwidthOptions: any[] = []; // Array for bandwidth options
   selectedBandwidth: any; // Model for selected bandwidth
   modulations: any[] = []; // Array for modulations
+  errorMessage: string = "";
+
+  private subscription: Subscription = new Subscription();
 
   constructor(
     private fileSaveService: FileSaveService,
     private ngZone: NgZone,
     private testService: QueueCommunicationService,
-    private settingsService: SettingsService
+    private notificationService: NotificationService,
+    private sharedWebSocketService: SharedWebSocketService,
+    private connectionStatusService: ConnectionStatusService,
+    private settingsService: SettingsService,
+    private cdr: ChangeDetectorRef,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -100,12 +120,66 @@ export class SettingsComponent implements OnInit {
   }
 
   applySettings() {
-    // Logic to apply settings
+    this.errorMessage = "";
+
+    if (!this.selectedStationVersion || !this.selectedBandwidth) {
+      this.notificationService.showWarning("Пожалуйста, заполните все поля.");
+      return;
+    }
+
+    for (let modulation of this.modulations) {
+      if (modulation.speed === null || modulation.sensitivity === null) {
+        this.notificationService.showWarning(
+          "Пожалуйста, заполните все поля, модуляций."
+        );
+        return;
+      }
+    }
+
+    const message = {
+      type: "set-settings",
+      version: this.selectedStationVersion,
+      band: this.selectedBandwidth,
+      modulations: this.modulations,
+    };
+    this.sharedWebSocketService.sendMessage(message);
+
+    const timeout = timer(5000).subscribe(() => {
+      timeout.unsubscribe();
+    });
+
+    let subscription = this.sharedWebSocketService.getMessages().subscribe({
+      next: (message) => {
+        if (message.settings === "set-ok") {
+          if (this.selectedBandwidth == "10") {
+            this.connectionStatusService.changeBand10Settings(true);
+          } else if (this.selectedBandwidth == "20") {
+            this.connectionStatusService.changeBand20Settings(true);
+          }
+        } else {
+          this.notificationService.showError("Ошибка установки параметров");
+          this.cdr.detectChanges();
+          subscription.unsubscribe();
+          timeout.unsubscribe();
+        }
+      },
+      error: (error) => {
+        this.notificationService.showError("Ошибка установки параметров");
+        this.cdr.detectChanges();
+        subscription.unsubscribe();
+        timeout.unsubscribe();
+      },
+    });
+    this.subscription.add(subscription);
+    // Logic to apply settings if no errors
     console.log("Settings applied:", {
       selectedStationVersion: this.selectedStationVersion,
       selectedBandwidth: this.selectedBandwidth,
       modulations: this.modulations,
     });
-    // Add further logic as needed
+  }
+
+  openDialog(): void {
+    this.dialog.open(ConstComponent);
   }
 }

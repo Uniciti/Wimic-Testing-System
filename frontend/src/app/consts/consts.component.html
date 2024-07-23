@@ -1,0 +1,72 @@
+<h2 mat-dialog-title>Настройки Модуляции</h2>
+<div mat-dialog-content>
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+      <tr>
+        <th
+          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+        >
+          Модуляция
+        </th>
+        <th
+          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+        >
+          Скорость 10 МГц
+        </th>
+        <th
+          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+        >
+          Скорость 20 МГц
+        </th>
+        <th
+          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+        >
+          Чувствительность 10 МГц
+        </th>
+        <th
+          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+        >
+          Чувствительность 20 МГц
+        </th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      <tr *ngFor="let modulation of modulations">
+        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+          {{ modulation.name }}
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <input
+            type="number"
+            [(ngModel)]="modulation.speed10"
+            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <input
+            type="number"
+            [(ngModel)]="modulation.speed20"
+            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <input
+            type="number"
+            [(ngModel)]="modulation.sensitivity10"
+            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+          <input
+            type="number"
+            [(ngModel)]="modulation.sensitivity20"
+            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<div mat-dialog-actions>
+  <button mat-button mat-dialog-close>Закрыть</button>
+</div>

@@ -34,7 +34,7 @@
         <label
           for="stationVersion"
           class="block text-sm font-medium text-gray-700"
-          >Выбор версии станции</label
+          >Выбор модели станции</label
         >
         <select
           id="stationVersion"
@@ -115,13 +115,24 @@
       </table>
     </div>
 
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="text-red-500 mt-2">
+      {{ errorMessage }}
+    </div>
+
     <!-- Apply Settings Button -->
     <div class="mt-4 flex justify-center">
       <button
-        class="bg-blue-500 text-white py-2 px-4 rounded"
+        class="bg-blue-500 text-white py-2 px-4 rounded font-bold"
         (click)="applySettings()"
       >
         Применить настройки
+      </button>
+      <button
+        class="bg-green-500 text-white py-2 px-4 rounded font-bold ml-4"
+        (click)="openDialog()"
+      >
+        Отобразить настройки
       </button>
     </div>
   </div>

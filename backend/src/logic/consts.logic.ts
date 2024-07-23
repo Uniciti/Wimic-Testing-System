@@ -8,6 +8,8 @@ export const modName = [
   "QAM64 3/4",
 ];
 
+export let statVer = "M-2";
+
 export const sens10 = [88.5, 85.5, 83, 80, 76.5, 72.5, 70.5];
 
 export const speed10 = [1600, 3500, 5250, 7000, 10500, 14500, 16500];
@@ -15,3 +17,23 @@ export const speed10 = [1600, 3500, 5250, 7000, 10500, 14500, 16500];
 export const sens20 = [86, 82.5, 80, 77, 73.5, 70, 67.5];
 
 export const speed20 = [3500, 7400, 11500, 15000, 23000, 30750, 34000];
+
+export function setConsts(version: string, band: number, array: any[]) {
+  try {
+    if (band == 10) {
+      for (let i = 0; i < array.length; i++) {
+        sens10[i] = array[i].sensitivity;
+        speed10[i] = array[i].speed;
+      }
+    }
+    if (band == 20) {
+      for (let i = 0; i < array.length; i++) {
+        sens20[i] = array[i].sensitivity;
+        speed20[i] = array[i].speed;
+      }
+    }
+    statVer = version;
+  } catch (error) {
+    console.error(error);
+  }
+}

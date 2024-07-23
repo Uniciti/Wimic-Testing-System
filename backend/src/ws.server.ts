@@ -10,6 +10,7 @@ import { ExpressTest } from "./logic/expresstest.logic";
 import { FullTest } from "./logic/fulltest.logic";
 import { queue, Queue } from "./logic/queue.logic";
 import { delay, getPower, setFreq } from "./logic/main.logic";
+import { setConsts } from "./logic/consts.logic";
 
 import "dotenv/config";
 
@@ -32,8 +33,19 @@ export function setupWebSocketServer(server: any) {
     ws.on("message", async (message: string) => {
       try {
         const parsedMessage = JSON.parse(message);
-        const { type, deviceId, command, value, ber, att, stat, m3m, params } =
-          parsedMessage;
+        const {
+          type,
+          deviceId,
+          command,
+          ber,
+          att,
+          stat,
+          m3m,
+          params,
+          version,
+          band,
+          modulations,
+        } = parsedMessage;
         console.log(parsedMessage);
         // console.log(parsedMessage.type);
         // console.log(parsedMessage.params);
@@ -159,6 +171,10 @@ export function setupWebSocketServer(server: any) {
             await mongoClient.disconnect();
             break;
 
+          case "set-settings":
+            setConsts(version, parseInt(band), modulations);
+            broadcaster(JSON.stringify({ settings: "set-ok" }));
+            break;
           // case "get-test":
           //   await mongoClient.connect();
           //   const table = await mongoClient.getByDate("2024-07-19", "15:13");
