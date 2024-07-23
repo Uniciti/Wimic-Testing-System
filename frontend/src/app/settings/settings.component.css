@@ -1,18 +1,28 @@
 .container {
-	margin: 20px;
-	padding: 20px;
-	border: 1px solid #ccc;
-	border-radius: 8px;
-	background-color: #fff;
-	box-shadow: 0 2px 4px rgb(0, 0, 0);
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgb(0, 0, 0);
 }
 
 .CARDS {
-	max-width: 512px;
+  max-width: 512px;
+}
+/* Add this CSS to your global styles or a relevant CSS file */
+.uniform-dropdown .p-dropdown {
+  width: 100%;
+}
+
+.uniform-dropdown .p-dropdown-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media screen and (max-width: 1246px) {
-	.CARDS {
-		width: 70%
-	}
+  .CARDS {
+    width: 70%;
+  }
 }

@@ -22,6 +22,7 @@
   opacity: 0;
   pointer-events: none;
   transition: 0.3s;
+  z-index: 11;
 }
 
 .blurredbox.active {
@@ -35,6 +36,7 @@
   opacity: 0;
   pointer-events: none;
   transform: translateX(-100%);
+  z-index: 11;
 }
 
 .sidebar_with_blur {
@@ -50,6 +52,7 @@
   opacity: 1;
   pointer-events: auto;
   transform: translateX(0);
+  z-index: 11;
 }
 
 @media screen and (max-width: 1246px) {

@@ -47,11 +47,11 @@ export class MongoClient {
   }
 
   public async getByDate(
-    date: string,
-    time: string
+    date: string
+    // time: string
   ): Promise<ITestData[] | null> {
     try {
-      const result = await this.model.find({ date, time }).select("-_id -__v");
+      const result = await this.model.find({ date }).select("-_id -__v");
       return result;
     } catch (error) {
       console.error(error);

@@ -10,6 +10,7 @@
   width: 13%;
   background-color: #1a202c;
   color: #cbd5e0;
+  z-index: 11;
 }
 
 .sidebar .svg {

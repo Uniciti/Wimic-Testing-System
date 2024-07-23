@@ -1,8 +1,4 @@
-<p-toast
-  position="top-right"
-  key="my-toast"
-  [style]="{ 'z-index': '10' }"
-/>
+<p-toast position="top-right" key="my-toast" [style]="{ 'z-index': '15' }" />
 <div [ngClass]="{ tab_content: true }" class="content">
   <router-outlet></router-outlet>
 </div>
@@ -21,10 +17,7 @@
     visible: !isVerySmallScreen || isComponentSidebarVisible
   }"
 ></app-sidebar>
-<div
-  class="top-4 right-4 mx-auto fixed"
-  [ngClass]="{ visible: isSmallScreen }"
->
+<div class="top-4 right-4 mx-auto fixed" [ngClass]="{ visible: isSmallScreen }">
   <p-button
     styleClass="SHOW_TABLE"
     icon="pi pi-angle-double-right"

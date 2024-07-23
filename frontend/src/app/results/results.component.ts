@@ -1,24 +1,34 @@
-import { Component, OnInit } from '@angular/core';
-import { NgIf, NgFor } from '@angular/common';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit } from "@angular/core";
+import { NgIf, NgFor } from "@angular/common";
+import { MatDialog } from "@angular/material/dialog";
+import { FormsModule } from "@angular/forms";
 
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
+import { TableModule } from "primeng/table";
+import { ButtonModule } from "primeng/button";
+import { CalendarModule } from "primeng/calendar";
 
-import { TestDetailComponent } from '../test-detail/test-detail.component';
+import { TestDetailComponent } from "../test-detail/test-detail.component";
 
-import { SharedWebSocketService } from '../core/services/SharedWebSocket.service';
+import { SharedWebSocketService } from "../core/services/SharedWebSocket.service";
 
 @Component({
-  selector: 'app-results',
+  selector: "app-results",
   standalone: true,
-  imports: [NgIf, NgFor, TableModule, ButtonModule],
-  templateUrl: './results.component.html',
-  styleUrl: './results.component.css',
+  imports: [
+    NgIf,
+    NgFor,
+    TableModule,
+    ButtonModule,
+    CalendarModule,
+    FormsModule,
+  ],
+  templateUrl: "./results.component.html",
+  styleUrl: "./results.component.css",
   providers: [],
 })
 export class ResultsComponent implements OnInit {
   tableData: any[] = [];
+  selectedDate: Date = new Date();
 
   // messageExample = {
   //   action: 'database',
@@ -69,22 +79,23 @@ export class ResultsComponent implements OnInit {
   // };
 
   cols = [
-    { field: 'date', header: 'Дата' },
-    { field: 'testType', header: 'Тип теста' },
-    { field: 'platform', header: 'Платформа' },
-    { field: 'result', header: 'Результат' },
-    { field: 'buttons', header: 'Действие' },
+    { field: "date", header: "Дата" },
+    { field: "time", header: "Время завершения" },
+    { field: "testType", header: "Тип теста" },
+    { field: "platform", header: "Платформа" },
+    { field: "result", header: "Результат" },
+    { field: "buttons", header: "Действие" },
   ];
 
   constructor(
     private sharedWebSocketService: SharedWebSocketService,
-    public dialog: MatDialog,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     //this.tableData = this.transformData(this.messageExample);
     this.sharedWebSocketService.getMessages().subscribe((message) => {
-      if (message.action === 'database') {
+      if (message.action === "database") {
         this.tableData = this.transformData(message);
       }
     });
@@ -92,27 +103,44 @@ export class ResultsComponent implements OnInit {
 
   transformData(data: any): any[] {
     try {
-      if (data.action !== 'database' || !Array.isArray(data.tableData)) {
-        throw new Error('Invalid data format');
+      if (data.action !== "database" || !Array.isArray(data.tableData)) {
+        throw new Error("Invalid data format");
       }
 
       return data.tableData.map((item: any) => ({
         date: item.date,
+        time: item.time,
         testType: item.testType,
         platform: item.platform,
         result: item.result,
         data: item.data,
       }));
     } catch (error) {
-      console.error('Error in transformData:', error);
+      console.error("Error in transformData:", error);
       return [];
     }
   }
 
   moreDetails(rowData: any): void {
     const dialogRef = this.dialog.open(TestDetailComponent, {
-      panelClass: 'FormStyle',
+      panelClass: "FormStyle",
       data: { testType: rowData.testType, data: rowData.data },
     });
+  }
+
+  sendDate(): void {
+    if (this.selectedDate) {
+      const year = this.selectedDate.getFullYear();
+      const month = (this.selectedDate.getMonth() + 1)
+        .toString()
+        .padStart(2, "0");
+      const day = this.selectedDate.getDate().toString().padStart(2, "0");
+      const formattedDate = `${year}-${month}-${day}`;
+      this.sharedWebSocketService.sendMessage({
+        type: "get-data",
+        command: formattedDate,
+      });
+      // console.log(formattedDate);
+    }
   }
 }

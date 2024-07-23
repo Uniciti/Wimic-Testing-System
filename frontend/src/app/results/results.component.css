@@ -8,6 +8,33 @@
   padding: 8px;
 }
 
+.center-panel .p-datepicker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.center-panel .p-datepicker-header {
+  text-align: center;
+}
+
+.center-panel .p-datepicker-calendar-container {
+  display: flex;
+  justify-content: center;
+}
+
+.center-panel .p-datepicker-calendar td,
+.center-panel .p-datepicker-calendar th {
+  text-align: center;
+}
+
+.center-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .center-buttons {
   text-align: left;
 }

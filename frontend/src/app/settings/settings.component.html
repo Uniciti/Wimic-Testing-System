@@ -1,26 +1,128 @@
 <div class="container CARDS p-6 max-w-lg bg-white shadow-md rounded-lg">
-<h2 class="text-xl font-semibold mb-2">Настройки</h2>
-  <div class="flex">
-    <div class="mt-2 mr-2 mb-2">
-      <p-button 
-      label="Скачать настройки"
-      type="button"
-      (click)="downloadJSONWithSettings()"
-      severity="warning"
-      position="center"
-      class="" />
+  <h2 class="text-xl font-semibold mb-2">Настройки</h2>
+  <div class="flex flex-col space-y-4">
+    <div class="flex">
+      <div class="mt-2 mr-2 mb-2">
+        <p-button
+          label="Скачать настройки"
+          type="button"
+          (click)="downloadJSONWithSettings()"
+          severity="warning"
+          position="center"
+          class="p-button-warning"
+        ></p-button>
+      </div>
+      <div class="mt-2 mb-2">
+        <p-fileUpload
+          #fileUpload
+          name="jsonFile"
+          mode="basic"
+          chooseIcon="pi pi-upload"
+          accept=".json"
+          [auto]="true"
+          styleClass="FILEUPLOAD"
+          chooseLabel="Загрузить файл"
+          customUpload="true"
+          (uploadHandler)="uploadJSONWithSettings($event)"
+        ></p-fileUpload>
+      </div>
     </div>
-    <div class="mt-2 mb-2">
-      <p-fileUpload #fileUpload name="jsonFile"
-      mode="basic"
-      chooseIcon="pi pi-upload"
-      accept=".json"
-      [auto]="true"
-      styleClass="FILEUPLOAD"
-      chooseLabel="Загрузить файл"
-      customUpload="true"
-      (uploadHandler)="uploadJSONWithSettings($event)">
-      </p-fileUpload>
+
+    <!-- Dropdowns for station version and bandwidth -->
+    <div class="flex space-x-4 mt-2">
+      <div class="w-1/2">
+        <label
+          for="stationVersion"
+          class="block text-sm font-medium text-gray-700"
+          >Выбор версии станции</label
+        >
+        <select
+          id="stationVersion"
+          [(ngModel)]="selectedStationVersion"
+          class="w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        >
+          <option
+            *ngFor="let version of stationVersions"
+            [value]="version.value"
+          >
+            {{ version.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="w-1/2">
+        <label for="bandwidth" class="block text-sm font-medium text-gray-700"
+          >Выбор полосы</label
+        >
+        <select
+          id="bandwidth"
+          [(ngModel)]="selectedBandwidth"
+          class="w-full mt-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+        >
+          <option
+            *ngFor="let bandwidth of bandwidthOptions"
+            [value]="bandwidth.value"
+          >
+            {{ bandwidth.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table for modulation values -->
+    <div class="mt-4 overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Модуляция
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Скорость
+            </th>
+            <th
+              class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
+              Чувствительность
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let modulation of modulations">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+              {{ modulation.name }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <input
+                type="number"
+                [(ngModel)]="modulation.speed"
+                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <input
+                type="number"
+                [(ngModel)]="modulation.sensitivity"
+                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Apply Settings Button -->
+    <div class="mt-4 flex justify-center">
+      <button
+        class="bg-blue-500 text-white py-2 px-4 rounded"
+        (click)="applySettings()"
+      >
+        Применить настройки
+      </button>
     </div>
   </div>
 </div>

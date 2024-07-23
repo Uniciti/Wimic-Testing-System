@@ -34,7 +34,7 @@ export function setupWebSocketServer(server: any) {
         const parsedMessage = JSON.parse(message);
         const { type, deviceId, command, value, ber, att, stat, m3m, params } =
           parsedMessage;
-        // console.log(parsedMessage);
+        console.log(parsedMessage);
         // console.log(parsedMessage.type);
         // console.log(parsedMessage.params);
         // console.log(parsedMessage.params[0].modulation);
@@ -148,75 +148,86 @@ export function setupWebSocketServer(server: any) {
             ws.send(JSON.stringify({ type: "connect", deviceId, conStatus }));
             break;
 
-          case "get-test":
+          case "get-data":
             await mongoClient.connect();
-            const table = await mongoClient.getByDate("2024-07-19", "15:13");
-            console.log(table);
-            console.log(table ? table[0] : null);
-            console.log(table ? table[0].data[0] : null);
-            await mongoClient.deleteTest("2024-07-19", "15:13");
-            const table1 = await mongoClient.getByDate("2024-07-19", "15:13");
-            console.log(table1);
-            console.log(table1 ? table1[0] : null);
-            console.log(table1 ? table1[0].data[0] : null);
-            await mongoClient.disconnect();
-
-            break;
-
-          case "stat-test":
-            const ver = await snmpClient.getFromSubscriber(
-              "1.3.6.1.4.1.19707.7.7.2.1.3.99.0"
+            broadcaster(
+              JSON.stringify({
+                action: "database",
+                tableData: await mongoClient.getByDate(command),
+              })
             );
-            console.log(ver);
-            console.log(ver > "2.7.6");
-            console.log(ver > "2.7.4");
-            console.log(ver < "2.8.6");
-            console.log(ver < "2.8.4");
-            console.log(typeof ver);
+            await mongoClient.disconnect();
             break;
 
-          case "stat-ban1":
-            snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
-            console.log("t11");
-            await delay(1000);
-            snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
-            console.log("t12");
-            await delay(4000);
+          // case "get-test":
+          //   await mongoClient.connect();
+          //   const table = await mongoClient.getByDate("2024-07-19", "15:13");
+          //   console.log(table);
+          //   console.log(table ? table[0] : null);
+          //   console.log(table ? table[0].data[0] : null);
+          //   await mongoClient.deleteTest("2024-07-19", "15:13");
+          //   const table1 = await mongoClient.getByDate("2024-07-19", "15:13");
+          //   console.log(table1);
+          //   console.log(table1 ? table1[0] : null);
+          //   console.log(table1 ? table1[0].data[0] : null);
+          //   await mongoClient.disconnect();
 
-            snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-            snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-            await delay(4000);
+          //   break;
 
-            break;
+          // case "stat-test":
+          //   const ver = await snmpClient.getFromSubscriber(
+          //     "1.3.6.1.4.1.19707.7.7.2.1.3.99.0"
+          //   );
+          //   console.log(ver);
+          //   console.log(ver > "2.7.6");
+          //   console.log(ver > "2.7.4");
+          //   console.log(ver < "2.8.6");
+          //   console.log(ver < "2.8.4");
+          //   console.log(typeof ver);
+          //   break;
 
-          case "stat-ban2":
-            snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
-            console.log("t21");
-            await delay(1000);
-            snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
-            console.log("t22");
-            await delay(4000);
+          // case "stat-ban1":
+          //   snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+          //   console.log("t11");
+          //   await delay(1000);
+          //   snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
+          //   console.log("t12");
+          //   await delay(4000);
 
-            snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-            snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-            await delay(4000);
+          //   snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+          //   snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+          //   await delay(4000);
 
-            break;
+          //   break;
 
-          case "test-m3m":
-            const pullman = await comClient.receiveData();
-            const pullman2 = await getPower(16500);
-            console.log(pullman);
-            console.log(pullman2);
-            break;
+          // case "stat-ban2":
+          //   snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+          //   console.log("t21");
+          //   await delay(1000);
+          //   snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
+          //   console.log("t22");
+          //   await delay(4000);
 
-          case "fuck-go-back":
-            queue.stop();
-            break;
+          //   snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+          //   snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
+          //   await delay(4000);
 
-          case "fuck-go-forward":
-            queue.start();
-            break;
+          //   break;
+
+          // case "test-m3m":
+          //   const pullman = await comClient.receiveData();
+          //   const pullman2 = await getPower(16500);
+          //   console.log(pullman);
+          //   console.log(pullman2);
+          //   break;
+
+          // case "fuck-go-back":
+          //   queue.stop();
+          //   break;
+
+          // case "fuck-go-forward":
+          //   queue.start();
+          //   break;
 
           case "disconnect":
             device.disconnect();

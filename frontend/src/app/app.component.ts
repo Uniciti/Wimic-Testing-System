@@ -4,41 +4,42 @@ import {
   OnInit,
   AfterViewInit,
   ViewChild,
-} from '@angular/core';
-import { RouterOutlet, NavigationEnd, Router } from '@angular/router';
-import { NgClass, NgIf } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
-import { BreakpointObserver } from '@angular/cdk/layout';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
+} from "@angular/core";
+import { RouterOutlet, NavigationEnd, Router } from "@angular/router";
+import { NgClass, NgIf } from "@angular/common";
+import { HttpClientModule } from "@angular/common/http";
+import { FormsModule } from "@angular/forms";
+import { BreakpointObserver } from "@angular/cdk/layout";
+import { MatDialogModule } from "@angular/material/dialog";
+import { MatButtonModule } from "@angular/material/button";
 
 // import { BrowserModule } from '@angular/platform-browser';
 // import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { HeaderComponent } from './header/header.component';
-import { SidebarComponent } from './sidebar/sidebar.component';
-import { DeviceStatusComponent } from './deviceStatus/deviceStatus.component';
-import { mainTestsComponent } from './mainTests/mainTests.component';
-import { ConnectionStatusComponent } from './ConnectionStatus/ConnectionStatus.component';
-import { QueueTestsFormComponent } from './queue-tests-form/queue-tests-form.component';
-import { SettingsComponent } from './settings/settings.component';
-import { ResultsComponent } from './results/results.component';
-import { TestDetailComponent } from './test-detail/test-detail.component';
+import { HeaderComponent } from "./header/header.component";
+import { SidebarComponent } from "./sidebar/sidebar.component";
+import { DeviceStatusComponent } from "./deviceStatus/deviceStatus.component";
+import { mainTestsComponent } from "./mainTests/mainTests.component";
+import { ConnectionStatusComponent } from "./ConnectionStatus/ConnectionStatus.component";
+import { QueueTestsFormComponent } from "./queue-tests-form/queue-tests-form.component";
+import { SettingsComponent } from "./settings/settings.component";
+import { ResultsComponent } from "./results/results.component";
+import { TestDetailComponent } from "./test-detail/test-detail.component";
 
-import { MatIconModule } from '@angular/material/icon';
-import { MessageService } from 'primeng/api';
-import { FileUploadModule } from 'primeng/fileupload';
-import { ToastModule } from 'primeng/toast';
-import { TableModule } from 'primeng/table';
+import { MatIconModule } from "@angular/material/icon";
+import { MessageService } from "primeng/api";
+import { FileUploadModule } from "primeng/fileupload";
+import { ToastModule } from "primeng/toast";
+import { TableModule } from "primeng/table";
+import { CalendarModule } from "primeng/calendar";
 
-import { SharedWebSocketService } from './core/services/SharedWebSocket.service';
-import { ConnectionStatusService } from './core/services/ConnectionStatus.service';
-import { NotificationService } from './core/services/Notification.service';
-import { CustomRouteReuseStrategy } from './core/services/app.component.service';
+import { SharedWebSocketService } from "./core/services/SharedWebSocket.service";
+import { ConnectionStatusService } from "./core/services/ConnectionStatus.service";
+import { NotificationService } from "./core/services/Notification.service";
+import { CustomRouteReuseStrategy } from "./core/services/app.component.service";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [
     FormsModule,
@@ -61,9 +62,10 @@ import { CustomRouteReuseStrategy } from './core/services/app.component.service'
     MatButtonModule,
     TableModule,
     MatIconModule,
+    CalendarModule,
   ],
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  templateUrl: "./app.component.html",
+  styleUrls: ["./app.component.css"],
   styles: [
     `
       .tab_content {
@@ -94,7 +96,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     private connectionStatusService: ConnectionStatusService,
     private notificationService: NotificationService,
     private router: Router,
-    private breakpointObserver: BreakpointObserver,
+    private breakpointObserver: BreakpointObserver
   ) {}
 
   isSmallScreen = false;
@@ -107,7 +109,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     this.sharedWebSocketService.connect();
 
     this.breakpointObserver
-      .observe(['(max-width: 1246px)'])
+      .observe(["(max-width: 1246px)"])
       .subscribe((result) => {
         this.isSmallScreen = result.matches;
         if (this.isSmallScreen) {
@@ -116,7 +118,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       });
 
     this.breakpointObserver
-      .observe(['(max-width: 963px)'])
+      .observe(["(max-width: 963px)"])
       .subscribe((result) => {
         this.isVerySmallScreen = result.matches;
         if (this.isVerySmallScreen) {
@@ -125,24 +127,24 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
       });
 
     this.sharedWebSocketService.getMessages().subscribe((message_) => {
-      if (message_.type === 'is-connected') {
+      if (message_.type === "is-connected") {
         if (message_.pingBert == false) {
-          this.connectionStatusService.updateStatus('Ber', false);
-          this.notificationService.showError('Беркут-ЕТ отключился...');
+          this.connectionStatusService.updateStatus("Ber", false);
+          this.notificationService.showError("Беркут-ЕТ отключился...");
         }
         if (message_.pingAtt == false) {
-          this.connectionStatusService.updateStatus('Att', false);
-          this.notificationService.showError('Аттенюатор отключился...');
+          this.connectionStatusService.updateStatus("Att", false);
+          this.notificationService.showError("Аттенюатор отключился...");
         }
         if (message_.pingStat0 == false || message_.pingStat1 == false) {
-          this.connectionStatusService.updateStatus('Stat', false);
+          this.connectionStatusService.updateStatus("Stat", false);
           this.notificationService.showError(
-            'Станции или одна из них отключились...',
+            "Станции или одна из них отключились..."
           );
         }
         if (message_.pingM3M == false) {
-          this.connectionStatusService.updateStatus('M3M', false);
-          this.notificationService.showError('М3М отключился...');
+          this.connectionStatusService.updateStatus("M3M", false);
+          this.notificationService.showError("М3М отключился...");
         }
       }
     });
@@ -157,7 +159,7 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   resetScrollPosition() {
-    const tabContent = document.querySelector('.tab_content');
+    const tabContent = document.querySelector(".tab_content");
     if (tabContent) {
       tabContent.scrollTop = 0;
     }

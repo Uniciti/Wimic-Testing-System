@@ -29,4 +29,19 @@
       </ng-template>
     </p-table>
   </div>
+  <div class="calendar-container flex flex-col items-center mt-3">
+    <p-calendar
+      [(ngModel)]="selectedDate"
+      dateFormat="yy-mm-dd"
+      class="calendar-center z-10"
+      inputStyleClass="text-center"
+      panelStyleClass="center-panel"
+    ></p-calendar>
+    <button
+      pButton
+      label="Получить данные"
+      (click)="sendDate()"
+      class="mt-4 z-9"
+    ></button>
+  </div>
 </div>
