@@ -1,72 +1,40 @@
-<h2 mat-dialog-title>Настройки Модуляции</h2>
-<div mat-dialog-content>
-  <table class="min-w-full divide-y divide-gray-200">
-    <thead class="bg-gray-50">
-      <tr>
-        <th
-          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-        >
-          Модуляция
-        </th>
-        <th
-          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-        >
-          Скорость 10 МГц
-        </th>
-        <th
-          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-        >
-          Скорость 20 МГц
-        </th>
-        <th
-          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-        >
-          Чувствительность 10 МГц
-        </th>
-        <th
-          class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-        >
-          Чувствительность 20 МГц
-        </th>
-      </tr>
-    </thead>
-    <tbody class="bg-white divide-y divide-gray-200">
-      <tr *ngFor="let modulation of modulations">
-        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-          {{ modulation.name }}
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <input
-            type="number"
-            [(ngModel)]="modulation.speed10"
-            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <input
-            type="number"
-            [(ngModel)]="modulation.speed20"
-            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <input
-            type="number"
-            [(ngModel)]="modulation.sensitivity10"
-            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
-          <input
-            type="number"
-            [(ngModel)]="modulation.sensitivity20"
-            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-<div mat-dialog-actions>
-  <button mat-button mat-dialog-close>Закрыть</button>
+<div class="p-6 h-full flex flex-col">
+  <h2 class="text-lg font-semibold mb-4">Настройки</h2>
+
+  <div class="mb-4">
+    <label for="model" class="block mb-2">Выберите Модель:</label>
+    <select id="model" [(ngModel)]="selectedModel" class="block w-full p-2 border border-gray-300 rounded">
+      <option *ngFor="let model of models" [value]="model">{{ model }}</option>
+    </select>
+  </div>
+
+  <div class="flex-grow overflow-auto mb-4">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Модуляция</th>
+          <th *ngFor="let sensitivity of sensitivities" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+            Чувствительность {{ sensitivity }}
+          </th>
+          <th *ngFor="let speed of speeds" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+            Скорость {{ speed }}
+          </th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let row of tableData">
+          <td class="px-4 py-2">{{ row.modulation }}</td>
+          <td><input type="text" [(ngModel)]="row.sensitivity10" class="block w-full p-2 border border-gray-300 rounded" /></td>
+          <td><input type="text" [(ngModel)]="row.sensitivity20" class="block w-full p-2 border border-gray-300 rounded" /></td>
+          <td><input type="text" [(ngModel)]="row.speed10" class="block w-full p-2 border border-gray-300 rounded" /></td>
+          <td><input type="text" [(ngModel)]="row.speed20" class="block w-full p-2 border border-gray-300 rounded" /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div class="flex justify-end mt-4">
+    <button (click)="closeDialog()" class="bg-gray-500 text-white py-2 px-4 rounded mr-2">Закрыть</button>
+    <button (click)="applySettings()" class="bg-blue-500 text-white py-2 px-4 rounded">Применить Настройки</button>
+  </div>
 </div>

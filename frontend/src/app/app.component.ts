@@ -10,11 +10,10 @@ import { NgClass, NgIf } from "@angular/common";
 import { HttpClientModule } from "@angular/common/http";
 import { FormsModule } from "@angular/forms";
 import { BreakpointObserver } from "@angular/cdk/layout";
-import { MatDialogModule } from "@angular/material/dialog";
+import { MatDialog, MatDialogModule } from "@angular/material/dialog";
 import { MatButtonModule } from "@angular/material/button";
 
-// import { BrowserModule } from '@angular/platform-browser';
-// import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { Subscription, timer } from 'rxjs';
 
 import { HeaderComponent } from "./header/header.component";
 import { SidebarComponent } from "./sidebar/sidebar.component";
@@ -23,6 +22,7 @@ import { mainTestsComponent } from "./mainTests/mainTests.component";
 import { ConnectionStatusComponent } from "./ConnectionStatus/ConnectionStatus.component";
 import { QueueTestsFormComponent } from "./queue-tests-form/queue-tests-form.component";
 import { SettingsComponent } from "./settings/settings.component";
+import { ConstsComponent } from "./consts/consts.component";
 import { ResultsComponent } from "./results/results.component";
 import { TestDetailComponent } from "./test-detail/test-detail.component";
 
@@ -53,6 +53,7 @@ import { CustomRouteReuseStrategy } from "./core/services/app.component.service"
     RouterOutlet,
     QueueTestsFormComponent,
     SettingsComponent,
+    ConstsComponent,
     ResultsComponent,
     TestDetailComponent,
     FileUploadModule,
@@ -69,7 +70,7 @@ import { CustomRouteReuseStrategy } from "./core/services/app.component.service"
   styles: [
     `
       .tab_content {
-        height: screen;
+        height: 100vh;
         overflow-y: scroll;
         -ms-overflow-style: none;
         scrollbar-width: none;
@@ -84,6 +85,7 @@ import { CustomRouteReuseStrategy } from "./core/services/app.component.service"
     MessageService,
     ConnectionStatusService,
     CustomRouteReuseStrategy,
+    SharedWebSocketService,
   ],
 })
 export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -96,7 +98,8 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     private connectionStatusService: ConnectionStatusService,
     private notificationService: NotificationService,
     private router: Router,
-    private breakpointObserver: BreakpointObserver
+    private breakpointObserver: BreakpointObserver,
+    public dialog: MatDialog
   ) {}
 
   isSmallScreen = false;
@@ -165,7 +168,9 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
     }
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.sharedWebSocketService.disconnect();
+  }
 
   showTableStatus(): void {
     this.isComponentVisible = !this.isComponentVisible;
@@ -174,4 +179,5 @@ export class AppComponent implements OnInit, OnDestroy, AfterViewInit {
   showSidebar(): void {
     this.isComponentSidebarVisible = !this.isComponentSidebarVisible;
   }
+
 }
