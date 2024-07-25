@@ -1,4 +1,4 @@
-import { speed10, sens10, speed20, sens20, modName } from "./consts.logic";
+import { speed10, sens10, speed20, sens20, modName, statVer } from "./consts.logic";
 
 import { tcpClient, TcpClient } from "../services/att.service";
 import { sshClient, SSHClient } from "../services/bert.service";
@@ -65,8 +65,6 @@ export class ExpressTest {
     if (!this.frequency) {
       return;
     }
-
-    console.log(this.frequency * 1000);
     await snmpClient.setToBase(
       "1.3.6.1.4.1.19707.7.7.2.1.4.13.0",
       this.frequency * 1000
@@ -108,7 +106,6 @@ export class ExpressTest {
     }
 
     let firstTime: boolean = true;
-    console.log("pullman time");
     return new Promise((resolve, reject) => {
       let pingStat0: boolean;
       let pingStat1: boolean;
@@ -194,7 +191,6 @@ export class ExpressTest {
         console.log(m3mPow);
         const attValue = Math.round(this.calculateAtt(this.sens[i], m3mPow));
         await tcpClient.sendCommand(attValue);
-        // let x = await snmpClient.getFromSubscriber('1.3.6.1.4.1.19707.7.7.2.1.3.9.0');
         await tcpClient.sendCommand(attValue - 2);
         await tcpClient.sendCommand(attValue - 1);
         await tcpClient.sendCommand(attValue);
@@ -214,8 +210,6 @@ export class ExpressTest {
 
           let intervalChecker: NodeJS.Timeout;
 
-          // let valid: boolean = true;
-
           const startTest = async () => {
             intervalChecker = setInterval(async () => {
               valid = await validator();
@@ -224,8 +218,6 @@ export class ExpressTest {
                 clearInterval(intervalChecker);
               }
             }, 5000);
-
-            // await delay(this.duration);
 
             const start = Date.now();
             while (Date.now() - start < this.duration) {
@@ -237,10 +229,7 @@ export class ExpressTest {
 
             clearInterval(intervalChecker);
           };
-
-          // broadcaster(JSON.stringify({status: 'testingMod'}));
           await startTest();
-          // broadcaster(JSON.stringify({status: 'stopTestingMod'}));
 
           await sshClient.sendCommand("bert stop");
           await delay(2000);
@@ -261,9 +250,9 @@ export class ExpressTest {
           const snr = await snmpClient.getFromSubscriber(
             "1.3.6.1.4.1.19707.7.7.2.1.3.1.0"
           );
-          let verdict = "Пройдено";
-          if (0.1 < errorRate || !valid) {
-            verdict = "Не пройдено";
+          let verdict = "Не пройдено";
+          if (0.1 >= errorRate && valid) {
+            verdict = "Пройдено";
           }
           dataArray[dataArray.length - 1] = {
             Modulation: modName[i],
@@ -288,19 +277,9 @@ export class ExpressTest {
         message = { testid: "expresstest", status: "error exec" };
         result = "Провал";
       }
-      await mongoClient.saveTest(dataArray, "Экспресс тест", "m1", result);
+      await mongoClient.saveTest(dataArray, "Экспресс тест", statVer, result);
       broadcaster(JSON.stringify(message));
       resolve();
     });
-  }
-
-  public jsonParser() {
-    return {
-      name: "expresstest",
-      duration: this.duration / 1000,
-      bandwidth: this.bandwidth,
-      offset: this.offset,
-      baseAtt: this.baseAtt,
-    };
   }
 }

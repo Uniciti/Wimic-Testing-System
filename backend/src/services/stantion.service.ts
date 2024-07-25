@@ -46,19 +46,7 @@ export class SNMPClient {
     this.disconnect();
     this.baseHost = baseHost;
     this.subscriberHost = subscriberHost;
-    // this.connect();
   }
-
-  // public async checkConnect(): Promise<[boolean, boolean]> {
-  //   try {
-  //     const res0 = await ping.promise.probe(this.baseHost);
-  //     const res1 = await ping.promise.probe(this.subscriberHost);
-  //     return [res0.alive && (this.baseSession != null), res1.alive && (this.subscriberSession != null)];
-  //   } catch (error) {
-  //     console.error(`Ping error: ${error}`);
-  //     return [false, false];
-  //   }
-  // }
 
   public async checkConnect(): Promise<[boolean, boolean]> {
     const maxAttempts = 5;
@@ -99,13 +87,6 @@ export class SNMPClient {
       return [false, false];
     }
   }
-  // public async checkBaseConnect(): Promise<boolean> {
-  //   return this.checkConnect(this.baseHost);
-  // }
-
-  // public async checkSubscriberConnect(): Promise<boolean> {
-  //   return this.checkConnect(this.subscriberHost);
-  // }
 
   public getFromBase(oid: string): Promise<string> {
     if (!this.baseSession) {
@@ -197,8 +178,6 @@ export class SNMPClient {
     }
   }
 }
-
-// , version: snmp.Version , snmp.Version[`${SNMP_VERSION}`] type: snmp.ObjectType,
 
 export const snmpClient = new SNMPClient(
   BASE_HOST,

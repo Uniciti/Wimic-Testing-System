@@ -171,28 +171,6 @@ export async function writeDataToExcel(
   console.log(`File saved as: ${filePath}`);
 }
 
-// export function writeDataToExcel(newData: any[],  testName: string): void {
-// 	// const filePath = path.join(__dirname, 'test.xlsx');
-// 	const worksheet = XLSX.utils.json_to_sheet(newData);
-// 	const workbook = XLSX.utils.book_new();
-//   	XLSX.utils.book_append_sheet(workbook, worksheet, testName);
-
-//     const date = new Date();
-//     const dateString = date.toISOString().split('T')[0];
-//     const timeString = date.toTimeString().split(' ')[0].replace(/:/g, '-');
-//     const uniqueFileName = `${testName} ${dateString} ${timeString}.xlsx`;
-//     const filePath = path.join(pathToFile, uniqueFileName);
-
-//   	XLSX.writeFile(workbook, filePath);
-//     console.log(`File saved as: ${filePath}`);
-
-// }
-
-// export function setPathName(path: string, name: string) {
-//     pathToFile = (path || os.homedir()) || "/home/vlad/";
-//     fileName = (name + ".xlsx") || "test.xlsx";
-// }
-
 export async function setFreq(frequency: number): Promise<void> {
   snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.13.0", frequency * 1000);
   await delay(1000);

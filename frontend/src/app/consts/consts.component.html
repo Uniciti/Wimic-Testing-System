@@ -3,7 +3,7 @@
 
   <div class="mb-4">
     <label for="model" class="block mb-2">Выберите Модель:</label>
-    <select id="model" [(ngModel)]="selectedModel" class="block w-full p-2 border border-gray-300 rounded">
+    <select id="model" [(ngModel)]="selectedModel" class="block w-full p-2 border border-gray-300 rounded bg-white">
       <option *ngFor="let model of models" [value]="model">{{ model }}</option>
     </select>
   </div>
@@ -33,8 +33,8 @@
     </table>
   </div>
   
-  <div class="flex justify-end mt-4">
-    <button (click)="closeDialog()" class="bg-gray-500 text-white py-2 px-4 rounded mr-2">Закрыть</button>
-    <button (click)="applySettings()" class="bg-blue-500 text-white py-2 px-4 rounded">Применить Настройки</button>
+  <div class="flex justify-start mt-4">
+    <button (click)="applySettings()" class="bg-green-500 text-white font-bold py-1 px-3 rounded mr-2">Применить Настройки</button>
+    <button (click)="closeDialog()" class="bg-red-500 text-white font-bold py-1 px-3 rounded">Закрыть</button>
   </div>
 </div>

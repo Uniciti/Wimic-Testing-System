@@ -14,7 +14,7 @@ export class MongoClient {
   public async connect(): Promise<void> {
     try {
       await mongoose.connect(this.bdUrl);
-      console.log("Database connected");
+      // console.log("Database connected");
     } catch (error) {
       console.log(error);
     }
@@ -22,6 +22,7 @@ export class MongoClient {
 
   public async disconnect(): Promise<void> {
     await mongoose.disconnect();
+    // console.log("Database disconnected");
   }
 
   public async saveTest(
@@ -72,7 +73,7 @@ export class MongoClient {
   public async deleteTest(date: string, time: string): Promise<void> {
     try {
       await this.model.findOneAndDelete({ date, time });
-      console.log("Data deleted from MongoDB successfully");
+      // console.log("Data deleted from MongoDB successfully");
     } catch (error) {
       console.error(error);
     }

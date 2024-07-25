@@ -17,10 +17,8 @@ app.use(express.urlencoded({ extended: true }));
 app.get("*", (req: Request, res: Response) => {
   res.sendFile(path.join(distDir, "index.html"));
 });
-// app.use('/att', attRoutes); В данной реализации предполагается использование веб-сокетов
 
 const server = http.createServer(app);
-// сейчас и сокет и веб-сервер работают на одном порту, возможно стоит переписать
 setupWebSocketServer(server);
 
 export { app, server };

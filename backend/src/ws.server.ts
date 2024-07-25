@@ -45,20 +45,10 @@ export function setupWebSocketServer(server: any) {
           model,
           modulations,
         } = parsedMessage;
-        console.log(parsedMessage);
-        // console.log(parsedMessage.type);
-        // console.log(parsedMessage.params);
-        // console.log(parsedMessage.params[0].modulation);
-        // console.log(parsedMessage.params[1].modulation);
-        // console.log(parsedMessage.params[0].frequncy);
-        // console.log(parsedMessage.params[1]);
-        // console.log(parsedMessage.command);
-        // console.log(parsedMessage.command[0]);
-        // console.log(parsedMessage.command.pa1);
         const device = devices[deviceId] || "connectChecker";
 
         if (!device) {
-          ws.send(
+          broadcaster(
             JSON.stringify({
               type: "error",
               message: `Device ${deviceId} not found`,
@@ -67,25 +57,16 @@ export function setupWebSocketServer(server: any) {
 
           return;
         }
-        // большая часть команд является отладочными и не будет использоваться в конечном продукте
         switch (type) {
-          // case 'stat-ip-switch':
-
-          // case 'set-path':
-          //   setPathName(path, filename);
-          //   ws.send(JSON.stringify({ "path": (path + "/" + filename + ".xlsx").toString() }));
-          //   break;
 
           case "changeFrequency":
             await setFreq(command.frequency);
             broadcaster(JSON.stringify({ status: "sended" }));
-            // await validator();
             break;
 
           case "changeIP":
             snmpClient.changeIp(command.baseIP, command.abonentIP);
             await delay(300);
-            // broadcaster(JSON.stringify({type: 'sended'}));
             broadcaster(
               JSON.stringify({
                 status: "sended",
@@ -94,7 +75,6 @@ export function setupWebSocketServer(server: any) {
                 pingStat1: false,
               })
             );
-            // await validator();
             break;
 
           case "test":
@@ -147,8 +127,6 @@ export function setupWebSocketServer(server: any) {
                 console.log("Cant find this test pattern");
               }
             }
-            // queue.showContent();
-
             await delay(300);
             queue.start();
 
@@ -156,7 +134,7 @@ export function setupWebSocketServer(server: any) {
 
           case "connect":
             const conStatus = await device.connect();
-            ws.send(JSON.stringify({ type: "connect", deviceId, conStatus }));
+            broadcaster(JSON.stringify({ type: "connect", deviceId, conStatus }));
             break;
 
           case "get-data":
@@ -172,13 +150,11 @@ export function setupWebSocketServer(server: any) {
 
           case "set-settings":
             setConsts(model, modulations);
-            console.log(message);
             broadcaster(JSON.stringify({ settings: "set-ok" }));
             break;
 
           case "get-settings":
             const [res, ver] = getConsts();
-            console.log(res, ver);
             broadcaster(
               JSON.stringify({
                 settings: "get-settings",
@@ -187,79 +163,10 @@ export function setupWebSocketServer(server: any) {
               })
             );
             break;
-          // case "get-test":
-          //   await mongoClient.connect();
-          //   const table = await mongoClient.getByDate("2024-07-19", "15:13");
-          //   console.log(table);
-          //   console.log(table ? table[0] : null);
-          //   console.log(table ? table[0].data[0] : null);
-          //   await mongoClient.deleteTest("2024-07-19", "15:13");
-          //   const table1 = await mongoClient.getByDate("2024-07-19", "15:13");
-          //   console.log(table1);
-          //   console.log(table1 ? table1[0] : null);
-          //   console.log(table1 ? table1[0].data[0] : null);
-          //   await mongoClient.disconnect();
-
-          //   break;
-
-          // case "stat-test":
-          //   const ver = await snmpClient.getFromSubscriber(
-          //     "1.3.6.1.4.1.19707.7.7.2.1.3.99.0"
-          //   );
-          //   console.log(ver);
-          //   console.log(ver > "2.7.6");
-          //   console.log(ver > "2.7.4");
-          //   console.log(ver < "2.8.6");
-          //   console.log(ver < "2.8.4");
-          //   console.log(typeof ver);
-          //   break;
-
-          // case "stat-ban1":
-          //   snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
-          //   console.log("t11");
-          //   await delay(1000);
-          //   snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 3);
-          //   console.log("t12");
-          //   await delay(4000);
-
-          //   snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-          //   snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-          //   await delay(4000);
-
-          //   break;
-
-          // case "stat-ban2":
-          //   snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
-          //   console.log("t21");
-          //   await delay(1000);
-          //   snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.56.0", 5);
-          //   console.log("t22");
-          //   await delay(4000);
-
-          //   snmpClient.setToBase("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-          //   snmpClient.setToSubscriber("1.3.6.1.4.1.19707.7.7.2.1.4.102.0", 1);
-          //   await delay(4000);
-
-          //   break;
-
-          // case "test-m3m":
-          //   const pullman = await comClient.receiveData();
-          //   const pullman2 = await getPower(16500);
-          //   console.log(pullman);
-          //   console.log(pullman2);
-          //   break;
-
-          // case "fuck-go-back":
-          //   queue.stop();
-          //   break;
-
-          // case "fuck-go-forward":
-          //   queue.start();
-          //   break;
-
+          
           case "disconnect":
             device.disconnect();
-            ws.send(JSON.stringify({ type: "disconnect", deviceId }));
+            broadcaster(JSON.stringify({ type: "disconnect", deviceId }));
             break;
 
           case "is-connected":
@@ -296,16 +203,14 @@ export function setupWebSocketServer(server: any) {
               }
             }
 
-            ws.send(JSON.stringify(response));
+            broadcaster(JSON.stringify(response));
             break;
 
           default:
-            ws.send(
-              JSON.stringify({ type: "error", message: "Unknown command" })
-            );
+            broadcaster(JSON.stringify({ type: "error", message: "Unknown command" }));
         }
       } catch (err) {
-        ws.send(JSON.stringify({ type: "error", message: "ws error" }));
+        broadcaster(JSON.stringify({ type: "error", message: "ws error" }));
       }
     });
 
@@ -325,7 +230,6 @@ export function broadcaster(data: any) {
 
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
-      console.log(data);
       client.send(data);
     }
   });

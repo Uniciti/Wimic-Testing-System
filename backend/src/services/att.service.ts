@@ -48,11 +48,6 @@ export class TcpClient {
     });
   }
 
-  // private setupListeners(): void {
-  //   if (!this.client) return;
-
-  // }
-
   public connect(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (this.isConnected) return;
@@ -60,8 +55,6 @@ export class TcpClient {
       console.log(
         `Attempting to connect to TCP server at ${this.host}:${this.port}...`
       );
-
-      // this.setupListeners()
 
       const connectionTimeout = setTimeout(() => {
         console.error("Connection timed out.");
@@ -109,7 +102,6 @@ export class TcpClient {
           reject(error);
         }
 
-        // Wait for 1500 milliseconds before resolving
         setTimeout(() => {
           resolve();
         }, 2000);
@@ -151,22 +143,6 @@ export class TcpClient {
       } catch (error: any) {
         reject(`Failed to send command: ${error.message}`);
       }
-
-      // console.log(`Sending command: ${command}`);
-      // this.client.write(command, (error) => {
-      //   if (error) {
-      //     return reject(error);
-      //   }
-
-      //   this.client.once('data', (data) => {
-      //     console.log('Received attenuator value:', data.toString());
-      //     resolve(data.toString());
-      //   });
-
-      //   this.client.once('error', (error) => {
-      //     reject(error);
-      //   });
-      // });
     });
   }
 
@@ -209,34 +185,8 @@ export class TcpClient {
         reject(`TCP server error: ${error.message}`);
       }
 
-      // this.client.write(command, (error) => {
-      //   if (error) {
-      //     this.isConnected = false;
-      //     return reject(error);
-      //   }
-
-      //   const timeout = setTimeout(() => {
-      //     this.isConnected = false;
-      //     console.log('Connection check timeout. Attenuator may be disconnected.');
-      //     resolve(false);
-      //   }, 1000);
-
-      //   this.client.once('data', () => {
-      //     clearTimeout(timeout);
-      //     resolve(true);
-      //   });
-
-      //   this.client.once('error', (error) => {
-      //     clearTimeout(timeout);
-      //     this.isConnected = false;
-      //     reject(error);
-      //   });
-      // });
     });
   }
 }
-
-// {"type":"connect", "deviceId":"attenuator"}
-// {"type":"is-connected", "deviceId":"attenuator"}
 
 export const tcpClient = new TcpClient(ATTENUATOR_HOST, ATTENUATOR_PORT);

@@ -1,4 +1,4 @@
-import { speed10, sens10, speed20, sens20, modName } from "./consts.logic";
+import { speed10, sens10, speed20, sens20, modName, statVer } from "./consts.logic";
 
 import { tcpClient, TcpClient } from "../services/att.service";
 import { sshClient, SSHClient } from "../services/bert.service";
@@ -21,7 +21,6 @@ import { broadcaster } from "../ws.server";
 import "dotenv/config";
 
 export class FullTest {
-  // private m3mPow: number = 0;
   private offset: number = 0;
   private baseAtt: number = 0;
 
@@ -65,8 +64,6 @@ export class FullTest {
     if (!this.frequency) {
       return;
     }
-
-    console.log(this.frequency * 1000);
     await snmpClient.setToBase(
       "1.3.6.1.4.1.19707.7.7.2.1.4.13.0",
       this.frequency * 1000
@@ -108,7 +105,6 @@ export class FullTest {
     }
 
     let firstTime: boolean = true;
-    console.log("pullman time");
     return new Promise((resolve, reject) => {
       let pingStat0: boolean;
       let pingStat1: boolean;
@@ -193,7 +189,7 @@ export class FullTest {
         let errorRate: number = 0;
 
         let pinVerdict = "Чуствительность соответствует";
-        let verdict = "Пройдено";
+        let verdict = "Не пройдено";
         let pinN = 0;
         let pinV = "";
 
@@ -271,8 +267,6 @@ export class FullTest {
 
             let intervalChecker: NodeJS.Timeout;
 
-            // let valid: boolean = true;
-
             const startTest = async () => {
               intervalChecker = setInterval(async () => {
                 valid = await validator();
@@ -292,9 +286,7 @@ export class FullTest {
 
               clearInterval(intervalChecker);
             };
-            // broadcaster(JSON.stringify({status: 'testingMod'}));
             await startTest();
-            // broadcaster(JSON.stringify({status: 'stopTestingMod'}));
 
             await sshClient.sendCommand("bert stop");
             await delay(2000);
@@ -367,8 +359,6 @@ export class FullTest {
             };
 
             await startTest();
-
-            // await delay(10000);
 
             await sshClient.sendCommand("bert stop");
             await delay(2000);
@@ -446,9 +436,7 @@ export class FullTest {
 
               clearInterval(intervalChecker);
             };
-            // broadcaster(JSON.stringify({status: 'testingMod'}));
             await startTest();
-            // broadcaster(JSON.stringify({status: 'stopTestingMod'}));
 
             await sshClient.sendCommand("bert stop");
             await delay(2000);
@@ -472,8 +460,8 @@ export class FullTest {
         const snr = await snmpClient.getFromSubscriber(
           "1.3.6.1.4.1.19707.7.7.2.1.3.1.0"
         );
-        if (0.1 < errorRate || !valid) {
-          verdict = "Не пройдено";
+        if (0.1 >= errorRate && valid) {
+          verdict = "Пройдено";
         }
         if (pinN < this.sens[i] || !valid) {
           pinVerdict = "Чуствительность не соответствует";
@@ -505,19 +493,9 @@ export class FullTest {
         message = { testid: "fulltest", status: "error exec" };
         result = "Провал";
       }
-      await mongoClient.saveTest(dataArray, "Полный тест", "m1", result);
+      await mongoClient.saveTest(dataArray, "Полный тест", statVer, result);
       broadcaster(JSON.stringify(message));
       resolve();
     });
-  }
-
-  public jsonParser() {
-    return {
-      name: "fulltest",
-      duration: this.duration / 1000,
-      bandwidth: this.bandwidth,
-      offset: this.offset,
-      baseAtt: this.baseAtt,
-    };
   }
 }

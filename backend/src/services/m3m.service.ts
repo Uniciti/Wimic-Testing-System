@@ -85,7 +85,6 @@ export class COMClient {
     });
 
     this.port?.on("error", (err) => {
-      // this.isConnected = false;
       console.error(`Error on COM port ${this.portPath}: ${err.message}`);
 
       if (this.commandReject) {
@@ -120,24 +119,6 @@ export class COMClient {
       await delay(100);
 
       resolve(this.isConnected);
-
-      // this.port.once('open', () => {
-      //   this.isConnected = true;
-      //   console.log(`COM port ${this.portPath} is open.`);
-      //   resolve(true);
-      // });
-
-      // this.port.on('close', () => {
-      //   this.isConnected = false;
-      //   console.log(`COM port ${this.portPath} is closed.`);
-      //   resolve(false);
-      // });
-
-      // this.port.once('error', (err) => {
-      //   this.isConnected = false;
-      //   console.error(`Error on COM port ${this.portPath}: ${err.message}`);
-      //   reject(err);
-      // });
     });
   }
 
