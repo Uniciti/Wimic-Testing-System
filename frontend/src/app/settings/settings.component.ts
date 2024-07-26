@@ -88,7 +88,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   downloadJSONWithSettings() {
     const tests = this.testService.getTests();
-    if (this.settingsData) {
+    if (tests) {
       const jsonDataSettings = [...tests, this.settingsData];
       const blob = new Blob([JSON.stringify(jsonDataSettings, null, 2)], {
         type: "application/json",
